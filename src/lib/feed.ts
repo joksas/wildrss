@@ -1,0 +1,50 @@
+import { createServerFn } from "@tanstack/react-start";
+import { XMLParser } from "fast-xml-parser";
+import * as z from "zod";
+import { getContext } from "@/providers";
+
+/** XML */
+type _XML<K extends readonly string[], L extends readonly string[]> = {
+  [P in K[number]]: string | undefined;
+} & {
+  [P in L[number]]: Record<string, string>;
+} & {
+  [P in Exclude<Exclude<string, K[number]>, L[number]>]: _XML<K, L>[];
+};
+export type XML = _XML<["@text"], ["@attributes"]>;
+
+/** Fetch RSS feed */
+export function fetchFeed(url: string): Promise<string> {
+  const { queryClient } = getContext();
+  return queryClient.fetchQuery({
+    queryKey: ["feed", url],
+    queryFn: () => _fetchFeed({ data: url }),
+    retry: 3,
+  });
+}
+
+/** Parse RSS feed */
+export function parseFeed(xml_string: string): XML {
+  "use client";
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+    alwaysCreateTextNode: true,
+    transformTagName: (name) => name.toLocaleLowerCase(),
+    transformAttributeName: (name) => name.toLocaleLowerCase(),
+    attributesGroupName: "@attributes",
+    textNodeName: "@text",
+    attributeNamePrefix: "",
+    isArray: () => true,
+  });
+  const xml = parser.parse(xml_string) as XML;
+  return xml;
+}
+
+const _fetchFeed = createServerFn()
+  .inputValidator(z.string())
+  .handler(async ({ data: url }) => {
+    const res = await fetch(url);
+    if (res.status !== 200) throw Error(`Status ${res.status}`);
+    const body = await res.text();
+    return body;
+  });

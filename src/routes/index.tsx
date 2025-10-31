@@ -1,66 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { XMLParser } from "fast-xml-parser";
 import { useState } from "react";
+import { fetchFeed, parseFeed } from "@/lib/feed";
+import { type Test, type TestResult, TestResultIcon } from "@/lib/tests/_index";
+import { testTitle } from "@/lib/tests/title";
+import { testValue } from "@/lib/tests/value";
 
 export const Route = createFileRoute("/")({ component: App });
 
-const URL = "https://feeds.fountain.fm/XFlRiU4hNCUBSuXmzYeu";
-
-type TestResult =
-  | { status: "pending" }
-  | { status: "running" }
-  | { status: "passed" }
-  | { status: "failed"; error: string; path: string[] };
-
-export type _XML<K extends readonly string[], L extends readonly string[]> = {
-  [P in K[number]]: string | undefined;
-} & {
-  [P in L[number]]: Record<string, string>;
-} & {
-  [P in Exclude<Exclude<string, K[number]>, L[number]>]: _XML<K, L>[];
-};
-type XML = _XML<["@text"], ["@attributes"]>;
-
-const TESTS: {
-  name: string;
-  test: (
-    xml: XML,
-  ) => Promise<TestResult & ({ status: "passed" } | { status: "failed" })>;
-}[] = [
-  {
-    name: "Title tag",
-    test: async (xml) => {
-      const titleTag = xml.rss.at(0)?.channel.at(0)?.title.at(0);
-      if (!titleTag)
-        return {
-          status: "failed",
-          error: "Missing <title>",
-          path: ["rss", "channel"],
-        };
-      const title = titleTag["@text"];
-      if (!title)
-        return {
-          status: "failed",
-          error: "Missing <title> value",
-          path: ["rss", "channel", "title"],
-        };
-      return { status: "passed" };
-    },
-  },
-  {
-    name: "podcast:value tag",
-    test: async (xml) => {
-      const valueTag = xml.rss.at(0)?.channel.at(0)?.["podcast:value"].at(0);
-      if (!valueTag)
-        return {
-          status: "failed",
-          error: "Missing <podcast:value>",
-          path: ["rss", "channel", "podcast:value"],
-        };
-      return { status: "passed" };
-    },
-  },
-];
+const URL = "https://www.feed.behindthesch3m3s.com/feed.xml";
+const TESTS: Test[] = [testTitle, testValue];
 
 function App() {
   const [testResults, setTestResults] = useState<TestResult[]>(
@@ -73,19 +21,8 @@ function App() {
       setRunning(true);
       setTestResults(TESTS.map((_) => ({ status: "pending" })));
 
-      const content = await (await fetch(URL)).text();
-      const parser = new XMLParser({
-        ignoreAttributes: false,
-        alwaysCreateTextNode: true,
-        transformTagName: (name) => name.toLocaleLowerCase(),
-        transformAttributeName: (name) => name.toLocaleLowerCase(),
-        attributesGroupName: "@attributes",
-        textNodeName: "@text",
-        attributeNamePrefix: "",
-        isArray: () => true,
-      });
-      const xml = parser.parse(content) as XML;
-      console.log(xml);
+      const xml_string = await fetchFeed(URL);
+      const xml = parseFeed(xml_string);
 
       for (let i = 0; i < TESTS.length; i++) {
         setTestResults((prev) =>
@@ -114,21 +51,18 @@ function App() {
       >
         {running ? "Running tests..." : "Validate feed"}
       </button>
-      <ul className="list-none space-y-1">
+      <ul className="flex list-none flex-col gap-1">
         {TESTS.map((test, index) => {
           const result = testResults[index];
-          const status_icon =
-            result?.status === "running"
-              ? "⏳"
-              : result?.status === "passed"
-                ? "✅"
-                : result?.status === "failed"
-                  ? "❌"
-                  : "⚪";
 
           return (
-            <li key={test.name} className="flex items-start gap-2">
-              <span>{status_icon}</span>
+            <li key={test.name} className="flex items-center gap-1">
+              <TestResultIcon
+                status={result.status}
+                size={20}
+                weight="fill"
+                className="flex-none"
+              />
               <div className="flex-1">
                 <span className="font-medium">{test.name}</span>
                 {result.status === "failed" && (

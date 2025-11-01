@@ -22,7 +22,10 @@ export type TestResult =
   | { status: "pending" }
   | { status: "running" }
   | { status: "passed" }
-  | { status: "failed"; error: string; path: string[] };
+  | { status: "failed"; error: string; path: Path };
+
+/** Test error path */
+export type Path = [tag: string, index: number][];
 
 export function TestResultIcon({
   status,

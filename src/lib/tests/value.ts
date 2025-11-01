@@ -8,7 +8,10 @@ export const testValue: Test = {
       return {
         status: "failed",
         error: "Missing <podcast:value>",
-        path: ["rss", "channel", "podcast:value"],
+        path: [
+          ["rss", 0],
+          ["channel", 0],
+        ],
       };
     return { status: "passed" };
   },

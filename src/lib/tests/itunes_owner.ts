@@ -12,7 +12,11 @@ export const testItunesOwner: Test = {
       return {
         status: "failed",
         error: `Found ${itunesOwnerTags.length} <itunes:owner> tags; expected 1`,
-        path: ["rss", "channel", "itunes:owner"],
+        path: [
+          ["rss", 0],
+          ["channel", 0],
+          ["itunes:owner", 0],
+        ],
       };
 
     // Other keys
@@ -22,7 +26,12 @@ export const testItunesOwner: Test = {
         return {
           status: "failed",
           error: `Unexpected child: <${key} />`,
-          path: ["rss", "channel", "itunes:owner", key],
+          path: [
+            ["rss", 0],
+            ["channel", 0],
+            ["itunes:owner", 0],
+            [key, 0],
+          ],
         };
     }
 

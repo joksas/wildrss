@@ -8,14 +8,21 @@ export const testTitle: Test = {
       return {
         status: "failed",
         error: "Missing <title>",
-        path: ["rss", "channel"],
+        path: [
+          ["rss", 0],
+          ["channel", 0],
+        ],
       };
     const title = titleTag["@text"];
     if (!title)
       return {
         status: "failed",
         error: "Missing <title> value",
-        path: ["rss", "channel", "title"],
+        path: [
+          ["rss", 0],
+          ["channel", 0],
+          ["title", 0],
+        ],
       };
     return { status: "passed" };
   },

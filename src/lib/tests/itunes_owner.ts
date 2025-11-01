@@ -1,9 +1,9 @@
-import type { Test } from "./_index";
+import type { Test, TestArgs } from "./_index";
 
 const ALLOWED_CHILDREN = ["itunes:name", "itunes:email"];
 export const testItunesOwner: Test = {
   name: "itunes:owner tag",
-  test: async (xml) => {
+  test: async ({ xml }: TestArgs) => {
     // itunes:owner
     const itunesOwnerTags = xml.rss.at(0)?.channel.at(0)?.["itunes:owner"];
     const itunesOwnerTag = itunesOwnerTags?.at(0);

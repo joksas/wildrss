@@ -3,6 +3,7 @@ import { useState } from "react";
 import { XmlPathPreview } from "@/components/XMLPathPreview";
 import { fetchFeed, parseFeed, type XML } from "@/lib/feed";
 import { type Test, type TestResult, TestResultIcon } from "@/lib/tests/_index";
+import { testCORS } from "@/lib/tests/cors";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
 import { testTitle } from "@/lib/tests/title";
 import { testValue } from "@/lib/tests/value";
@@ -10,7 +11,7 @@ import { testValue } from "@/lib/tests/value";
 export const Route = createFileRoute("/")({ component: App });
 
 const URL = "https://www.feed.behindthesch3m3s.com/feed.xml";
-const TESTS: Test[] = [testTitle, testValue, testItunesOwner];
+const TESTS: Test[] = [testTitle, testValue, testItunesOwner, testCORS];
 
 function App() {
   const [xml, setXML] = useState<XML | undefined>();
@@ -24,8 +25,8 @@ function App() {
       setRunning(true);
       setTestResults(TESTS.map((_) => ({ status: "pending" })));
 
-      const xml_string = await fetchFeed(URL);
-      const _xml = parseFeed(xml_string);
+      const { content, required_server } = await fetchFeed(URL);
+      const _xml = parseFeed(content);
       setXML(_xml);
 
       for (let i = 0; i < TESTS.length; i++) {
@@ -33,7 +34,7 @@ function App() {
           prev.map((p, _idx) => (_idx === i ? { status: "running" } : p)),
         );
 
-        const result = await TESTS[i].test(_xml);
+        const result = await TESTS[i].test({ xml: _xml, required_server });
 
         setTestResults((prev) =>
           prev.map((p, _idx) => (_idx === i ? result : p)),
@@ -75,11 +76,9 @@ function App() {
                       {" "}
                       {result.error}
                     </span>
-                    <span className="text-gray-500 text-sm">
-                      {" "}
-                      ({result.path.join(" → ")})
-                    </span>
-                    {xml && <XmlPathPreview xml={xml} path={result.path} />}
+                    {xml && result.path && (
+                      <XmlPathPreview xml={xml} path={result.path} />
+                    )}
                   </>
                 )}
               </span>

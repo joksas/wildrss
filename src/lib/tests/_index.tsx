@@ -13,16 +13,19 @@ import type { XML } from "../feed";
 export type Test = {
   name: string;
   test: (
-    xml: XML,
+    args: TestArgs,
   ) => Promise<TestResult & ({ status: "passed" } | { status: "failed" })>;
 };
 
-/** Result of a {@link Test | test} */
+/** Test arguments */
+export type TestArgs = { xml: XML; required_server: boolean };
+
+/** Result of a test */
 export type TestResult =
   | { status: "pending" }
   | { status: "running" }
   | { status: "passed" }
-  | { status: "failed"; error: string; path: Path };
+  | { status: "failed"; error: string; path?: Path };
 
 /** Test error path */
 export type Path = [tag: string, index: number][];

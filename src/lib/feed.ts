@@ -15,20 +15,26 @@ type _XML<K extends readonly string[], L extends readonly string[]> = {
 export type XML = _XML<["@text"], ["@attributes"]>;
 
 /** Fetch RSS feed */
-export function fetchFeed(url: string): Promise<string> {
+export function fetchFeed(
+  url: string,
+): Promise<{ content: string; required_server: boolean }> {
   const { queryClient } = getContext();
   return queryClient.fetchQuery({
     queryKey: ["feed", url],
-    queryFn: async (): Promise<string> => {
+    queryFn: async (): Promise<{
+      content: string;
+      required_server: boolean;
+    }> => {
       try {
-        return await _fetchFeed({ data: url });
+        const content = await _fetchFeed({ data: url });
+        return { content, required_server: false };
       } catch (error) {
         if (isServer) throw error;
         console.error(error);
         console.info(`Retrying fetch for ${url} via server`);
-        const feed = await _fetchFeedServer({ data: url });
+        const content = await _fetchFeedServer({ data: url });
         console.info(`Successfully fetched ${url} via server`);
-        return feed;
+        return { content, required_server: true };
       }
     },
     retry: 3,

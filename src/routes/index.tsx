@@ -1,5 +1,14 @@
+import { KeyReturnIcon } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import {
+  Button,
+  Disclosure,
+  DisclosurePanel,
+  Heading,
+  Input,
+  TextField,
+} from "react-aria-components";
 import { XmlPathPreview } from "@/components/XMLPathPreview";
 import { fetchFeed, parseFeed, type XML } from "@/lib/feed";
 import { type Test, type TestResult, TestResultIcon } from "@/lib/tests/_index";
@@ -10,10 +19,11 @@ import { testValue } from "@/lib/tests/value";
 
 export const Route = createFileRoute("/")({ component: App });
 
-const URL = "https://www.feed.behindthesch3m3s.com/feed.xml";
+const DEFAULT_URL = "https://www.feed.behindthesch3m3s.com/feed.xml";
 const TESTS: Test[] = [testTitle, testValue, testItunesOwner, testCORS];
 
 function App() {
+  const [url, setURL] = useState(DEFAULT_URL);
   const [xml, setXML] = useState<XML | undefined>();
   const [testResults, setTestResults] = useState<TestResult[]>(
     TESTS.map((_) => ({ status: "pending" })),
@@ -25,7 +35,7 @@ function App() {
       setRunning(true);
       setTestResults(TESTS.map((_) => ({ status: "pending" })));
 
-      const { content, required_server } = await fetchFeed(URL);
+      const { content, required_server } = await fetchFeed(url);
       const _xml = parseFeed(content);
       setXML(_xml);
 
@@ -46,46 +56,62 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col gap-2 px-3 py-5">
-      <h1 className="font-bold text-2xl">Homepage</h1>
-      <button
-        className="w-fit cursor-pointer border border-sky-950 bg-sky-100 px-3 py-2 font-bold text-sky-950 disabled:cursor-not-allowed disabled:opacity-50"
-        type="button"
-        onClick={runTests}
-        disabled={running}
+    <div className="flex flex-col gap-2 px-3 py-3">
+      <h1 className="text-center font-bold text-5xl">Wild Wild RSS</h1>
+      <TextField
+        value={url}
+        onChange={setURL}
+        className="mx-auto flex w-[300px] items-center border border-black bg-white/75 px-3 py-2 font-serif text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
       >
-        {running ? "Running tests..." : "Validate feed"}
-      </button>
-      <ul className="flex list-none flex-col gap-1">
+        <Input
+          className="grow truncate focus:outline-none"
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            (window.document.activeElement as HTMLInputElement).blur();
+            runTests();
+          }}
+        />
+        {(url.startsWith("http://") || url.startsWith("https://")) && (
+          <KeyReturnIcon size={28} />
+        )}
+      </TextField>
+      <div className="flex list-none flex-col gap-1">
         {TESTS.map((test, index) => {
           const result = testResults[index];
 
           return (
-            <li key={test.name} className="flex items-center gap-1">
-              <TestResultIcon
-                status={result.status}
-                size={20}
-                weight="fill"
-                className="flex-none"
-              />
-              <span className="font-medium">
-                {test.name}
+            <Disclosure key={test.name}>
+              <Heading className="flex items-center gap-1">
+                <TestResultIcon
+                  status={result.status}
+                  size={20}
+                  weight="fill"
+                  className="flex-none"
+                />
+                <span className="font-medium">{test.name}</span>
+                {result.status === "failed" && (
+                  <Button
+                    slot="trigger"
+                    className="cursor-pointer text-inherit underline"
+                  >
+                    Show error
+                  </Button>
+                )}
+              </Heading>
+              <DisclosurePanel>
                 {result.status === "failed" && (
                   <>
-                    <span className="text-red-600 text-sm">
-                      {" "}
-                      {result.error}
-                    </span>
+                    {result.error}
                     {xml && result.path && (
                       <XmlPathPreview xml={xml} path={result.path} />
                     )}
                   </>
                 )}
-              </span>
-            </li>
+              </DisclosurePanel>
+            </Disclosure>
           );
         })}
-      </ul>
+      </div>
     </div>
   );
 }

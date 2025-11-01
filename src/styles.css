@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+@import "@fontsource/rye";
+
+@theme inline {
+    --font-sans: "Rye", sans-serif;
+}

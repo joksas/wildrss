@@ -7,6 +7,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { Background } from "@/components/Background";
 import Header from "../components/Header";
 import appCss from "../styles.css?url";
 
@@ -41,13 +42,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="overscroll-none">
       <head>
         <HeadContent />
       </head>
       <body>
+        <Background />
         <Header />
-        {children}
+        <div className="relative z-10">{children}</div>
         <TanStackDevtools
           config={{
             position: "bottom-right",

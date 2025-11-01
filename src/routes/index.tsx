@@ -62,8 +62,10 @@ function App() {
         value={url}
         onChange={setURL}
         className="mx-auto flex w-[300px] items-center border border-black bg-white/75 px-3 py-2 font-serif text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+        aria-label="Feed URL"
       >
         <Input
+          placeholder="Enter feed URL"
           className="grow truncate focus:outline-none"
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;

@@ -1,3 +1,4 @@
+import { isServer } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { XMLParser } from "fast-xml-parser";
 import * as z from "zod";
@@ -18,7 +19,18 @@ export function fetchFeed(url: string): Promise<string> {
   const { queryClient } = getContext();
   return queryClient.fetchQuery({
     queryKey: ["feed", url],
-    queryFn: () => _fetchFeed({ data: url }),
+    queryFn: async (): Promise<string> => {
+      try {
+        return await _fetchFeed({ data: url });
+      } catch (error) {
+        if (isServer) throw error;
+        console.error(error);
+        console.info(`Retrying fetch for ${url} via server`);
+        const feed = await _fetchFeedServer({ data: url });
+        console.info(`Successfully fetched ${url} via server`);
+        return feed;
+      }
+    },
     retry: 3,
   });
 }
@@ -40,11 +52,15 @@ export function parseFeed(xml_string: string): XML {
   return xml;
 }
 
-const _fetchFeed = createServerFn()
+async function _fetchFeed({ data: url }: { data: string }): Promise<string> {
+  const res = await fetch(url);
+  if (res.status !== 200) throw Error(`Status ${res.status}`);
+  const body = await res.text();
+  return body;
+}
+const _fetchFeedServer = createServerFn()
   .inputValidator(z.string())
-  .handler(async ({ data: url }) => {
-    const res = await fetch(url);
-    if (res.status !== 200) throw Error(`Status ${res.status}`);
-    const body = await res.text();
-    return body;
+  .handler(async ({ data }) => {
+    "use server";
+    return _fetchFeed({ data });
   });

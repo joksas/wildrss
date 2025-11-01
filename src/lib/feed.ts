@@ -41,8 +41,6 @@ export function parseFeed(xml_string: string): XML {
   const parser = new XMLParser({
     ignoreAttributes: false,
     alwaysCreateTextNode: true,
-    transformTagName: (name) => name.toLocaleLowerCase(),
-    transformAttributeName: (name) => name.toLocaleLowerCase(),
     attributesGroupName: "@attributes",
     textNodeName: "@text",
     attributeNamePrefix: "",

@@ -2,13 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { fetchFeed, parseFeed } from "@/lib/feed";
 import { type Test, type TestResult, TestResultIcon } from "@/lib/tests/_index";
+import { testItunesOwner } from "@/lib/tests/itunes_owner";
 import { testTitle } from "@/lib/tests/title";
 import { testValue } from "@/lib/tests/value";
 
 export const Route = createFileRoute("/")({ component: App });
 
 const URL = "https://www.feed.behindthesch3m3s.com/feed.xml";
-const TESTS: Test[] = [testTitle, testValue];
+const TESTS: Test[] = [testTitle, testValue, testItunesOwner];
 
 function App() {
   const [testResults, setTestResults] = useState<TestResult[]>(
@@ -63,19 +64,21 @@ function App() {
                 weight="fill"
                 className="flex-none"
               />
-              <div className="flex-1">
-                <span className="font-medium">{test.name}</span>
+              <span className="font-medium">
+                {test.name}
                 {result.status === "failed" && (
-                  <div className="mt-1 text-red-600 text-sm">
-                    {result.error}
-                    {result.path && (
-                      <span className="ml-2 text-gray-500">
-                        ({result.path.join(" → ")})
-                      </span>
-                    )}
-                  </div>
+                  <>
+                    <span className="text-red-600 text-sm">
+                      {" "}
+                      {result.error}
+                    </span>
+                    <span className="text-gray-500 text-sm">
+                      {" "}
+                      ({result.path.join(" → ")})
+                    </span>
+                  </>
                 )}
-              </div>
+              </span>
             </li>
           );
         })}

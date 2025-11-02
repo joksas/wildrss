@@ -65,6 +65,9 @@ importers:
       ts-pattern:
         specifier: ^5.9.0
         version: 5.9.0
+      usehooks-ts:
+        specifier: ^3.1.1
+        version: 3.1.1(react@19.2.0)
       vite-tsconfig-paths:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.9.3)(vite@7.1.12(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6))
@@ -2524,6 +2527,9 @@ packages:
     resolution: {integrity: sha512-utfs7Pr5uJyyvDETitgsaqSyjCb2qNRAtuqUeWIAKztsOYdcACf2KtARYXg2pSvhkt+9NfoaNY7fxjl6nuMjIQ==}
     engines: {node: '>= 12.0.0'}
 
+  lodash.debounce@4.0.8:
+    resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
+
   loupe@3.2.1:
     resolution: {integrity: sha512-CdzqowRJCeLU72bHvWqwRBBlLcMEtIvGrlvef74kMnV2AolS9Y8xUv1I0U/MNAWMhBlKIoyuEgoJ0t/bbwHbLQ==}
 
@@ -2884,6 +2890,12 @@ packages:
     resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  usehooks-ts@3.1.1:
+    resolution: {integrity: sha512-I4diPp9Cq6ieSUH2wu+fDAVQO43xwtulo+fKEidHUwZPnYImbtkTjzIJYcDcJqxgmX31GVqNFURodvcgHcW0pA==}
+    engines: {node: '>=16.15.0'}
+    peerDependencies:
+      react: ^16.8.0  || ^17 || ^18 || ^19 || ^19.0.0-rc
 
   vite-node@3.2.4:
     resolution: {integrity: sha512-EbKSKh+bh1E1IFxeO0pg1n4dvoOTt0UDiXMd/qn++r98+jPO1xtJilvXldeuQ8giIB5IkpjCgMleHMNEsGH6pg==}
@@ -5936,6 +5948,8 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.30.2
       lightningcss-win32-x64-msvc: 1.30.2
 
+  lodash.debounce@4.0.8: {}
+
   loupe@3.2.1: {}
 
   lru-cache@11.2.2: {}
@@ -6374,6 +6388,11 @@ snapshots:
 
   use-sync-external-store@1.6.0(react@19.2.0):
     dependencies:
+      react: 19.2.0
+
+  usehooks-ts@3.1.1(react@19.2.0):
+    dependencies:
+      lodash.debounce: 4.0.8
       react: 19.2.0
 
   vite-node@3.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6):

@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @import "@fontsource/rye";
+@import "@fontsource-variable/playfair-display";
 
 @theme inline {
-    --font-sans: "Rye", sans-serif;
+    --font-display: "Rye", sans-serif;
+    --font-serif: "Playfair Display Variable", sans-serif;
 }

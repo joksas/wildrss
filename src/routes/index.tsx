@@ -58,17 +58,19 @@ function App() {
 
   return (
     <div className="flex flex-col gap-2 px-3 py-3">
-      <div className="flex h-[200px] w-full flex-col items-center justify-center gap-3">
-        <h1 className="text-center font-bold text-5xl">Wild Wild RSS</h1>
+      <div className="flex h-[125px] w-full flex-col items-center justify-center gap-3">
+        <h1 className="text-center font-bold font-display text-5xl">
+          Wild Wild RSS
+        </h1>
         <TextField
           value={url}
           onChange={setURL}
-          className="flex w-[300px] items-center border border-black bg-white/75 px-3 py-2 font-serif text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+          className="flex w-[300px] items-center border-2 border-black bg-white/60 px-3 py-2 font-serif text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
           aria-label="Feed URL"
         >
           <Input
             placeholder="Enter feed URL"
-            className="grow truncate focus:outline-none"
+            className="grow truncate font-serif focus:outline-none"
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
               (window.document.activeElement as HTMLInputElement).blur();
@@ -82,6 +84,7 @@ function App() {
           {running && <ProgressCircle isIndeterminate size={28} />}
         </TextField>
       </div>
+      <div className="h-[110px] w-full" />
       <div className="flex list-none flex-col gap-1">
         {TESTS.map((test, index) => {
           const result = testResults[index];

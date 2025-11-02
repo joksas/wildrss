@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fontsource-variable/playfair-display':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@fontsource/rye':
         specifier: ^5.2.7
         version: 5.2.7
@@ -730,6 +733,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource-variable/playfair-display@5.2.8':
+    resolution: {integrity: sha512-ZzVIXPOrL85yyOvZYoBzUszIJM+xKkHqni4IYn2CVLaGQQdJR8sBeC8yFNgjxSJ7ludTwta8qpULeOFuk5X75A==}
 
   '@fontsource/rye@5.2.7':
     resolution: {integrity: sha512-WJcc+SkIFMTuLNY6L1Y+WTsUhDanHyUe+ySvpKvgZkZW4xII52/FcG1h0djg1HJbqCRKHIhJEEDfBsKYxe7G5A==}
@@ -3574,6 +3580,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.4':
     optional: true
+
+  '@fontsource-variable/playfair-display@5.2.8': {}
 
   '@fontsource/rye@5.2.7': {}
 

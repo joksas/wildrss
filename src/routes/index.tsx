@@ -14,6 +14,7 @@ import { XmlPathPreview } from "@/components/XMLPathPreview";
 import { fetchFeed, parseFeed, type XML } from "@/lib/feed";
 import { type Test, type TestResult, TestResultIcon } from "@/lib/tests/_index";
 import { testCORS } from "@/lib/tests/cors";
+import { testItunesImage } from "@/lib/tests/itunes_image";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
 import { testTitle } from "@/lib/tests/title";
 import { testValue } from "@/lib/tests/value";
@@ -21,7 +22,13 @@ import { testValue } from "@/lib/tests/value";
 export const Route = createFileRoute("/")({ component: App });
 
 const DEFAULT_URL = "https://www.feed.behindthesch3m3s.com/feed.xml";
-const TESTS: Test[] = [testTitle, testValue, testItunesOwner, testCORS];
+const TESTS: Test[] = [
+  testTitle,
+  testValue,
+  testItunesOwner,
+  testItunesImage,
+  testCORS,
+];
 
 function App() {
   const [url, setURL] = useState(DEFAULT_URL);
@@ -84,7 +91,7 @@ function App() {
           {running && <ProgressCircle isIndeterminate size={28} />}
         </TextField>
       </div>
-      <div className="paper mt-[130px] flex list-none flex-col gap-1 border-2 border-black bg-white/70 px-2 py-3 shadow-2xl">
+      <div className="paper mt-[120px] flex list-none flex-col gap-1 border-2 border-black bg-white/70 p-3 shadow-2xl">
         <h2 className="text-center font-bold font-display text-3xl">Report</h2>
         {TESTS.map((test, index) => {
           const result = testResults[index];
@@ -108,10 +115,10 @@ function App() {
                   </Button>
                 )}
               </Heading>
-              <DisclosurePanel>
+              <DisclosurePanel className="mt-2 ml-6 flex flex-col gap-1">
                 {result.status === "failed" && (
                   <>
-                    {result.error}
+                    <span className="text-red-700">{result.error}</span>
                     {xml && result.path && (
                       <XmlPathPreview xml={xml} path={result.path} />
                     )}

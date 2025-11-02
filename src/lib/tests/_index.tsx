@@ -12,13 +12,15 @@ import type { XML } from "../feed";
 /** Test for an RSS feed */
 export type Test = {
   name: string;
-  test: (
-    args: TestArgs,
-  ) => Promise<TestResult & ({ status: "passed" } | { status: "failed" })>;
+  test: (args: TestArgs) => Promise<TestOutput>;
 };
 
 /** Test arguments */
 export type TestArgs = { xml: XML; required_server: boolean };
+
+/** Test output */
+export type TestOutput = TestResult &
+  ({ status: "passed" } | { status: "failed" });
 
 /** Result of a test */
 export type TestResult =

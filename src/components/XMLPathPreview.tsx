@@ -32,7 +32,9 @@ function renderPathXML(root: XML, path: Path): string {
       if (text) {
         lines.push(`${indent.repeat(depth)}${open}${escText(text)}${close}`);
       } else {
-        lines.push(`${indent.repeat(depth)}${open}${close}`);
+        lines.push(
+          `${indent.repeat(depth)}${open.substring(0, open.length - 1)} />`,
+        );
       }
       return;
     }

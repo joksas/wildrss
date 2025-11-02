@@ -5,7 +5,7 @@ export const testItunesOwner: Test = {
   name: "itunes:owner tag",
   test: async ({ xml }: TestArgs) => {
     // itunes:owner
-    const itunesOwnerTags = xml.rss.at(0)?.channel.at(0)?.["itunes:owner"];
+    const itunesOwnerTags = xml.rss?.at(0)?.channel?.at(0)?.["itunes:owner"];
     const itunesOwnerTag = itunesOwnerTags?.at(0);
     if (!itunesOwnerTag) return { status: "passed" };
     if (itunesOwnerTags && itunesOwnerTags?.length > 1)

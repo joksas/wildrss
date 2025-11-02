@@ -10,7 +10,9 @@ type _XML<K extends readonly string[], L extends readonly string[]> = {
 } & {
   [P in L[number]]: [Record<string, string>];
 } & {
-  [P in Exclude<Exclude<string, K[number]>, L[number]>]: _XML<K, L>[];
+  [P in Exclude<Exclude<string, K[number]>, L[number]>]:
+    | _XML<K, L>[]
+    | undefined;
 };
 export type XML = _XML<["@text"], ["@attributes"]>;
 

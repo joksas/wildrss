@@ -21,25 +21,36 @@ function renderPathXML(root: XML, path: Path): string {
   function step(parent: XML, depth: number, segmentIndex: number): void {
     const [tag, idx] = path[segmentIndex];
 
-    const node = parent[tag][idx];
+    const node = parent[tag]?.at(idx);
+    if (!node) return;
     const attrs = node["@attributes"];
-    const open = `<${tag}${attrsToString(attrs?.at(0))}>`;
-    const close = `</${tag}>`;
-
+    const text = node["@text"];
     const isLeaf = segmentIndex === path.length - 1;
+    const selfClosing = isLeaf && !text;
+
+    const attrsString =
+      path.length > 1 && tag === "rss" ? "" : attrsToString(attrs?.at(0));
+    const open = `<${tag}${attrsString}${selfClosing ? " />" : ">"}`;
+    const close = selfClosing ? "" : `</${tag}>`;
+
     if (isLeaf) {
-      const text = node["@text"];
       if (text) {
         lines.push(`${indent.repeat(depth)}${open}${escText(text)}${close}`);
       } else {
-        lines.push(
-          `${indent.repeat(depth)}${open.substring(0, open.length - 1)} />`,
-        );
+        lines.push(`${indent.repeat(depth)}${open}${close}`);
       }
       return;
     }
 
     lines.push(`${indent.repeat(depth)}${open}`);
+    if (tag === "item") {
+      const item_title = node["title"]?.at(0)?.["@text"];
+      if (item_title)
+        lines.push(`${indent.repeat(depth + 1)}<title>${item_title}</title>`);
+      const item_guid = node["guid"]?.at(0)?.["@text"];
+      if (item_guid)
+        lines.push(`${indent.repeat(depth + 1)}<guid>${item_guid}</guid>`);
+    }
     step(node, depth + 1, segmentIndex + 1);
     lines.push(`${indent.repeat(depth)}${close}`);
   }

@@ -6,7 +6,9 @@ import type { Test, TestArgs, TestOutput } from "./_index";
 export const testItunesImage: Test = {
   name: "itunes:image tag",
   test: async ({ xml }: TestArgs) => {
-    const feedItunesImageTags = xml.rss.at(0)?.channel.at(0)?.["itunes:image"];
+    const feedItunesImageTags = xml.rss?.at(0)?.channel?.at(0)?.[
+      "itunes:image"
+    ];
     if (!feedItunesImageTags || feedItunesImageTags.length !== 1)
       return {
         status: "failed",
@@ -28,12 +30,11 @@ export const testItunesImage: Test = {
     );
     if (feedRes.status !== "passed") return feedRes;
 
-    const items = xml.rss.at(0)?.channel.at(0)?.item ?? [];
-    console.log(items);
+    const items = xml.rss?.at(0)?.channel?.at(0)?.item ?? [];
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       const itemItunesImageTags = item["itunes:image"];
-      const itemItunesImageTag = itemItunesImageTags.at(0);
+      const itemItunesImageTag = itemItunesImageTags?.at(0);
       if (!itemItunesImageTag) continue;
       if (itemItunesImageTags && itemItunesImageTags.length > 1)
         return {
@@ -63,7 +64,6 @@ export const testItunesImage: Test = {
 
 function _testImage(path: [string, number][], tag: XML): TestOutput {
   const href = tag?.["@attributes"].at(0)?.href;
-  console.log(href);
   if (!href)
     return {
       status: "failed",

@@ -9,6 +9,7 @@ import {
   Input,
   TextField,
 } from "react-aria-components";
+import { ProgressCircle } from "@/components/ProgressCircle";
 import { XmlPathPreview } from "@/components/XMLPathPreview";
 import { fetchFeed, parseFeed, type XML } from "@/lib/feed";
 import { type Test, type TestResult, TestResultIcon } from "@/lib/tests/_index";
@@ -57,26 +58,30 @@ function App() {
 
   return (
     <div className="flex flex-col gap-2 px-3 py-3">
-      <h1 className="text-center font-bold text-5xl">Wild Wild RSS</h1>
-      <TextField
-        value={url}
-        onChange={setURL}
-        className="mx-auto flex w-[300px] items-center border border-black bg-white/75 px-3 py-2 font-serif text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
-        aria-label="Feed URL"
-      >
-        <Input
-          placeholder="Enter feed URL"
-          className="grow truncate focus:outline-none"
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") return;
-            (window.document.activeElement as HTMLInputElement).blur();
-            runTests();
-          }}
-        />
-        {(url.startsWith("http://") || url.startsWith("https://")) && (
-          <KeyReturnIcon size={28} />
-        )}
-      </TextField>
+      <div className="flex h-[200px] w-full flex-col items-center justify-center gap-3">
+        <h1 className="text-center font-bold text-5xl">Wild Wild RSS</h1>
+        <TextField
+          value={url}
+          onChange={setURL}
+          className="flex w-[300px] items-center border border-black bg-white/75 px-3 py-2 font-serif text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+          aria-label="Feed URL"
+        >
+          <Input
+            placeholder="Enter feed URL"
+            className="grow truncate focus:outline-none"
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              (window.document.activeElement as HTMLInputElement).blur();
+              runTests();
+            }}
+          />
+          {!running &&
+            (url.startsWith("http://") || url.startsWith("https://")) && (
+              <KeyReturnIcon size={28} />
+            )}
+          {running && <ProgressCircle isIndeterminate size={28} />}
+        </TextField>
+      </div>
       <div className="flex list-none flex-col gap-1">
         {TESTS.map((test, index) => {
           const result = testResults[index];

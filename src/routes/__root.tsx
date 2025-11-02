@@ -8,7 +8,6 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Background } from "@/components/Background";
-import Header from "../components/Header";
 import appCss from "../styles.css?url";
 
 interface MyRouterContext {
@@ -48,7 +47,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <Background />
-        <Header />
         <div className="relative z-10">{children}</div>
         <TanStackDevtools
           config={{

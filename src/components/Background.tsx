@@ -4,36 +4,91 @@ import { useInterval } from "usehooks-ts";
 export function Background() {
   return (
     <div className="fixed h-svh w-screen overflow-hidden">
-      <svg
-        viewBox="0 0 1000 1000"
-        preserveAspectRatio="none"
-        className="absolute inset-0"
-        role="img"
-        aria-label="Background image"
-      >
-        {/* Sky layer 1 (lightest) */}
-        <path
-          d="M 0 0 L 1000 0 L 1000 310 L 950 315 Q 920 320, 890 315 L 750 305 Q 720 310, 690 305 L 450 295 L 350 300 Q 320 305, 290 300 L 150 310 L 0 305 Z"
-          fill="#f5c78e"
-        />
+      <div className="absolute inset-0">
+        {/* Sky — starts at 0px */}
+        <svg
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+          className="absolute h-svh w-full"
+          style={{ top: "-200px" }}
+          role="img"
+          aria-label="Sky"
+        >
+          <path
+            d="M0,15 C200,10 300,20 500,15 C700,10 800,20 1000,15 L1000,100 L0,100 Z"
+            fill="#f5c78e"
+          />
+        </svg>
 
-        {/* Sky layer 2 (medium) */}
-        <path
-          d="M 0 295 L 80 300 L 200 290 Q 230 285, 260 290 L 400 295 L 550 285 L 650 290 Q 680 295, 710 290 L 850 285 L 920 292 L 1000 288 L 1000 560 L 920 565 L 800 555 Q 770 550, 740 555 L 580 565 L 420 555 L 320 560 Q 290 565, 260 560 L 100 555 L 0 560 Z"
-          fill="#eca561"
-        />
+        {/* Layer 2 — starts at 200px */}
+        <svg
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+          className="absolute h-svh w-full"
+          style={{ top: "150px" }}
+          role="img"
+          aria-label="Layer 2"
+        >
+          <path
+            d="M0,8 C160,15 340,5 500,12 C660,19 840,9 1000,14 L1000,100 L0,100 Z"
+            fill="#eca561"
+          />
+        </svg>
 
-        {/* Sky layer 3 (darker) */}
-        <path
-          d="M 0 550 L 120 545 L 280 555 Q 310 560, 340 555 L 500 550 L 620 558 L 780 548 Q 810 543, 840 548 L 950 553 L 1000 548 L 1000 1000 L 0 1000 Z"
-          fill="#e09552"
-        />
+        {/* Layer 3 — starts at 50svh */}
+        <svg
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+          className="absolute h-svh w-full"
+          style={{ top: "50svh" }}
+          role="img"
+          aria-label="Layer 3"
+        >
+          <path
+            d="M0,10 C220,5 380,18 500,12 C620,6 820,16 1000,9 L1000,100 L0,100 Z"
+            fill="#e09552"
+          />
+        </svg>
 
-        {/* Ground (darkest) */}
-        <rect x="0" y="750" width="1000" height="250" fill="#d88745" />
+        {/* Layer 4 — starts at 70svh */}
+        <svg
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+          className="absolute h-svh w-full"
+          style={{ top: "70svh" }}
+          role="img"
+          aria-label="Layer 4"
+        >
+          <path
+            d="M0,12 C250,18 400,8 500,15 C600,22 780,10 1000,20 L1000,100 L0,100 Z"
+            fill="#d88745"
+          />
+        </svg>
 
-        <Cloud x={200} y={20} opacity={0.5} />
-      </svg>
+        {/* Layer 5 — starts at 90svh */}
+        <svg
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+          className="absolute h-svh w-full"
+          style={{ top: "90svh" }}
+          role="img"
+          aria-label="Layer 5"
+        >
+          <path
+            d="M0,15 C200,22 350,12 500,18 C650,24 820,14 1000,19 L1000,100 L0,100 Z"
+            fill="#c87337"
+          />
+        </svg>
+      </div>
+
+      <Cloud
+        x={50}
+        y={20}
+        x_scale={0.9}
+        y_scale={0.7}
+        opacity={0.5}
+        x_speed={5}
+      />
     </div>
   );
 }

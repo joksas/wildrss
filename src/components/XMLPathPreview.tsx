@@ -49,7 +49,7 @@ function renderPathXML(root: XML, path: Path): string {
 export function XmlPathPreview({ xml, path }: { xml: XML; path: Path }) {
   const xmlString = renderPathXML(xml, path);
   return (
-    <pre>
+    <pre className="overflow-x-auto">
       <code>{xmlString}</code>
     </pre>
   );

@@ -84,8 +84,8 @@ function App() {
           {running && <ProgressCircle isIndeterminate size={28} />}
         </TextField>
       </div>
-      <div className="h-[110px] w-full" />
-      <div className="flex list-none flex-col gap-1">
+      <div className="paper mt-[130px] flex list-none flex-col gap-1 border-2 border-black bg-white/70 px-2 py-3 shadow-2xl">
+        <h2 className="text-center font-bold font-display text-3xl">Report</h2>
         {TESTS.map((test, index) => {
           const result = testResults[index];
 

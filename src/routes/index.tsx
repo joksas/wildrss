@@ -1,5 +1,6 @@
 import { KeyReturnIcon } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Result, ResultAsync } from "neverthrow";
 import { useState } from "react";
 import {
   Button,
@@ -30,36 +31,110 @@ const TESTS: Test[] = [
   testCORS,
 ];
 
+type State = (
+  | {
+      state: "pending";
+    }
+  | {
+      state: "fetching";
+    }
+  | {
+      state: "parsing";
+    }
+  | {
+      state: "error";
+      error: string;
+    }
+  | {
+      state: "running";
+      xml: XML;
+      results: TestResult[];
+    }
+  | {
+      state: "finished";
+      xml: XML;
+      results: TestResult[];
+    }
+) & { url: string };
+
 function App() {
-  const [url, setURL] = useState(DEFAULT_URL);
-  const [xml, setXML] = useState<XML | undefined>();
-  const [testResults, setTestResults] = useState<TestResult[]>(
-    TESTS.map((_) => ({ status: "pending" })),
-  );
-  const [running, setRunning] = useState(false);
+  const [state, setState] = useState<State>({
+    state: "pending",
+    url: DEFAULT_URL,
+  });
+  const setURL = (url: string) => setState((prev) => ({ ...prev, url }));
 
-  const runTests = async () => {
+  const validate = async () => {
     try {
-      setRunning(true);
-      setTestResults(TESTS.map((_) => ({ status: "pending" })));
+      if (state.state !== "pending" && state.state !== "finished") return;
 
-      const { content, required_server } = await fetchFeed(url);
-      const _xml = parseFeed(content);
-      setXML(_xml);
+      // Fetch
+      setState(({ url }) => ({ state: "fetching", url }));
+      const fetchRes = await ResultAsync.fromPromise(
+        fetchFeed(state.url),
+        (e) => e,
+      );
+      if (fetchRes.isErr())
+        return setState(({ url }) => ({
+          state: "error",
+          error: "Failed to fetch",
+          url,
+        }));
+
+      // Parse
+      setState(({ url }) => ({ state: "parsing", url }));
+      const { content, required_server } = fetchRes.value;
+      const parseRes = Result.fromThrowable(parseFeed)(content);
+      if (parseRes.isErr())
+        return setState(({ url }) => ({
+          state: "error",
+          error: "Failed to parse",
+          url,
+        }));
+      const xml = parseRes.value;
+
+      // Run tests
+      setState(({ url }) => ({
+        state: "running",
+        xml,
+        results: TESTS.map((_) => ({ status: "pending" })),
+        url,
+      }));
 
       for (let i = 0; i < TESTS.length; i++) {
-        setTestResults((prev) =>
-          prev.map((p, _idx) => (_idx === i ? { status: "running" } : p)),
+        setState((prev) =>
+          prev.state === "running"
+            ? {
+                ...prev,
+                results: prev.results.map((p, _idx) =>
+                  _idx === i ? { status: "running" } : p,
+                ),
+              }
+            : prev,
         );
 
-        const result = await TESTS[i].test({ xml: _xml, required_server });
-
-        setTestResults((prev) =>
-          prev.map((p, _idx) => (_idx === i ? result : p)),
+        const result = await TESTS[i].test({ xml: xml, required_server });
+        setState((prev) =>
+          prev.state === "running"
+            ? {
+                ...prev,
+                results: prev.results.map((p, _idx) =>
+                  _idx === i ? result : p,
+                ),
+              }
+            : prev,
         );
       }
+
+      setState((prev) =>
+        prev.state === "running"
+          ? {
+              ...prev,
+              state: "finished",
+            }
+          : prev,
+      );
     } finally {
-      setRunning(false);
     }
   };
 
@@ -70,7 +145,7 @@ function App() {
           Wild Wild RSS
         </h1>
         <TextField
-          value={url}
+          value={state.url}
           onChange={setURL}
           className="flex w-[300px] items-center border-2 border-black bg-white/60 px-3 py-2 font-serif text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
           aria-label="Feed URL"
@@ -81,54 +156,61 @@ function App() {
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
               (window.document.activeElement as HTMLInputElement).blur();
-              runTests();
+              validate();
             }}
           />
-          {!running &&
-            (url.startsWith("http://") || url.startsWith("https://")) && (
-              <KeyReturnIcon size={28} />
-            )}
-          {running && <ProgressCircle isIndeterminate size={28} />}
+          {state.state === "pending" &&
+            (state.url.startsWith("http://") ||
+              state.url.startsWith("https://")) && <KeyReturnIcon size={28} />}
+          {(state.state === "fetching" ||
+            state.state === "parsing" ||
+            state.state === "running") && (
+            <ProgressCircle isIndeterminate size={28} />
+          )}
         </TextField>
       </div>
-      <div className="paper mt-[120px] flex list-none flex-col gap-1 border-2 border-black bg-white/70 p-3 shadow-2xl">
-        <h2 className="text-center font-bold font-display text-3xl">Report</h2>
-        {TESTS.map((test, index) => {
-          const result = testResults[index];
+      {(state.state === "running" || state.state === "finished") && (
+        <div className="paper mt-[120px] flex list-none flex-col gap-1 border-2 border-black bg-white/70 p-3 shadow-2xl">
+          <h2 className="text-center font-bold font-display text-3xl">
+            Report
+          </h2>
+          {TESTS.map((test, index) => {
+            const result = state.results[index];
 
-          return (
-            <Disclosure key={test.name}>
-              <Heading className="flex items-center gap-1">
-                <TestResultIcon
-                  status={result.status}
-                  size={20}
-                  weight="fill"
-                  className="flex-none"
-                />
-                <span className="font-medium">{test.name}</span>
-                {result.status === "failed" && (
-                  <Button
-                    slot="trigger"
-                    className="cursor-pointer text-inherit underline"
-                  >
-                    Show error
-                  </Button>
-                )}
-              </Heading>
-              <DisclosurePanel className="mt-2 ml-6 flex flex-col gap-1">
-                {result.status === "failed" && (
-                  <>
-                    <span className="text-red-700">{result.error}</span>
-                    {xml && result.path && (
-                      <XmlPathPreview xml={xml} path={result.path} />
-                    )}
-                  </>
-                )}
-              </DisclosurePanel>
-            </Disclosure>
-          );
-        })}
-      </div>
+            return (
+              <Disclosure key={test.name}>
+                <Heading className="flex items-center gap-1">
+                  <TestResultIcon
+                    status={result.status}
+                    size={20}
+                    weight="fill"
+                    className="flex-none"
+                  />
+                  <span className="font-medium">{test.name}</span>
+                  {result.status === "failed" && (
+                    <Button
+                      slot="trigger"
+                      className="cursor-pointer text-inherit underline"
+                    >
+                      Show error
+                    </Button>
+                  )}
+                </Heading>
+                <DisclosurePanel className="mt-2 ml-6 flex flex-col gap-1">
+                  {result.status === "failed" && (
+                    <>
+                      <span className="text-red-700">{result.error}</span>
+                      {state.xml && result.path && (
+                        <XmlPathPreview xml={state.xml} path={result.path} />
+                      )}
+                    </>
+                  )}
+                </DisclosurePanel>
+              </Disclosure>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

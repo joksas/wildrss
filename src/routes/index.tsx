@@ -2,7 +2,7 @@ import { KeyReturnIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Result, ResultAsync } from "neverthrow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Disclosure,
@@ -13,7 +13,13 @@ import {
 } from "react-aria-components";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { XmlPathPreview } from "@/components/XMLPathPreview";
-import { fetchFeed, parseFeed, type XML } from "@/lib/feed";
+import {
+  cancelFeedQueries,
+  fetchFeed,
+  parseFeed,
+  prefetchFeed,
+  type XML,
+} from "@/lib/feed";
 import { type Test, type TestResult, TestResultIcon } from "@/lib/tests/_index";
 import { testCORS } from "@/lib/tests/cors";
 import { testItunesImage } from "@/lib/tests/itunes_image";
@@ -65,6 +71,10 @@ function App() {
   });
   const setURL = (url: string) => setState((prev) => ({ ...prev, url }));
   const client = useQueryClient();
+
+  useEffect(() => {
+    cancelFeedQueries(client).then(() => prefetchFeed(client, state.url));
+  }, [client, state.url]);
 
   const validate = async () => {
     try {

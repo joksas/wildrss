@@ -2,7 +2,6 @@ import { isServer, type QueryClient } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { XMLParser } from "fast-xml-parser";
 import * as z from "zod";
-import { getContext } from "@/providers";
 
 /** XML */
 type _XML<K extends readonly string[], L extends readonly string[]> = {
@@ -16,6 +15,20 @@ type _XML<K extends readonly string[], L extends readonly string[]> = {
 };
 export type XML = _XML<["@text"], ["@attributes"]>;
 
+async function _fetchQueryFunction(url: string, signal: AbortSignal) {
+  try {
+    const content = await _fetchFeed({ data: url, signal });
+    return { content, required_server: false };
+  } catch (error) {
+    if (isServer) throw error;
+    console.error(error);
+    console.info(`Retrying fetch for ${url} via server`);
+    const content = await _fetchFeedServer({ data: url, signal });
+    console.info(`Successfully fetched ${url} via server`);
+    return { content, required_server: true };
+  }
+}
+
 /** Fetch RSS feed */
 export function fetchFeed(
   client: QueryClient,
@@ -27,23 +40,28 @@ export function fetchFeed(
   return client.fetchQuery({
     staleTime: 10_000,
     queryKey: ["feed", url],
-    queryFn: async (): Promise<{
-      content: string;
-      required_server: boolean;
-    }> => {
-      try {
-        const content = await _fetchFeed({ data: url });
-        return { content, required_server: false };
-      } catch (error) {
-        if (isServer) throw error;
-        console.error(error);
-        console.info(`Retrying fetch for ${url} via server`);
-        const content = await _fetchFeedServer({ data: url });
-        console.info(`Successfully fetched ${url} via server`);
-        return { content, required_server: true };
-      }
-    },
+    queryFn: ({ signal }) => _fetchQueryFunction(url, signal),
     retry: 3,
+  });
+}
+
+/** Prefetch RSS feed */
+export async function prefetchFeed(
+  client: QueryClient,
+  url: string,
+): Promise<void> {
+  return await client.prefetchQuery({
+    staleTime: 10_000,
+    queryKey: ["feed", url],
+    queryFn: ({ signal }) => _fetchQueryFunction(url, signal),
+    retry: 3,
+  });
+}
+
+/** Cancel feed queries */
+export async function cancelFeedQueries(client: QueryClient): Promise<void> {
+  return await client.cancelQueries({
+    queryKey: ["feed"],
   });
 }
 
@@ -62,15 +80,21 @@ export function parseFeed(xml_string: string): XML {
   return xml;
 }
 
-async function _fetchFeed({ data: url }: { data: string }): Promise<string> {
-  const res = await fetch(url);
+async function _fetchFeed({
+  data: url,
+  signal,
+}: {
+  data: string;
+  signal: AbortSignal;
+}): Promise<string> {
+  const res = await fetch(url, { signal });
   if (res.status !== 200) throw Error(`Status ${res.status}`);
   const body = await res.text();
   return body;
 }
 const _fetchFeedServer = createServerFn()
   .inputValidator(z.string())
-  .handler(async ({ data }) => {
+  .handler(async ({ data, signal }) => {
     "use server";
-    return _fetchFeed({ data });
+    return _fetchFeed({ data, signal });
   });

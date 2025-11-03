@@ -1,4 +1,4 @@
-import { isServer } from "@tanstack/react-query";
+import { isServer, type QueryClient } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { XMLParser } from "fast-xml-parser";
 import * as z from "zod";
@@ -18,10 +18,14 @@ export type XML = _XML<["@text"], ["@attributes"]>;
 
 /** Fetch RSS feed */
 export function fetchFeed(
+  client: QueryClient,
   url: string,
-): Promise<{ content: string; required_server: boolean }> {
-  const { queryClient } = getContext();
-  return queryClient.fetchQuery({
+): Promise<{
+  content: string;
+  required_server: boolean;
+}> {
+  return client.fetchQuery({
+    staleTime: 10_000,
     queryKey: ["feed", url],
     queryFn: async (): Promise<{
       content: string;

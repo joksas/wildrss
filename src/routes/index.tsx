@@ -1,4 +1,5 @@
 import { KeyReturnIcon } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Result, ResultAsync } from "neverthrow";
 import { useState } from "react";
@@ -63,6 +64,7 @@ function App() {
     url: DEFAULT_URL,
   });
   const setURL = (url: string) => setState((prev) => ({ ...prev, url }));
+  const client = useQueryClient();
 
   const validate = async () => {
     try {
@@ -71,7 +73,7 @@ function App() {
       // Fetch
       setState(({ url }) => ({ state: "fetching", url }));
       const fetchRes = await ResultAsync.fromPromise(
-        fetchFeed(state.url),
+        fetchFeed(client, state.url),
         (e) => e,
       );
       if (fetchRes.isErr())
@@ -159,7 +161,9 @@ function App() {
               validate();
             }}
           />
-          {state.state === "pending" &&
+          {(state.state === "pending" ||
+            state.state === "finished" ||
+            state.state === "error") &&
             (state.url.startsWith("http://") ||
               state.url.startsWith("https://")) && <KeyReturnIcon size={28} />}
           {(state.state === "fetching" ||

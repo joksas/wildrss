@@ -10,11 +10,9 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Background } from "@/components/Background";
 import appCss from "../styles.css?url";
 
-interface MyRouterContext {
+export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
-}
-
-export const Route = createRootRouteWithContext<MyRouterContext>()({
+}>()({
   head: () => ({
     meta: [
       {

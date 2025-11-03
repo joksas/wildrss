@@ -78,7 +78,12 @@ function App() {
 
   const validate = async () => {
     try {
-      if (state.state !== "pending" && state.state !== "finished") return;
+      if (
+        state.state !== "pending" &&
+        state.state !== "finished" &&
+        state.state !== "error"
+      )
+        return;
 
       // Fetch
       setState(({ url }) => ({ state: "fetching", url }));

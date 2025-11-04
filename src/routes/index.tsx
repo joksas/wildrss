@@ -38,119 +38,64 @@ const TESTS: Test[] = [
   testCORS,
 ];
 
-type State = (
-  | {
-      state: "pending";
-    }
-  | {
-      state: "fetching";
-    }
-  | {
-      state: "parsing";
-    }
-  | {
-      state: "error";
-      error: string;
-    }
-  | {
-      state: "running";
-      xml: XML;
-      results: TestResult[];
-    }
-  | {
-      state: "finished";
-      xml: XML;
-      results: TestResult[];
-    }
-) & { url: string };
+type State = "pending" | "fetching" | "parsing" | "testing";
 
 function App() {
-  const [state, setState] = useState<State>({
-    state: "pending",
-    url: DEFAULT_URL,
-  });
-  const setURL = (url: string) => setState((prev) => ({ ...prev, url }));
   const client = useQueryClient();
 
+  // State
+  const [state, setState] = useState<State>("pending");
+  const [url, setURL] = useState<string>(DEFAULT_URL);
+  const [xml, setXML] = useState<XML | undefined>(undefined);
+  const [results, setResults] = useState<TestResult[]>([]);
+  const feedInfo = {
+    title: xml?.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.["@text"],
+    image: xml?.rss?.at(0)?.channel?.at(0)?.["itunes:image"]?.at(0)?.[
+      "@attributes"
+    ][0].href,
+  };
+
   useEffect(() => {
-    cancelFeedQueries(client).then(() => prefetchFeed(client, state.url));
-  }, [client, state.url]);
+    cancelFeedQueries(client).then(() => prefetchFeed(client, url));
+  }, [client, url]);
 
   const validate = async () => {
     try {
-      if (
-        state.state !== "pending" &&
-        state.state !== "finished" &&
-        state.state !== "error"
-      )
-        return;
+      if (state !== "pending") return;
+      setResults([]);
 
       // Fetch
-      setState(({ url }) => ({ state: "fetching", url }));
+      setState("fetching");
       const fetchRes = await ResultAsync.fromPromise(
-        fetchFeed(client, state.url),
+        fetchFeed(client, url),
         (e) => e,
       );
-      if (fetchRes.isErr())
-        return setState(({ url }) => ({
-          state: "error",
-          error: "Failed to fetch",
-          url,
-        }));
+      if (fetchRes.isErr()) return setState("pending"); // TODO: set error
 
       // Parse
-      setState(({ url }) => ({ state: "parsing", url }));
+      setState("parsing");
       const { content, required_server } = fetchRes.value;
       const parseRes = Result.fromThrowable(parseFeed)(content);
-      if (parseRes.isErr())
-        return setState(({ url }) => ({
-          state: "error",
-          error: "Failed to parse",
-          url,
-        }));
-      const xml = parseRes.value;
+      if (parseRes.isErr()) return setState("pending"); // TODO: set error
+      const _xml = parseRes.value;
+      setXML(_xml);
 
       // Run tests
-      setState(({ url }) => ({
-        state: "running",
-        xml,
-        results: TESTS.map((_) => ({ status: "pending" })),
-        url,
-      }));
+      setState("testing");
+      for (const test of TESTS) {
+        setResults((prev) => [...prev, { name: test.name, status: "running" }]);
 
-      for (let i = 0; i < TESTS.length; i++) {
-        setState((prev) =>
-          prev.state === "running"
-            ? {
-                ...prev,
-                results: prev.results.map((p, _idx) =>
-                  _idx === i ? { status: "running" } : p,
-                ),
-              }
-            : prev,
-        );
-
-        const result = await TESTS[i].test({ xml: xml, required_server });
-        setState((prev) =>
-          prev.state === "running"
-            ? {
-                ...prev,
-                results: prev.results.map((p, _idx) =>
-                  _idx === i ? result : p,
-                ),
-              }
-            : prev,
+        const result = await test.test({ xml: _xml, required_server });
+        setResults((prev) =>
+          prev.map((_result) =>
+            _result.name === test.name
+              ? { ...result, name: test.name }
+              : _result,
+          ),
         );
       }
 
-      setState((prev) =>
-        prev.state === "running"
-          ? {
-              ...prev,
-              state: "finished",
-            }
-          : prev,
-      );
+      setState("pending");
     } finally {
     }
   };
@@ -162,7 +107,7 @@ function App() {
           Wild Wild RSS
         </h1>
         <TextField
-          value={state.url}
+          value={url}
           onChange={setURL}
           className="flex w-[300px] items-center border-2 border-black bg-white/60 px-3 py-2 font-serif text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
           aria-label="Feed URL"
@@ -176,60 +121,57 @@ function App() {
               validate();
             }}
           />
-          {(state.state === "pending" ||
-            state.state === "finished" ||
-            state.state === "error") &&
-            (state.url.startsWith("http://") ||
-              state.url.startsWith("https://")) && <KeyReturnIcon size={28} />}
-          {(state.state === "fetching" ||
-            state.state === "parsing" ||
-            state.state === "running") && (
+          {state === "pending" &&
+            (url.startsWith("http://") || url.startsWith("https://")) && (
+              <KeyReturnIcon size={28} />
+            )}
+          {(state === "fetching" ||
+            state === "parsing" ||
+            state === "testing") && (
             <ProgressCircle isIndeterminate size={28} />
           )}
         </TextField>
       </div>
-      {(state.state === "running" || state.state === "finished") && (
-        <div className="paper mt-[120px] flex list-none flex-col gap-1 border-2 border-black bg-white/70 p-3 shadow-2xl">
-          <h2 className="text-center font-bold font-display text-3xl">
-            Report
-          </h2>
-          {TESTS.map((test, index) => {
-            const result = state.results[index];
+      <div className="paper mt-[120px] flex list-none flex-col gap-1 border-2 border-black bg-white/70 p-3 shadow-2xl">
+        <h2 className="text-center font-bold font-display text-3xl">Report</h2>
+        <h2>{feedInfo.title}</h2>
+        <h2>{feedInfo.image}</h2>
+        {TESTS.map((test) => {
+          const result = results.find((result) => result.name === test.name);
 
-            return (
-              <Disclosure key={test.name}>
-                <Heading className="flex items-center gap-1">
-                  <TestResultIcon
-                    status={result.status}
-                    size={20}
-                    weight="fill"
-                    className="flex-none"
-                  />
-                  <span className="font-medium">{test.name}</span>
-                  {result.status === "failed" && (
-                    <Button
-                      slot="trigger"
-                      className="cursor-pointer text-inherit underline"
-                    >
-                      Show error
-                    </Button>
-                  )}
-                </Heading>
-                <DisclosurePanel className="mt-2 ml-6 flex flex-col gap-1">
-                  {result.status === "failed" && (
-                    <>
-                      <span className="text-red-700">{result.error}</span>
-                      {state.xml && result.path && (
-                        <XmlPathPreview xml={state.xml} path={result.path} />
-                      )}
-                    </>
-                  )}
-                </DisclosurePanel>
-              </Disclosure>
-            );
-          })}
-        </div>
-      )}
+          return (
+            <Disclosure key={test.name}>
+              <Heading className="flex items-center gap-1">
+                <TestResultIcon
+                  status={result?.status}
+                  size={20}
+                  weight="fill"
+                  className="flex-none"
+                />
+                <span className="font-medium">{test.name}</span>
+                {result?.status === "failed" && (
+                  <Button
+                    slot="trigger"
+                    className="cursor-pointer text-inherit underline"
+                  >
+                    Show error
+                  </Button>
+                )}
+              </Heading>
+              <DisclosurePanel className="mt-2 ml-6 flex flex-col gap-1">
+                {result?.status === "failed" && (
+                  <>
+                    <span className="text-red-700">{result.error}</span>
+                    {xml && result.path && (
+                      <XmlPathPreview xml={xml} path={result.path} />
+                    )}
+                  </>
+                )}
+              </DisclosurePanel>
+            </Disclosure>
+          );
+        })}
+      </div>
     </div>
   );
 }

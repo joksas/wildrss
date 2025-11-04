@@ -19,15 +19,17 @@ export type Test = {
 export type TestArgs = { xml: XML; required_server: boolean };
 
 /** Test output */
-export type TestOutput = TestResult &
-  ({ status: "passed" } | { status: "failed" });
-
-/** Result of a test */
-export type TestResult =
-  | { status: "pending" }
-  | { status: "running" }
+export type TestOutput =
   | { status: "passed" }
   | { status: "failed"; error: string; path?: Path };
+
+/** Result of a test */
+export type TestResult = Pick<Test, "name"> &
+  (
+    | { status: "running" }
+    | { status: "passed" }
+    | { status: "failed"; error: string; path?: Path }
+  );
 
 /** Test error path */
 export type Path = [tag: string, index: number][];
@@ -35,9 +37,9 @@ export type Path = [tag: string, index: number][];
 export function TestResultIcon({
   status,
   ...props
-}: { status: TestResult["status"] } & ComponentProps<Icon>) {
+}: { status: TestResult["status"] | undefined } & ComponentProps<Icon>) {
   return match(status)
-    .with("pending", () => (
+    .with(undefined, () => (
       <CircleIcon
         {...props}
         className={twMerge(props.className, "text-gray-300")}

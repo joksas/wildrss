@@ -1,6 +1,7 @@
 import { KeyReturnIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "motion/react";
 import { Result, ResultAsync } from "neverthrow";
 import { useEffect, useState } from "react";
 import {
@@ -50,6 +51,9 @@ function App() {
   const [results, setResults] = useState<TestResult[]>([]);
   const feedInfo = {
     title: xml?.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.["@text"],
+    author: xml?.rss?.at(0)?.channel?.at(0)?.["itunes:author"]?.at(0)?.[
+      "@text"
+    ],
     image: xml?.rss?.at(0)?.channel?.at(0)?.["itunes:image"]?.at(0)?.[
       "@attributes"
     ][0].href,
@@ -63,6 +67,7 @@ function App() {
     try {
       if (state !== "pending") return;
       setResults([]);
+      setXML(undefined);
 
       // Fetch
       setState("fetching");
@@ -101,7 +106,7 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col gap-2 px-3 py-3">
+    <div className="flex flex-col items-center justify-center gap-2 px-3 py-3">
       <div className="flex h-[125px] w-full flex-col items-center justify-center gap-3">
         <h1 className="text-center font-bold font-display text-5xl">
           Wild Wild RSS
@@ -132,46 +137,76 @@ function App() {
           )}
         </TextField>
       </div>
-      <div className="paper mt-[120px] flex list-none flex-col gap-1 border-2 border-black bg-white/70 p-3 shadow-2xl">
-        <h2 className="text-center font-bold font-display text-3xl">Report</h2>
-        <h2>{feedInfo.title}</h2>
-        <h2>{feedInfo.image}</h2>
-        {TESTS.map((test) => {
-          const result = results.find((result) => result.name === test.name);
-
-          return (
-            <Disclosure key={test.name}>
-              <Heading className="flex items-center gap-1">
-                <TestResultIcon
-                  status={result?.status}
-                  size={20}
-                  weight="fill"
-                  className="flex-none"
+      <section className="mt-[120px] w-full max-w-5xl grow border-8 border-amber-950 bg-amber-50 text-amber-950">
+        <header className="border-amber-950 border-b-8 bg-amber-950 px-5 py-2 text-center font-bold font-display text-3xl text-amber-50">
+          Report
+        </header>
+        <div className="p-5">
+          <AnimatePresence mode="popLayout">
+            {feedInfo.author && feedInfo.image && (
+              <motion.div
+                key={feedInfo.title}
+                className="flex items-center gap-4 overflow-hidden border-4 border-amber-950 bg-amber-100 p-3"
+                initial={{ height: 0 }}
+                animate={{ height: "auto" }}
+                exit={{ height: 0 }}
+              >
+                <img
+                  src={feedInfo.image}
+                  alt="Podcast artwork"
+                  className="size-20 object-cover object-center sepia-[0.7]"
                 />
-                <span className="font-medium">{test.name}</span>
-                {result?.status === "failed" && (
-                  <Button
-                    slot="trigger"
-                    className="cursor-pointer text-inherit underline"
-                  >
-                    Show error
-                  </Button>
-                )}
-              </Heading>
-              <DisclosurePanel className="mt-2 ml-6 flex flex-col gap-1">
-                {result?.status === "failed" && (
-                  <>
-                    <span className="text-red-700">{result.error}</span>
-                    {xml && result.path && (
-                      <XmlPathPreview xml={xml} path={result.path} />
+                <div className="flex flex-col font-display">
+                  <span className="font-bold text-2xl">{feedInfo.title}</span>
+                  {feedInfo.author && (
+                    <span className="text-lg">{feedInfo.author}</span>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="mt-5 flex flex-col gap-2">
+            {TESTS.map((test) => {
+              const result = results.find(
+                (result) => result.name === test.name,
+              );
+
+              return (
+                <Disclosure key={test.name}>
+                  <Heading className="flex items-center gap-1">
+                    <TestResultIcon
+                      status={result?.status}
+                      size={20}
+                      weight="fill"
+                      className="flex-none"
+                    />
+                    <span className="font-medium">{test.name}</span>
+                    {result?.status === "failed" && (
+                      <Button
+                        slot="trigger"
+                        className="cursor-pointer text-inherit underline"
+                      >
+                        Show error
+                      </Button>
                     )}
-                  </>
-                )}
-              </DisclosurePanel>
-            </Disclosure>
-          );
-        })}
-      </div>
+                  </Heading>
+                  <DisclosurePanel className="mt-2 ml-6 flex flex-col gap-1">
+                    {result?.status === "failed" && (
+                      <>
+                        <span className="text-red-700">{result.error}</span>
+                        {xml && result.path && (
+                          <XmlPathPreview xml={xml} path={result.path} />
+                        )}
+                      </>
+                    )}
+                  </DisclosurePanel>
+                </Disclosure>
+              );
+            })}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
   TextField,
 } from "react-aria-components";
 import { ProgressCircle } from "@/components/ProgressCircle";
+import { TestResultDisplay } from "@/components/TestResultDisplay";
 import { XmlPathPreview } from "@/components/XMLPathPreview";
 import {
   cancelFeedQueries,
@@ -166,42 +167,18 @@ function App() {
             )}
           </AnimatePresence>
 
-          <div className="mt-5 flex flex-col gap-2">
+          <div className="mt-5 flex flex-col gap-3">
             {TESTS.map((test) => {
               const result = results.find(
                 (result) => result.name === test.name,
               );
-
               return (
-                <Disclosure key={test.name}>
-                  <Heading className="flex items-center gap-1">
-                    <TestResultIcon
-                      status={result?.status}
-                      size={20}
-                      weight="fill"
-                      className="flex-none"
-                    />
-                    <span className="font-medium">{test.name}</span>
-                    {result?.status === "failed" && (
-                      <Button
-                        slot="trigger"
-                        className="cursor-pointer text-inherit underline"
-                      >
-                        Show error
-                      </Button>
-                    )}
-                  </Heading>
-                  <DisclosurePanel className="mt-2 ml-6 flex flex-col gap-1">
-                    {result?.status === "failed" && (
-                      <>
-                        <span className="text-red-700">{result.error}</span>
-                        {xml && result.path && (
-                          <XmlPathPreview xml={xml} path={result.path} />
-                        )}
-                      </>
-                    )}
-                  </DisclosurePanel>
-                </Disclosure>
+                <TestResultDisplay
+                  key={test.name}
+                  xml={xml}
+                  test={test}
+                  result={result}
+                />
               );
             })}
           </div>

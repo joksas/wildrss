@@ -1,7 +1,7 @@
 import type { Test, TestArgs } from "./_index";
 
 export const testCORS: Test = {
-  name: "permissive CORS",
+  name: "Permissive CORS",
   test: async ({ required_server }: TestArgs) => {
     if (required_server)
       return {

@@ -14,7 +14,7 @@ import {
   prefetchFeed,
   type XML,
 } from "@/lib/feed";
-import type { Test, TestResult } from "@/lib/tests/_index";
+import type { State, Test, TestResult } from "@/lib/tests/_index";
 import { testCORS } from "@/lib/tests/cors";
 import { testItunesImage } from "@/lib/tests/itunes_image";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
@@ -31,8 +31,6 @@ const TESTS: Test[] = [
   testItunesImage,
   testCORS,
 ];
-
-type State = "pending" | "fetching" | "parsing" | "testing";
 
 function App() {
   const client = useQueryClient();
@@ -166,6 +164,7 @@ function App() {
                 <TestResultDisplay
                   key={test.key}
                   xml={xml}
+                  state={state}
                   test={test}
                   result={result}
                 />

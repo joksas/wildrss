@@ -10,6 +10,8 @@ import { twMerge } from "tailwind-merge";
 import { match } from "ts-pattern";
 import type { XML } from "../feed";
 
+export type State = "pending" | "fetching" | "parsing" | "testing";
+
 /** Test for an RSS feed */
 export type Test = {
   key: string;

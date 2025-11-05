@@ -7,16 +7,23 @@ import {
 } from "react-aria-components";
 import { match } from "ts-pattern";
 import type { XML } from "@/lib/feed";
-import { type Test, type TestResult, TestResultIcon } from "@/lib/tests/_index";
+import {
+  type State,
+  type Test,
+  type TestResult,
+  TestResultIcon,
+} from "@/lib/tests/_index";
 import { XmlPathPreview } from "./XMLPathPreview";
 
 export function TestResultDisplay({
   xml,
   test,
+  state,
   result,
 }: {
   xml: XML | undefined;
   test: Test;
+  state: State;
   result: TestResult | undefined;
 }) {
   const status = result?.status;
@@ -30,7 +37,7 @@ export function TestResultDisplay({
   return (
     <Disclosure
       className={clsx(
-        "flex flex-col px-3 py-2 shadow-md data-[expanded=true]:gap-2",
+        "flex flex-col border-2 border-amber-950 px-3 py-2 data-[expanded=true]:gap-2",
         bg,
       )}
     >
@@ -39,7 +46,9 @@ export function TestResultDisplay({
           status={result?.status}
           size={24}
           weight="fill"
-          className="flex-none"
+          className={clsx("flex-none", {
+            "animate-spin": !result?.status && state !== "pending",
+          })}
         />
         <span className="text-lg">{test.name}</span>
         {result?.status === "failed" && (

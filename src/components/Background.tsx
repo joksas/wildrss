@@ -475,12 +475,21 @@ export function Background() {
       </div>
 
       <Cloud
-        x={50}
-        y={90}
+        x={40}
+        y={60}
         x_scale={0.8}
         y_scale={0.3}
         opacity={0.3}
         x_speed={2.1}
+      />
+
+      <Cloud
+        x={70}
+        y={40}
+        x_scale={0.7}
+        y_scale={0.4}
+        opacity={0.3}
+        x_speed={1.8}
       />
 
       <Cloud
@@ -502,21 +511,39 @@ export function Background() {
       />
 
       <Cloud
-        x={70}
-        y={40}
-        x_scale={0.7}
-        y_scale={0.4}
-        opacity={0.3}
-        x_speed={1.8}
-      />
-
-      <Cloud
         x={-20}
         y={45}
         x_scale={0.5}
         y_scale={0.5}
         opacity={0.4}
         x_speed={1.7}
+      />
+
+      <Cloud
+        x={50}
+        y={95}
+        x_scale={0.1}
+        y_scale={0.1}
+        opacity={0.2}
+        x_speed={0.3}
+      />
+
+      <Cloud
+        x={70}
+        y={91}
+        x_scale={0.11}
+        y_scale={0.1}
+        opacity={0.2}
+        x_speed={0.3}
+      />
+
+      <Cloud
+        x={10}
+        y={93}
+        x_scale={0.09}
+        y_scale={0.15}
+        opacity={0.25}
+        x_speed={0.29}
       />
     </div>
   );

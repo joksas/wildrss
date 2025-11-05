@@ -1,7 +1,8 @@
 import type { Test, TestArgs } from "./_index";
 
 export const testTitle: Test = {
-  name: "title tag",
+  key: "title",
+  name: <code>&lt;title&gt;</code>,
   test: async ({ xml }: TestArgs) => {
     const titleTag = xml.rss?.at(0)?.channel?.at(0)?.title?.at(0);
     if (!titleTag)

@@ -4,17 +4,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { Result, ResultAsync } from "neverthrow";
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Disclosure,
-  DisclosurePanel,
-  Heading,
-  Input,
-  TextField,
-} from "react-aria-components";
+import { Input, TextField } from "react-aria-components";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { TestResultDisplay } from "@/components/TestResultDisplay";
-import { XmlPathPreview } from "@/components/XMLPathPreview";
 import {
   cancelFeedQueries,
   fetchFeed,
@@ -22,7 +14,7 @@ import {
   prefetchFeed,
   type XML,
 } from "@/lib/feed";
-import { type Test, type TestResult, TestResultIcon } from "@/lib/tests/_index";
+import type { Test, TestResult } from "@/lib/tests/_index";
 import { testCORS } from "@/lib/tests/cors";
 import { testItunesImage } from "@/lib/tests/itunes_image";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
@@ -89,14 +81,12 @@ function App() {
       // Run tests
       setState("testing");
       for (const test of TESTS) {
-        setResults((prev) => [...prev, { name: test.name, status: "running" }]);
+        setResults((prev) => [...prev, { key: test.key, status: "running" }]);
 
         const result = await test.test({ xml: _xml, required_server });
         setResults((prev) =>
           prev.map((_result) =>
-            _result.name === test.name
-              ? { ...result, name: test.name }
-              : _result,
+            _result.key === test.key ? { ...result, key: test.key } : _result,
           ),
         );
       }
@@ -142,7 +132,7 @@ function App() {
         <header className="border-amber-950 border-b-8 bg-amber-950 px-5 py-2 text-center font-bold font-display text-3xl text-amber-50">
           Report
         </header>
-        <div className="p-5">
+        <div className="flex flex-col gap-5 p-5">
           <AnimatePresence mode="popLayout">
             {feedInfo.author && feedInfo.image && (
               <motion.div
@@ -167,14 +157,12 @@ function App() {
             )}
           </AnimatePresence>
 
-          <div className="mt-5 flex flex-col gap-3">
+          <div className="flex flex-col gap-3">
             {TESTS.map((test) => {
-              const result = results.find(
-                (result) => result.name === test.name,
-              );
+              const result = results.find((result) => result.key === test.key);
               return (
                 <TestResultDisplay
-                  key={test.name}
+                  key={test.key}
                   xml={xml}
                   test={test}
                   result={result}

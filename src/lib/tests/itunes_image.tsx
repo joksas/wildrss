@@ -4,7 +4,8 @@ import { urlHasExtension } from "../url";
 import type { Test, TestArgs, TestOutput } from "./_index";
 
 export const testItunesImage: Test = {
-  name: "itunes:image tag",
+  key: "itunes:image",
+  name: <code>&lt;itunes:image&gt;</code>,
   test: async ({ xml }: TestArgs) => {
     const feedItunesImageTags = xml.rss?.at(0)?.channel?.at(0)?.[
       "itunes:image"

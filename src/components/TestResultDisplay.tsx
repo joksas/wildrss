@@ -34,14 +34,14 @@ export function TestResultDisplay({
         bg,
       )}
     >
-      <Heading className="flex items-center gap-1">
+      <Heading className="flex items-center gap-1.5">
         <TestResultIcon
           status={result?.status}
           size={24}
           weight="fill"
           className="flex-none"
         />
-        <span className="font-medium text-lg">{test.name}</span>
+        <span className="text-lg">{test.name}</span>
         {result?.status === "failed" && (
           <Button
             slot="trigger"

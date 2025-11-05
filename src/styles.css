@@ -6,6 +6,8 @@
 @theme inline {
     --font-display: "Rye", sans-serif;
     --font-serif: "Playfair Display Variable", sans-serif;
+    --font-sans-serif: "Georama Variable", sans-serif;
+    --font-mono: "Cutive Mono", monospace;
 }
 
 .paper {

@@ -39,7 +39,7 @@ export const Route = createRootRouteWithContext<{
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="overscroll-none font-serif">
+    <html lang="en" className="overscroll-none font-sans">
       <head>
         <HeadContent />
       </head>

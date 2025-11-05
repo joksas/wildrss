@@ -1,6 +1,7 @@
 import type { Test, TestArgs } from "./_index";
 
 export const testCORS: Test = {
+  key: "permissive-cors",
   name: "Permissive CORS",
   test: async ({ required_server }: TestArgs) => {
     if (required_server)

@@ -1,5 +1,6 @@
 import {
   CheckCircleIcon,
+  CircleDashedIcon,
   CircleIcon,
   type Icon,
   XCircleIcon,
@@ -11,7 +12,8 @@ import type { XML } from "../feed";
 
 /** Test for an RSS feed */
 export type Test = {
-  name: string;
+  key: string;
+  name: React.ReactNode;
   test: (args: TestArgs) => Promise<TestOutput>;
 };
 
@@ -24,7 +26,7 @@ export type TestOutput =
   | { status: "failed"; error: string; path?: Path };
 
 /** Result of a test */
-export type TestResult = Pick<Test, "name"> &
+export type TestResult = Pick<Test, "key"> &
   (
     | { status: "running" }
     | { status: "passed" }
@@ -40,9 +42,10 @@ export function TestResultIcon({
 }: { status: TestResult["status"] | undefined } & ComponentProps<Icon>) {
   return match(status)
     .with(undefined, () => (
-      <CircleIcon
+      <CircleDashedIcon
         {...props}
-        className={twMerge(props.className, "text-gray-300")}
+        weight="bold"
+        className={twMerge(props.className, "text-amber-950")}
       />
     ))
     .with("running", () => (

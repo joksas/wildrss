@@ -12,7 +12,9 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@fontsource-variable/georama": "^5.2.8",
     "@fontsource-variable/playfair-display": "^5.2.8",
+    "@fontsource/cutive-mono": "^5.2.8",
     "@fontsource/rye": "^5.2.7",
     "@phosphor-icons/react": "^2.1.10",
     "@tailwindcss/vite": "^4.0.6",

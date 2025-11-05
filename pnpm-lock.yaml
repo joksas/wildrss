@@ -8,7 +8,13 @@ importers:
 
   .:
     dependencies:
+      '@fontsource-variable/georama':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@fontsource-variable/playfair-display':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/cutive-mono':
         specifier: ^5.2.8
         version: 5.2.8
       '@fontsource/rye':
@@ -743,8 +749,14 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@fontsource-variable/georama@5.2.8':
+    resolution: {integrity: sha512-PFIZfHq2oVEe99zpDJ25r2SLFZgE6eopkwYLLtjtdjBlmxn2BPHIa7BWVn4dTM2K/VC9H40Y1GULjgP4vYhi6g==}
+
   '@fontsource-variable/playfair-display@5.2.8':
     resolution: {integrity: sha512-ZzVIXPOrL85yyOvZYoBzUszIJM+xKkHqni4IYn2CVLaGQQdJR8sBeC8yFNgjxSJ7ludTwta8qpULeOFuk5X75A==}
+
+  '@fontsource/cutive-mono@5.2.8':
+    resolution: {integrity: sha512-Y8PKAYfbpl9Empbb1HZBoirlj4W7RtU+G4EhvX27pHzO6RE1sO0I1ElZQH5DMCTS+MSJkMmQT33sJ0+Ji9U8eQ==}
 
   '@fontsource/rye@5.2.7':
     resolution: {integrity: sha512-WJcc+SkIFMTuLNY6L1Y+WTsUhDanHyUe+ySvpKvgZkZW4xII52/FcG1h0djg1HJbqCRKHIhJEEDfBsKYxe7G5A==}
@@ -3628,7 +3640,11 @@ snapshots:
   '@esbuild/win32-x64@0.25.4':
     optional: true
 
+  '@fontsource-variable/georama@5.2.8': {}
+
   '@fontsource-variable/playfair-display@5.2.8': {}
+
+  '@fontsource/cutive-mono@5.2.8': {}
 
   '@fontsource/rye@5.2.7': {}
 

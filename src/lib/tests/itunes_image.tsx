@@ -84,6 +84,7 @@ function _testImage(path: [string, number][], tag: XML): TestOutput {
       status: "failed",
       error: "URL is missing an extension",
       path,
+      attribute: "href",
     };
   }
 

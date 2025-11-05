@@ -25,14 +25,26 @@ export type TestArgs = { xml: XML; required_server: boolean };
 /** Test output */
 export type TestOutput =
   | { status: "passed" }
-  | { status: "failed"; error: string; path?: Path };
+  | {
+      status: "failed";
+      error: string;
+      path?: Path;
+      attribute?: string;
+      text?: boolean;
+    };
 
 /** Result of a test */
 export type TestResult = Pick<Test, "key"> &
   (
     | { status: "running" }
     | { status: "passed" }
-    | { status: "failed"; error: string; path?: Path }
+    | {
+        status: "failed";
+        error: string;
+        path?: Path;
+        attribute?: string;
+        text?: boolean;
+      }
   );
 
 /** Test error path */

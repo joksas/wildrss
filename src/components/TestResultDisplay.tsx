@@ -65,7 +65,11 @@ export function TestResultDisplay({
           <>
             <span className="text-red-700">{result.error}</span>
             {xml && result.path && (
-              <XmlPathPreview xml={xml} path={result.path} />
+              <XmlPathPreview
+                xml={xml}
+                path={result.path}
+                attribute={result.attribute}
+              />
             )}
           </>
         )}

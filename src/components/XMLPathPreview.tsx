@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { XML } from "@/lib/feed";
 import type { Path } from "@/lib/tests/_index";
 
@@ -5,65 +6,154 @@ function escText(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function attrsToString(attrs?: Record<string, string>): string {
-  if (!attrs) return "";
-  // preserve stable ordering by key
-  return Object.keys(attrs)
-    .sort()
-    .map((k) => ` ${k}="${String(attrs[k]).replace(/"/g, "&quot;")}"`)
-    .join("");
+function escAttrValue(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 }
 
-function renderPathXML(root: XML, path: Path): string {
+type HighlightOptions = {
+  attributeToHighlight?: string;
+  highlightText?: boolean;
+};
+
+function renderPathXML(
+  root: XML,
+  path: Path,
+  options?: HighlightOptions,
+): ReactNode[] {
   const indent = "  ";
-  const lines: string[] = [];
+  const lines: ReactNode[] = [];
+  const { attributeToHighlight, highlightText } = options ?? {};
+
+  function renderAttrs(
+    tag: string,
+    attrs?: Record<string, string>,
+    isLeaf: boolean = false,
+  ): ReactNode[] {
+    if (!attrs) return [];
+    const keys = Object.keys(attrs).sort();
+    const nodes: ReactNode[] = [];
+
+    for (const key of keys) {
+      const raw = attrs[key] ?? "";
+      const shouldHighlight = isLeaf && attributeToHighlight === key;
+
+      if (shouldHighlight) {
+        nodes.push(
+          <span key={`attr-${tag}-${key}`}>
+            {" "}
+            {key}="
+            <span className="rounded bg-yellow-200 px-0.5">
+              {escAttrValue(String(raw))}
+            </span>
+            "
+          </span>,
+        );
+      } else {
+        nodes.push(` ${key}="${escAttrValue(String(raw))}"`);
+      }
+    }
+
+    return nodes;
+  }
+
+  function renderTextContent(text: string, isLeaf: boolean): ReactNode {
+    if (!isLeaf || !highlightText) return escText(text);
+    return (
+      <span className="rounded bg-yellow-200 px-0.5">{escText(text)}</span>
+    );
+  }
+
+  function pushLine(depth: number, parts: ReactNode[]): void {
+    const indentStr = indent.repeat(depth);
+    lines.push(
+      <span key={lines.length}>
+        {indentStr}
+        {parts}
+      </span>,
+    );
+    lines.push("\n");
+  }
 
   function step(parent: XML, depth: number, segmentIndex: number): void {
     const [tag, idx] = path[segmentIndex];
 
-    const node = parent[tag]?.at(idx);
+    const node = parent[tag]?.at(idx) as XML | undefined;
     if (!node) return;
-    const attrs = node["@attributes"];
+
+    const attrsRecord = node["@attributes"]?.[0];
     const text = node["@text"];
     const isLeaf = segmentIndex === path.length - 1;
     const selfClosing = isLeaf && !text;
 
-    const attrsString =
-      path.length > 1 && tag === "rss" ? "" : attrsToString(attrs?.at(0));
-    const open = `<${tag}${attrsString}${selfClosing ? " />" : ">"}`;
-    const close = selfClosing ? "" : `</${tag}>`;
+    const attrsNodes =
+      path.length > 1 && tag === "rss"
+        ? [] // hide rss attrs for readability, as before
+        : renderAttrs(tag, attrsRecord, isLeaf);
 
     if (isLeaf) {
-      if (text) {
-        lines.push(`${indent.repeat(depth)}${open}${escText(text)}${close}`);
+      if (selfClosing) {
+        pushLine(depth, ["<", tag, ...attrsNodes, " />"]);
       } else {
-        lines.push(`${indent.repeat(depth)}${open}${close}`);
+        const textNode = text ? renderTextContent(text, true) : "";
+        pushLine(depth, [
+          "<",
+          tag,
+          ...attrsNodes,
+          ">",
+          textNode,
+          "</",
+          tag,
+          ">",
+        ]);
       }
       return;
     }
 
-    lines.push(`${indent.repeat(depth)}${open}`);
+    // Non-leaf: open tag
+    pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
+
+    // Extra context for items (unchanged, but now as nodes)
     if (tag === "item") {
       const item_title = node["title"]?.at(0)?.["@text"];
-      if (item_title)
-        lines.push(`${indent.repeat(depth + 1)}<title>${item_title}</title>`);
+      if (item_title) {
+        pushLine(depth + 1, ["<title>", escText(item_title), "</title>"]);
+      }
+
       const item_guid = node["guid"]?.at(0)?.["@text"];
-      if (item_guid)
-        lines.push(`${indent.repeat(depth + 1)}<guid>${item_guid}</guid>`);
+      if (item_guid) {
+        pushLine(depth + 1, ["<guid>", escText(item_guid), "</guid>"]);
+      }
     }
+
     step(node, depth + 1, segmentIndex + 1);
-    lines.push(`${indent.repeat(depth)}${close}`);
+
+    // Close tag
+    pushLine(depth, ["</", tag, ">"]);
   }
 
   step(root, 0, 0);
-  return lines.join("\n");
+  return lines;
 }
 
-export function XmlPathPreview({ xml, path }: { xml: XML; path: Path }) {
-  const xmlString = renderPathXML(xml, path);
+export function XmlPathPreview({
+  xml,
+  path,
+  attribute,
+  text,
+}: {
+  xml: XML;
+  path: Path;
+  attribute?: string;
+  text?: boolean;
+}) {
+  const xmlNodes = renderPathXML(xml, path, {
+    attributeToHighlight: attribute,
+    highlightText: text,
+  });
+
   return (
     <pre className="overflow-x-auto">
-      <code>{xmlString}</code>
+      <code>{xmlNodes}</code>
     </pre>
   );
 }

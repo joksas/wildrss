@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { Result, ResultAsync } from "neverthrow";
 import { useEffect, useState } from "react";
-import { Input, TextField } from "react-aria-components";
+import { Button, Input, TextField } from "react-aria-components";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { TestResultDisplay } from "@/components/TestResultDisplay";
 import {
@@ -119,7 +119,9 @@ function App() {
           />
           {state === "pending" &&
             (url.startsWith("http://") || url.startsWith("https://")) && (
-              <KeyReturnIcon size={28} />
+              <Button onPress={validate} className="cursor-pointer">
+                <KeyReturnIcon size={28} />
+              </Button>
             )}
           {(state === "fetching" ||
             state === "parsing" ||

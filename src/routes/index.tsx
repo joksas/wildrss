@@ -14,7 +14,7 @@ import {
   prefetchFeed,
   type XML,
 } from "@/lib/feed";
-import type { State, Test, TestResult } from "@/lib/tests/_index";
+import type { Test, TestOutput, ValidationState } from "@/lib/tests/_index";
 import { testCORS } from "@/lib/tests/cors";
 import { testItunesImage } from "@/lib/tests/itunes_image";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
@@ -36,10 +36,10 @@ function App() {
   const client = useQueryClient();
 
   // State
-  const [state, setState] = useState<State>("pending");
+  const [state, setState] = useState<ValidationState>("pending");
   const [url, setURL] = useState<string>(DEFAULT_URL);
   const [xml, setXML] = useState<XML | undefined>(undefined);
-  const [results, setResults] = useState<TestResult[]>([]);
+  const [results, setResults] = useState<Record<string, TestOutput[]>>({});
   const feedInfo = {
     title: xml?.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.["@text"],
     author: xml?.rss?.at(0)?.channel?.at(0)?.["itunes:author"]?.at(0)?.[
@@ -57,7 +57,7 @@ function App() {
   const validate = async () => {
     try {
       if (state !== "pending") return;
-      setResults([]);
+      setResults({});
       setXML(undefined);
 
       // Fetch
@@ -79,14 +79,8 @@ function App() {
       // Run tests
       setState("testing");
       for (const test of TESTS) {
-        setResults((prev) => [...prev, { key: test.key, status: "running" }]);
-
         const result = await test.test({ xml: _xml, required_server });
-        setResults((prev) =>
-          prev.map((_result) =>
-            _result.key === test.key ? { ...result, key: test.key } : _result,
-          ),
-        );
+        setResults((prev) => ({ ...prev, [test.key]: result }));
       }
 
       setState("pending");
@@ -159,7 +153,7 @@ function App() {
 
           <div className="flex flex-col gap-3">
             {TESTS.map((test) => {
-              const result = results.find((result) => result.key === test.key);
+              const result = results[test.key];
               return (
                 <TestResultDisplay
                   key={test.key}

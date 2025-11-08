@@ -1,4 +1,4 @@
-import type { Test, TestArgs } from "./_index";
+import type { Test, TestArgs, TestOutput } from "./_index";
 
 export const testTitle: Test = {
   key: "title",
@@ -6,25 +6,29 @@ export const testTitle: Test = {
   test: async ({ xml }: TestArgs) => {
     const titleTag = xml.rss?.at(0)?.channel?.at(0)?.title?.at(0);
     if (!titleTag)
-      return {
-        status: "failed",
-        error: "Missing <title>",
-        path: [
-          ["rss", 0],
-          ["channel", 0],
-        ],
-      };
+      return [
+        {
+          status: "error",
+          message: "Missing <title>",
+          path: [
+            ["rss", 0],
+            ["channel", 0],
+          ],
+        },
+      ];
     const title = titleTag["@text"];
     if (!title)
-      return {
-        status: "failed",
-        error: "Missing <title> value",
-        path: [
-          ["rss", 0],
-          ["channel", 0],
-          ["title", 0],
-        ],
-      };
-    return { status: "passed" };
+      return [
+        {
+          status: "error",
+          message: "Missing <title> value",
+          path: [
+            ["rss", 0],
+            ["channel", 0],
+            ["title", 0],
+          ],
+        },
+      ];
+    return [];
   },
 };

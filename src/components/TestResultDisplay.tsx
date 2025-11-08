@@ -8,10 +8,10 @@ import {
 import { match } from "ts-pattern";
 import type { XML } from "@/lib/feed";
 import {
-  type State,
   type Test,
-  type TestResult,
+  type TestOutput,
   TestResultIcon,
+  type ValidationState,
 } from "@/lib/tests/_index";
 import { XmlPathPreview } from "./XMLPathPreview";
 
@@ -23,15 +23,18 @@ export function TestResultDisplay({
 }: {
   xml: XML | undefined;
   test: Test;
-  state: State;
-  result: TestResult | undefined;
+  state: ValidationState;
+  result: TestOutput[] | undefined;
 }) {
-  const status = result?.status;
+  const status = result
+    ? result.find((output) => output.status === "error")
+      ? "failed"
+      : "passed"
+    : undefined;
   const bg = match(status)
     .with(undefined, () => "bg-amber-100")
     .with("passed", () => "bg-green-50")
     .with("failed", () => "bg-red-50")
-    .with("running", () => "bg-blue-50")
     .exhaustive();
 
   return (
@@ -43,15 +46,15 @@ export function TestResultDisplay({
     >
       <Heading className="flex items-center gap-1.5">
         <TestResultIcon
-          status={result?.status}
+          status={status}
           size={24}
           weight="fill"
           className={clsx("flex-none", {
-            "animate-spin": !result?.status && state !== "pending",
+            "animate-spin": !status && state !== "pending",
           })}
         />
         <span className="text-lg">{test.name}</span>
-        {result?.status === "failed" && (
+        {status === "failed" && (
           <Button
             slot="trigger"
             className="ml-auto cursor-pointer py-1.5 text-red-800 text-sm underline"
@@ -61,18 +64,21 @@ export function TestResultDisplay({
         )}
       </Heading>
       <DisclosurePanel className="ml-6 flex flex-col gap-1">
-        {result?.status === "failed" && (
-          <>
-            <span className="text-red-700">{result.error}</span>
-            {xml && result.path && (
-              <XmlPathPreview
-                xml={xml}
-                path={result.path}
-                attribute={result.attribute}
-              />
-            )}
-          </>
-        )}
+        {result
+          ?.filter((output) => output.status === "error")
+          .map((output) => (
+            <>
+              <span className="text-red-700">{output.message}</span>
+              {xml && output.path && (
+                <XmlPathPreview
+                  xml={xml}
+                  path={output.path}
+                  attribute={output.attribute}
+                  text={output.text}
+                />
+              )}
+            </>
+          ))}
       </DisclosurePanel>
     </Disclosure>
   );

@@ -16,6 +16,7 @@ import {
 } from "@/lib/feed";
 import type { Test, TestOutput, ValidationState } from "@/lib/tests/_index";
 import { testCORS } from "@/lib/tests/cors";
+import testDescription from "@/lib/tests/description";
 import { testItunesImage } from "@/lib/tests/itunes_image";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
 import { testTitle } from "@/lib/tests/title";
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/")({ component: App });
 const DEFAULT_URL = "https://www.feed.behindthesch3m3s.com/feed.xml";
 const TESTS: Test[] = [
   testTitle,
+  testDescription,
   testValue,
   testItunesOwner,
   testItunesImage,

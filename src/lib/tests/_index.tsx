@@ -1,7 +1,6 @@
 import {
   CheckCircleIcon,
   CircleDashedIcon,
-  CircleIcon,
   type Icon,
   XCircleIcon,
 } from "@phosphor-icons/react";
@@ -24,7 +23,7 @@ export type TestArgs = { xml: XML; required_server: boolean };
 
 /** Test output */
 export type TestOutput = {
-  status: "info" | "error";
+  status: "info" | "error" | "warn";
   message: React.ReactNode;
   path?: Path;
   attribute?: string;

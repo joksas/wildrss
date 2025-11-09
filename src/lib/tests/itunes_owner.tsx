@@ -1,42 +1,69 @@
-import type { Test, TestArgs, TestOutput } from "./_index";
+import type { Test, TestArgs } from "./_index";
+import { checkTag } from "./_utils";
 
-const ALLOWED_CHILDREN = ["itunes:name", "itunes:email"];
 export const testItunesOwner: Test = {
   key: "itunes:owner",
   name: <code>&lt;itunes:owner&gt;</code>,
   test: async ({ xml }: TestArgs) => {
-    const outputs: TestOutput[] = [];
+    const outputs = [];
 
     // itunes:owner
-    const itunesOwnerTags = xml.rss?.at(0)?.channel?.at(0)?.["itunes:owner"];
-    const itunesOwnerTag = itunesOwnerTags?.at(0);
-    if (!itunesOwnerTag) return [];
-    if (itunesOwnerTags && itunesOwnerTags?.length > 1)
-      outputs.push({
-        status: "error",
-        message: `Found ${itunesOwnerTags.length} <itunes:owner> tags; expected 1`,
-        path: [
+    outputs.push(
+      ...checkTag(
+        xml.rss?.at(0)?.channel?.at(0)?.["itunes:owner"],
+        "itunes:owner",
+        [
+          ["rss", 0],
+          ["channel", 0],
+        ],
+        {
+          limits: { min: 0, max: 1 },
+          attributes: [],
+          children: [
+            { name: "itunes:name", min: 1, max: 1 },
+            { name: "itunes:email", min: 1, max: 1 },
+          ],
+        },
+      ),
+    );
+
+    // itunes:name
+    outputs.push(
+      ...checkTag(
+        xml.rss?.at(0)?.channel?.at(0)?.["itunes:owner"]?.at(0)?.[
+          "itunes:name"
+        ],
+        "itunes:name",
+        [
           ["rss", 0],
           ["channel", 0],
           ["itunes:owner", 0],
         ],
-      });
+        {
+          attributes: [],
+          children: [],
+        },
+      ),
+    );
 
-    // Other keys
-    const keys = Object.keys(itunesOwnerTag);
-    for (const key of keys) {
-      if (!ALLOWED_CHILDREN.includes(key))
-        outputs.push({
-          status: "error",
-          message: `Unexpected child: <${key} />`,
-          path: [
-            ["rss", 0],
-            ["channel", 0],
-            ["itunes:owner", 0],
-            [key, 0],
-          ],
-        });
-    }
+    // itunes:email
+    outputs.push(
+      ...checkTag(
+        xml.rss?.at(0)?.channel?.at(0)?.["itunes:owner"]?.at(0)?.[
+          "itunes:email"
+        ],
+        "itunes:email",
+        [
+          ["rss", 0],
+          ["channel", 0],
+          ["itunes:owner", 0],
+        ],
+        {
+          attributes: [],
+          children: [],
+        },
+      ),
+    );
 
     return outputs;
   },

@@ -17,7 +17,7 @@ import {
 import type { Test, TestOutput, ValidationState } from "@/lib/tests/_index";
 import { testCORS } from "@/lib/tests/cors";
 import testDescription from "@/lib/tests/description";
-import { testItunesImage } from "@/lib/tests/itunes_image";
+import testItunesImage from "@/lib/tests/itunes_image";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
 import { testTitle } from "@/lib/tests/title";
 import { testValue } from "@/lib/tests/value";

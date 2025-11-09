@@ -27,7 +27,9 @@ export function TestResultDisplay({
   result: TestOutput[] | undefined;
 }) {
   const status = result
-    ? result.find((output) => output.status === "error")
+    ? result.find(
+        (output) => output.status === "error" || output.status === "warn",
+      )
       ? "failed"
       : "passed"
     : undefined;
@@ -65,7 +67,9 @@ export function TestResultDisplay({
       </Heading>
       <DisclosurePanel className="ml-6 flex flex-col gap-1">
         {result
-          ?.filter((output) => output.status === "error")
+          ?.filter(
+            (output) => output.status === "error" || output.status === "warn",
+          )
           .map((output) => (
             <>
               <span className="text-red-700">{output.message}</span>

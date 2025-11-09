@@ -1,10 +1,12 @@
 /** Tests if a URL has an extension */
-export function urlHasExtension(url: string): boolean {
+export function getUrlExtension(url: string): string | undefined {
   try {
     const { pathname } = new URL(url);
     const last_segment = pathname.split("/").pop() || "";
-    return /\.[a-z0-9]+$/i.test(last_segment);
+    const parts = last_segment.split(".").filter(Boolean);
+    if (parts.length < 2) return undefined;
+    return parts.slice(1).join(".");
   } catch {
-    return false;
+    return undefined;
   }
 }

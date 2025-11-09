@@ -8,8 +8,14 @@ export const testCORS: Test = {
       return [
         {
           status: "error",
-          message:
-            "Feed server is likely missing 'Access-Control-Allow-Origin' HTTP response header with value of '*'. Some webpages may not be able to parse the feed.",
+          message: (
+            <>
+              Feed server is likely missing{" "}
+              <code>Access-Control-Allow-Origin</code> HTTP response header with
+              value of <code>*</code>. Some webpages may be unable to parse the
+              feed.
+            </>
+          ),
         },
       ];
     return [];

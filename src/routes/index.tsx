@@ -162,7 +162,7 @@ function App() {
                   xml={xml}
                   state={state}
                   test={test}
-                  result={result}
+                  results={result}
                 />
               );
             })}

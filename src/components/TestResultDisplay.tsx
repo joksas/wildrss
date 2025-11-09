@@ -19,15 +19,15 @@ export function TestResultDisplay({
   xml,
   test,
   state,
-  result,
+  results,
 }: {
   xml: XML | undefined;
   test: Test;
   state: ValidationState;
-  result: TestOutput[] | undefined;
+  results: TestOutput[] | undefined;
 }) {
-  const status = result
-    ? result.find(
+  const status = results
+    ? results.find(
         (output) => output.status === "error" || output.status === "warn",
       )
       ? "failed"
@@ -66,10 +66,15 @@ export function TestResultDisplay({
         )}
       </Heading>
       <DisclosurePanel className="ml-6 flex flex-col gap-1">
-        {result
+        {results
           ?.filter(
             (output) => output.status === "error" || output.status === "warn",
           )
+          .sort((a, b) => {
+            if (a.status === b.status) return 0;
+            if (a.status === "error") return -1;
+            return 1;
+          })
           .map((output) => (
             <>
               <span className="text-red-700">{output.message}</span>

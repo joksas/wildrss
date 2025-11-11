@@ -30,6 +30,9 @@
           "level": "error",
           "fix": "safe"
         }
+      },
+      "suspicious": {
+        "noArrayIndexKey": "warn"
       }
     }
   },

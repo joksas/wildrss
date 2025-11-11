@@ -5,89 +5,97 @@ import {
   DisclosurePanel,
   Heading,
 } from "react-aria-components";
-import { match } from "ts-pattern";
 import type { XML } from "@/lib/feed";
-import {
-  type Test,
-  type TestOutput,
-  TestResultIcon,
-  type ValidationState,
-} from "@/lib/tests/_index";
+import type { Test, TestOutput, ValidationState } from "@/lib/tests/_index";
+import { TestOutputIcon } from "./TestOutputIcon";
+import { TestOutputsGroup } from "./TestOutputsGroup";
+import { TestResultIcon } from "./TestResultIcon";
 import { XmlPathPreview } from "./XMLPathPreview";
 
 export function TestResultDisplay({
   xml,
   test,
   state,
-  results,
+  outputs: results,
 }: {
   xml: XML | undefined;
   test: Test;
   state: ValidationState;
-  results: TestOutput[] | undefined;
+  outputs: TestOutput[] | undefined;
 }) {
-  const status = results
-    ? results.find(
-        (output) => output.status === "error" || output.status === "warn",
-      )
-      ? "failed"
-      : "passed"
-    : undefined;
-  const bg = match(status)
-    .with(undefined, () => "bg-amber-100")
-    .with("passed", () => "bg-green-50")
-    .with("failed", () => "bg-red-50")
-    .exhaustive();
+  // Number of results
+  const num_total = results?.length ?? 0;
+  const num_info =
+    results?.filter((result) => result.status === "info").length ?? 0;
+  const num_warn =
+    results?.filter((result) => result.status === "warn").length ?? 0;
+  const num_error =
+    results?.filter((result) => result.status === "error").length ?? 0;
+  const expandable = num_total > 0;
 
   return (
     <Disclosure
       className={clsx(
-        "flex flex-col border-2 border-amber-950 px-3 py-2 data-[expanded=true]:gap-2",
-        bg,
+        "flex flex-col border-2 border-amber-950 bg-amber-100 data-[expanded=true]:gap-2",
       )}
     >
-      <Heading className="flex items-center gap-1.5">
-        <TestResultIcon
-          status={status}
-          size={24}
-          weight="fill"
-          className={clsx("flex-none", {
-            "animate-spin": !status && state !== "pending",
-          })}
-        />
-        <span className="text-lg">{test.name}</span>
-        {status === "failed" && (
-          <Button
-            slot="trigger"
-            className="ml-auto cursor-pointer py-1.5 text-red-800 text-sm underline"
-          >
-            Show error
-          </Button>
-        )}
+      <Heading>
+        <Button
+          className={clsx(
+            "flex w-full items-center justify-between gap-1.5 py-2 pr-4 pl-3",
+            {
+              "cursor-pointer": expandable,
+            },
+          )}
+          slot={expandable ? "trigger" : undefined}
+        >
+          <div className="flex items-center gap-1.5">
+            <TestResultIcon
+              outputs={results}
+              size={24}
+              weight="fill"
+              className={clsx("flex-none", {
+                "animate-spin": !status && state !== "pending",
+              })}
+            />
+            <span className="text-lg">{test.name}</span>
+          </div>
+          {results && results.length > 1 && (
+            <TestOutputsGroup outputs={results} />
+          )}
+        </Button>
       </Heading>
-      <DisclosurePanel className="ml-6 flex flex-col gap-1">
-        {results
-          ?.filter(
-            (output) => output.status === "error" || output.status === "warn",
-          )
-          .sort((a, b) => {
-            if (a.status === b.status) return 0;
-            if (a.status === "error") return -1;
-            return 1;
-          })
-          .map((output) => (
-            <>
-              <span className="text-red-700">{output.message}</span>
-              {xml && output.path && (
-                <XmlPathPreview
-                  xml={xml}
-                  path={output.path}
-                  attribute={output.attribute}
-                  text={output.text}
-                />
-              )}
-            </>
-          ))}
+      <DisclosurePanel>
+        <div className="flex flex-col gap-3 px-3 pb-3">
+          {results
+            ?.filter(
+              (output) => output.status === "error" || output.status === "warn",
+            )
+            .sort((a, b) => {
+              if (a.status === b.status) return 0;
+              if (a.status === "error") return -1;
+              return 1;
+            })
+            .map((output, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-2 border-2 border-amber-950 bg-amber-50 py-2 pl-2"
+              >
+                <div className="flex items-center gap-1">
+                  <TestOutputIcon output={output} size={20} weight="fill" />
+                  <span className="leading-tight">{output.message}</span>
+                </div>
+                {xml && output.path && (
+                  <XmlPathPreview
+                    xml={xml}
+                    path={output.path}
+                    attribute={output.attribute}
+                    text={output.text}
+                  />
+                )}
+              </div>
+            ))}
+        </div>
       </DisclosurePanel>
     </Disclosure>
   );

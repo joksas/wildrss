@@ -1,15 +1,13 @@
-import {
-  CheckCircleIcon,
-  CircleDashedIcon,
-  type Icon,
-  XCircleIcon,
-} from "@phosphor-icons/react";
-import type { ComponentProps } from "react";
-import { twMerge } from "tailwind-merge";
-import { match } from "ts-pattern";
 import type { XML } from "../feed";
 
 export type ValidationState = "pending" | "fetching" | "parsing" | "testing";
+
+/** Sort priority */
+const STATUS_PRIORITY: Record<TestOutput["status"], number> = {
+  error: 0,
+  warn: 1,
+  info: 2,
+};
 
 /** Test for an RSS feed */
 export type Test = {
@@ -33,29 +31,12 @@ export type TestOutput = {
 /** Test error path */
 export type Path = [tag: string, index: number][];
 
-export function TestResultIcon({
-  status,
-  ...props
-}: { status: undefined | "passed" | "failed" } & ComponentProps<Icon>) {
-  return match(status)
-    .with(undefined, () => (
-      <CircleDashedIcon
-        {...props}
-        weight="bold"
-        className={twMerge(props.className, "text-amber-950")}
-      />
-    ))
-    .with("passed", () => (
-      <CheckCircleIcon
-        {...props}
-        className={twMerge(props.className, "text-green-800")}
-      />
-    ))
-    .with("failed", () => (
-      <XCircleIcon
-        {...props}
-        className={twMerge(props.className, "text-red-700")}
-      />
-    ))
-    .exhaustive();
+/** Sort an array of TestOutput objects in-place by status */
+export function sortTestOutputs(
+  outputs: TestOutput[] | undefined,
+): TestOutput[] | undefined {
+  if (!outputs) return undefined;
+  return outputs.sort(
+    (a, b) => STATUS_PRIORITY[a.status] - STATUS_PRIORITY[b.status],
+  );
 }

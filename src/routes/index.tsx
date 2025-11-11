@@ -14,7 +14,12 @@ import {
   prefetchFeed,
   type XML,
 } from "@/lib/feed";
-import type { Test, TestOutput, ValidationState } from "@/lib/tests/_index";
+import {
+  sortTestOutputs,
+  type Test,
+  type TestOutput,
+  type ValidationState,
+} from "@/lib/tests/_index";
 import { testCORS } from "@/lib/tests/cors";
 import testDescription from "@/lib/tests/description";
 import testItunesImage from "@/lib/tests/itunes_image";
@@ -64,6 +69,7 @@ function App() {
 
       // Fetch
       setState("fetching");
+      await new Promise((resolve) => setTimeout(resolve, 1)); // Artificial delay
       const fetchRes = await ResultAsync.fromPromise(
         fetchFeed(client, url),
         (e) => e,
@@ -142,6 +148,7 @@ function App() {
                   src={feedInfo.image}
                   alt="Podcast artwork"
                   className="size-20 object-cover object-center sepia-[0.7]"
+                  loading="lazy"
                 />
                 <div className="flex flex-col font-display">
                   <span className="font-bold text-2xl">{feedInfo.title}</span>
@@ -155,14 +162,14 @@ function App() {
 
           <div className="flex flex-col gap-3">
             {TESTS.map((test) => {
-              const result = results[test.key];
+              const outputs = sortTestOutputs(results[test.key]);
               return (
                 <TestResultDisplay
                   key={test.key}
                   xml={xml}
                   state={state}
                   test={test}
-                  results={result}
+                  outputs={outputs}
                 />
               );
             })}

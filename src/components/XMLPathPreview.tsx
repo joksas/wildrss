@@ -42,7 +42,7 @@ function renderPathXML(
           <span key={`attr-${tag}-${key}`}>
             {" "}
             {key}="
-            <span className="rounded bg-yellow-200 px-0.5">
+            <span className="rounded bg-amber-200 px-0.5">
               {escAttrValue(String(raw))}
             </span>
             "
@@ -58,9 +58,7 @@ function renderPathXML(
 
   function renderTextContent(text: string, isLeaf: boolean): ReactNode {
     if (!isLeaf || !highlightText) return escText(text);
-    return (
-      <span className="rounded bg-yellow-200 px-0.5">{escText(text)}</span>
-    );
+    return <span className="rounded bg-amber-200 px-0.5">{escText(text)}</span>;
   }
 
   function pushLine(depth: number, parts: ReactNode[]): void {

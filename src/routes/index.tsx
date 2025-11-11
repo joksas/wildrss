@@ -6,6 +6,7 @@ import { Result, ResultAsync } from "neverthrow";
 import { useEffect, useState } from "react";
 import { Button, Input, TextField } from "react-aria-components";
 import { ProgressCircle } from "@/components/ProgressCircle";
+import { TestGroupDisplay } from "@/components/TestGroupDisplay";
 import { TestResultDisplay } from "@/components/TestResultDisplay";
 import {
   cancelFeedQueries,
@@ -16,7 +17,9 @@ import {
 } from "@/lib/feed";
 import {
   sortTestOutputs,
+  TEST_GROUPS,
   type Test,
+  type TestGroup,
   type TestOutput,
   type ValidationState,
 } from "@/lib/tests/_index";
@@ -160,19 +163,17 @@ function App() {
             )}
           </AnimatePresence>
 
-          <div className="flex flex-col gap-3">
-            {TESTS.map((test) => {
-              const outputs = sortTestOutputs(results[test.key]);
-              return (
-                <TestResultDisplay
-                  key={test.key}
-                  xml={xml}
-                  state={state}
-                  test={test}
-                  outputs={outputs}
-                />
-              );
-            })}
+          <div className="flex flex-col gap-6">
+            {TEST_GROUPS.map((group) => (
+              <TestGroupDisplay
+                key={group}
+                results={results}
+                tests={TESTS}
+                group={group}
+                xml={xml}
+                state={state}
+              />
+            ))}
           </div>
         </div>
       </section>

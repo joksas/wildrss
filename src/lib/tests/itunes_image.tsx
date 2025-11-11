@@ -6,6 +6,7 @@ import { checkTag } from "./_utils";
 
 export default {
   key: "itunes:image",
+  group: "itunes" as const,
   name: <code>&lt;itunes:image&gt;</code>,
   test: async ({ xml }: TestArgs) => {
     const outputs: TestOutput[] = [];

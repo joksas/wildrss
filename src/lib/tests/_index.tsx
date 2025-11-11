@@ -1,3 +1,4 @@
+import { match } from "ts-pattern";
 import type { XML } from "../feed";
 
 export type ValidationState = "pending" | "fetching" | "parsing" | "testing";
@@ -12,6 +13,7 @@ const STATUS_PRIORITY: Record<TestOutput["status"], number> = {
 /** Test for an RSS feed */
 export type Test = {
   key: string;
+  group: TestGroup;
   name: React.ReactNode;
   test: (args: TestArgs) => Promise<TestOutput[]>;
 };
@@ -39,4 +41,16 @@ export function sortTestOutputs(
   return outputs.sort(
     (a, b) => STATUS_PRIORITY[a.status] - STATUS_PRIORITY[b.status],
   );
+}
+
+export const TEST_GROUPS = ["basic", "rss", "itunes", "podcast"] as const;
+export type TestGroup = (typeof TEST_GROUPS)[number];
+
+export function getTestGroupName(group: TestGroup): string {
+  return match(group)
+    .with("basic", () => "Basic tests")
+    .with("rss", () => "RSS namespace tests")
+    .with("itunes", () => "Apple Podcasts namespace tests")
+    .with("podcast", () => "Podcast namespace tests")
+    .exhaustive();
 }

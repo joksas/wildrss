@@ -25,12 +25,6 @@ export function TestResultDisplay({
 }) {
   // Number of results
   const num_total = results?.length ?? 0;
-  const num_info =
-    results?.filter((result) => result.status === "info").length ?? 0;
-  const num_warn =
-    results?.filter((result) => result.status === "warn").length ?? 0;
-  const num_error =
-    results?.filter((result) => result.status === "error").length ?? 0;
   const expandable = num_total > 0;
 
   return (
@@ -58,7 +52,7 @@ export function TestResultDisplay({
                 "animate-spin": !status && state !== "pending",
               })}
             />
-            <span className="text-lg">{test.name}</span>
+            <span className="font-medium text-lg">{test.name}</span>
           </div>
           {results && results.length > 1 && (
             <TestOutputsGroup outputs={results} />

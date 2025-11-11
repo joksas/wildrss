@@ -3,6 +3,7 @@ import { checkTag } from "./_utils";
 
 export const testItunesOwner: Test = {
   key: "itunes:owner",
+  group: "itunes",
   name: <code>&lt;itunes:owner&gt;</code>,
   test: async ({ xml }: TestArgs) => {
     const outputs = [];

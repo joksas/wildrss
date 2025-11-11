@@ -1,7 +1,8 @@
-import type { Test, TestArgs, TestOutput } from "./_index";
+import type { Test, TestArgs } from "./_index";
 
 export const testTitle: Test = {
   key: "title",
+  group: "rss",
   name: <code>&lt;title&gt;</code>,
   test: async ({ xml }: TestArgs) => {
     const titleTag = xml.rss?.at(0)?.channel?.at(0)?.title?.at(0);

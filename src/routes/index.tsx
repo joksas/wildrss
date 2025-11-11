@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Result, ResultAsync } from "neverthrow";
 import { useEffect, useState } from "react";
 import { Button, Input, TextField } from "react-aria-components";
+import * as z from "zod";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { TestGroupDisplay } from "@/components/TestGroupDisplay";
 import {
@@ -45,6 +46,7 @@ function App() {
   // State
   const [state, setState] = useState<ValidationState>("pending");
   const [url, setURL] = useState<string>(DEFAULT_URL);
+  const isProperURL = z.url().safeParse(url).success;
   const [xml, setXML] = useState<XML | undefined>(undefined);
   const [results, setResults] = useState<Record<string, TestOutput[]>>({});
   const feedInfo = {
@@ -58,8 +60,9 @@ function App() {
   };
 
   useEffect(() => {
+    if (!isProperURL) return;
     cancelFeedQueries(client).then(() => prefetchFeed(client, url));
-  }, [client, url]);
+  }, [client, url, isProperURL]);
 
   const validate = async () => {
     try {
@@ -95,6 +98,11 @@ function App() {
     } finally {
     }
   };
+  // Validate on load
+  useEffect(() => {
+    if (!isProperURL) return;
+    validate();
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 px-3 py-3">

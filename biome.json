@@ -33,6 +33,9 @@
       },
       "suspicious": {
         "noArrayIndexKey": "warn"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "warn"
       }
     }
   },

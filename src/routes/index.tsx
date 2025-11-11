@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { Button, Input, TextField } from "react-aria-components";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { TestGroupDisplay } from "@/components/TestGroupDisplay";
-import { TestResultDisplay } from "@/components/TestResultDisplay";
 import {
   cancelFeedQueries,
   fetchFeed,
@@ -16,10 +15,8 @@ import {
   type XML,
 } from "@/lib/feed";
 import {
-  sortTestOutputs,
   TEST_GROUPS,
   type Test,
-  type TestGroup,
   type TestOutput,
   type ValidationState,
 } from "@/lib/tests/_index";

@@ -1,12 +1,12 @@
 import * as z from "zod";
 import type { XML } from "../feed";
 import { getUrlExtension } from "../url";
-import type { Path, TestArgs, TestOutput } from "./_index";
+import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkTag } from "./_utils";
 
 export default {
   key: "itunes:image",
-  group: "itunes" as const,
+  group: "itunes",
   name: <code>&lt;itunes:image&gt;</code>,
   test: async ({ xml }: TestArgs) => {
     const outputs: TestOutput[] = [];
@@ -40,7 +40,7 @@ export default {
 
     return outputs;
   },
-};
+} satisfies Test;
 
 function _testImage(
   tags: XML[] | undefined,

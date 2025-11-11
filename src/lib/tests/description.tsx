@@ -5,16 +5,17 @@ const FEED_DESCRIPTION_LIMIT = 4_000;
 const ITEM_DESCRIPTION_LIMIT = 10_000;
 
 export default {
-  key: "description",
+  key: "description" as const,
+  group: "rss",
   name: <code>&lt;description&gt;</code>,
   test: async ({ xml }: TestArgs) => {
     const outputs: TestOutput[] = [];
 
-    const descriptionTag = xml.rss?.at(0)?.channel?.at(0)?.title?.at(0);
+    const descriptionTag = xml.rss?.at(0)?.channel?.at(0)?.description?.at(0);
     if (!descriptionTag) {
       outputs.push({
         status: "error",
-        message: "Missing <title>",
+        message: "Missing <description>",
         path: [
           ["rss", 0],
           ["channel", 0],

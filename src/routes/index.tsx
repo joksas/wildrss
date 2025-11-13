@@ -23,6 +23,7 @@ import {
 } from "@/lib/tests/_index";
 import { testCORS } from "@/lib/tests/cors";
 import testDescription from "@/lib/tests/description";
+import testFetching from "@/lib/tests/fetching";
 import testItunesImage from "@/lib/tests/itunes_image";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
 import { testTitle } from "@/lib/tests/title";
@@ -32,12 +33,13 @@ export const Route = createFileRoute("/")({ component: App });
 
 const DEFAULT_URL = "https://www.feed.behindthesch3m3s.com/feed.xml";
 const TESTS: Test[] = [
+  testFetching,
+  testCORS,
   testTitle,
   testDescription,
   testValue,
   testItunesOwner,
   testItunesImage,
-  testCORS,
 ];
 
 function App() {
@@ -81,7 +83,11 @@ function App() {
 
       // Parse
       setState("parsing");
-      const { content, server_info } = fetchRes.value;
+      const {
+        content,
+        time_ms: fetching_time_ms,
+        server_info,
+      } = fetchRes.value;
       const parseRes = Result.fromThrowable(parseFeed)(content);
       if (parseRes.isErr()) return setState("pending"); // TODO: set error
       const _xml = parseRes.value;
@@ -90,7 +96,14 @@ function App() {
       // Run tests
       setState("testing");
       for (const test of TESTS) {
-        const result = await test.test({ xml: _xml, server_info });
+        const result = await test.test({
+          xml: _xml,
+          fetching_info: {
+            success: true,
+            time_ms: fetching_time_ms,
+            headers: server_info?.headers,
+          },
+        });
         setResults((prev) => ({ ...prev, [test.key]: result }));
       }
 

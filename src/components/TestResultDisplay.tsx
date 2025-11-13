@@ -62,10 +62,7 @@ export function TestResultDisplay({
       <DisclosurePanel>
         <div className="flex flex-col gap-3 px-3 pb-3">
           {results
-            ?.filter(
-              (output) => output.status === "error" || output.status === "warn",
-            )
-            .sort((a, b) => {
+            ?.sort((a, b) => {
               if (a.status === b.status) return 0;
               if (a.status === "error") return -1;
               return 1;

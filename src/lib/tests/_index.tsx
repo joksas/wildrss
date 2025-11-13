@@ -21,7 +21,15 @@ export type Test = {
 /** Test arguments */
 export type TestArgs = {
   xml: XML;
-  server_info?: { headers: Record<string, string> };
+  fetching_info: {
+    success: boolean;
+    time_ms: number;
+    headers?: Record<string, string>;
+  };
+  parsing_info?: {
+    success: boolean;
+    time_ms: number;
+  };
 };
 
 /** Test output */

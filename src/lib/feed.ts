@@ -17,18 +17,24 @@ export type XML = _XML<["@text"], ["@attributes"]>;
 
 async function _fetchQueryFunction(url: string, signal: AbortSignal) {
   try {
-    const content = await _fetchFeed({ data: url, signal });
-    return { content };
+    const t1 = performance.now();
+    const { content } = await _fetchFeed({ data: url, signal });
+    const t2 = performance.now();
+    const time_ms = Math.ceil(t2 - t1);
+    return { content, time_ms };
   } catch (error) {
     if (isServer) throw error;
     console.error(error);
     console.info(`Retrying fetch for ${url} via server`);
+    const t1 = performance.now();
     const { content, info: server_info } = await _fetchFeedServer({
       data: url,
       signal,
     });
+    const t2 = performance.now();
+    const time_ms = Math.ceil(t2 - t1);
     console.info(`Successfully fetched ${url} via server`);
-    return { content, server_info };
+    return { content, time_ms, server_info };
   }
 }
 
@@ -38,6 +44,7 @@ export function fetchFeed(
   url: string,
 ): Promise<{
   content: string;
+  time_ms: number;
   server_info?: { headers: Record<string, string> };
 }> {
   return client.fetchQuery({

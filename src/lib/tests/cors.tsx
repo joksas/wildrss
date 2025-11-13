@@ -4,10 +4,12 @@ export const testCORS: Test = {
   key: "permissive-cors",
   group: "basic",
   name: "Permissive CORS",
-  test: async ({ server_info }: TestArgs) => {
-    if (!server_info) return [];
-    const headers = new Headers(server_info.headers);
-    const allow_origin_header = headers.get("access-control-allow-origin");
+  test: async ({ fetching_info: { headers } }: TestArgs) => {
+    if (!headers) return [];
+    const typed_headers = new Headers(headers);
+    const allow_origin_header = typed_headers.get(
+      "access-control-allow-origin",
+    );
     if (allow_origin_header === null)
       return [
         {

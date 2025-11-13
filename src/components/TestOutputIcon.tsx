@@ -1,5 +1,4 @@
 import {
-  CheckCircleIcon,
   CircleDashedIcon,
   type Icon,
   InfoIcon,
@@ -29,7 +28,7 @@ export function TestOutputIcon({
     .with("info", () => (
       <InfoIcon
         {...props}
-        className={twMerge(defaultClassName, props.className, "text-blue-600")}
+        className={twMerge(defaultClassName, props.className, "text-amber-950")}
       />
     ))
     .with("warn", () => (

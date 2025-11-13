@@ -87,6 +87,7 @@ export function parseFeed(xml_string: string): XML {
     isArray: () => true,
   });
   const xml = parser.parse(xml_string) as XML;
+  if ((xml.rss ?? [])?.length === 0) throw Error("Missing <rss> tag");
   return xml;
 }
 

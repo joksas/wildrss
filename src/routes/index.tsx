@@ -83,7 +83,14 @@ function App() {
         fetchFeed(client, url),
         (e) => e,
       );
-      if (fetchRes.isErr()) return setState("pending"); // TODO: set error
+      if (fetchRes.isErr()) {
+        setResults({
+          [testFetching["key"]]: [
+            { status: "error", message: "Failed to download" },
+          ],
+        });
+        return setState("pending");
+      }
 
       // Parse
       setState("parsing");
@@ -93,7 +100,17 @@ function App() {
         server_info,
       } = fetchRes.value;
       const parseRes = Result.fromThrowable(parseFeed)(content);
-      if (parseRes.isErr()) return setState("pending"); // TODO: set error
+      if (parseRes.isErr()) {
+        setResults({
+          [testFetching["key"]]: [
+            {
+              status: "error",
+              message: "This does not look like an RSS feed",
+            },
+          ],
+        });
+        return setState("pending"); // TODO: set error
+      }
       const _xml = parseRes.value;
       setXML(_xml);
 

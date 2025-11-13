@@ -49,7 +49,7 @@ export function TestResultDisplay({
               size={24}
               weight="fill"
               className={clsx("flex-none", {
-                "animate-spin": !status && state !== "pending",
+                "animate-spin": state !== "pending",
               })}
             />
             <span className="font-medium text-lg">{test.name}</span>

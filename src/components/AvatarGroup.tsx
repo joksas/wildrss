@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge";
 export function AvatarGroup({
   children,
   max = 3,
-  moreLabel = (count) => `+${count} others`,
+  moreLabel = (count) => `+${count} ${count === 1 ? "other" : "others"}`,
   className,
   labelClassName,
 }: {

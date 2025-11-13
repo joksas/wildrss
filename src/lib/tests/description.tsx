@@ -43,10 +43,57 @@ export default {
               ["channel", 0],
               ["description", 0],
             ],
+            text: true,
           });
         }
       }
     }
+
+    const items = xml.rss?.at(0)?.channel?.at(0)?.item ?? [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const descriptionTag = item.description?.at(0);
+      if (!descriptionTag) {
+        outputs.push({
+          status: "error",
+          message: "Missing <description>",
+          path: [
+            ["rss", 0],
+            ["channel", 0],
+            ["item", i],
+          ],
+        });
+      } else {
+        const description = descriptionTag["@text"];
+        if (!description) {
+          outputs.push({
+            status: "error",
+            message: "Missing <description> value",
+            path: [
+              ["rss", 0],
+              ["channel", 0],
+              ["item", i],
+              ["description", 0],
+            ],
+          });
+        } else {
+          if (description.length > ITEM_DESCRIPTION_LIMIT) {
+            outputs.push({
+              status: "error",
+              message: `Description value cannot exceed ${ITEM_DESCRIPTION_LIMIT} characters - found ${description.length}`,
+              path: [
+                ["rss", 0],
+                ["channel", 0],
+                ["item", i],
+                ["description", 0],
+              ],
+              text: true,
+            });
+          }
+        }
+      }
+    }
+
     return outputs;
   },
 } satisfies Test;

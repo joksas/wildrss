@@ -2,10 +2,6 @@ import type { ReactNode } from "react";
 import type { XML } from "@/lib/feed";
 import type { Path } from "@/lib/tests/_index";
 
-function escText(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
 function escAttrValue(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 }
@@ -57,8 +53,8 @@ function renderPathXML(
   }
 
   function renderTextContent(text: string, isLeaf: boolean): ReactNode {
-    if (!isLeaf || !highlightText) return escText(text);
-    return <span className="rounded bg-amber-200 px-0.5">{escText(text)}</span>;
+    if (!isLeaf || !highlightText) return text;
+    return <span className="rounded bg-amber-200 px-0.5">{text}</span>;
   }
 
   function pushLine(depth: number, parts: ReactNode[]): void {
@@ -79,7 +75,7 @@ function renderPathXML(
     if (!node) return;
 
     const attrsRecord = node["@attributes"]?.[0];
-    const text = node["@text"];
+    const text = node["@text"]?.trim();
     const isLeaf = segmentIndex === path.length - 1;
     const selfClosing = isLeaf && !text;
 
@@ -114,12 +110,12 @@ function renderPathXML(
     if (tag === "item") {
       const item_title = node["title"]?.at(0)?.["@text"];
       if (item_title) {
-        pushLine(depth + 1, ["<title>", escText(item_title), "</title>"]);
+        pushLine(depth + 1, ["<title>", item_title, "</title>"]);
       }
 
       const item_guid = node["guid"]?.at(0)?.["@text"];
       if (item_guid) {
-        pushLine(depth + 1, ["<guid>", escText(item_guid), "</guid>"]);
+        pushLine(depth + 1, ["<guid>", item_guid, "</guid>"]);
       }
     }
 

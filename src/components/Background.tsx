@@ -326,7 +326,6 @@ export function Background() {
           />
         </svg>
 
-        {/* Layer 4 — starts at 70svh */}
         <svg
           viewBox="0 0 1000 100"
           preserveAspectRatio="none"
@@ -570,7 +569,6 @@ export function Cloud({
 }) {
   const [xPos, setXPos] = useState(x);
 
-  // move smoothly using percentages
   useInterval(() => {
     setXPos((prev) => {
       const next = prev + x_speed / 60; // 60fps equivalent

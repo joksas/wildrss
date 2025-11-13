@@ -6,16 +6,16 @@ export function checkTag(
   name: string,
   path: Path,
   options: {
-    limits?: { min: number; max: number };
+    limits?: { min: number; max: number; pushOptional?: boolean };
     attributes?: { name: string; required: boolean }[];
-    children?: { name: string; min: number; max: number }[];
+    children?: { name: string; min: number; max?: number }[];
   },
 ): TestOutput[] {
   const outputs: TestOutput[] = [];
 
   // Min / max
   if (options.limits) {
-    const { min, max } = options.limits;
+    const { min, max, pushOptional } = options.limits;
     const numTags = (tags ?? []).length;
     if (numTags < min) {
       outputs.push({
@@ -48,6 +48,23 @@ export function checkTag(
               {`>`}
             </code>{" "}
             {max === 1 ? "tag" : "tags"} - found {numTags}
+          </span>
+        ),
+        path,
+      });
+    }
+    if (numTags === 0 && min === 0 && pushOptional) {
+      outputs.push({
+        status: "info-optional",
+        message: (
+          <span>
+            No{" "}
+            <code>
+              {`<`}
+              {name}
+              {`>`}
+            </code>{" "}
+            tags found (optional)
           </span>
         ),
         path,
@@ -119,11 +136,6 @@ export function checkTag(
 
         const matchingChildren =
           actualChildren.filter(([key]) => key === documentedName) ?? [];
-        console.log({
-          a: matchingChildren,
-          b: matchingChildren.at(0),
-          c: matchingChildren.at(1),
-        });
         const numMatchingChildren = matchingChildren.length;
 
         if (numMatchingChildren < min) {
@@ -145,7 +157,7 @@ export function checkTag(
           });
         }
 
-        if (numMatchingChildren > max) {
+        if (max !== undefined && numMatchingChildren > max) {
           outputs.push({
             status: "error",
             message: (

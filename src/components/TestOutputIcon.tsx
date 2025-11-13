@@ -20,19 +20,28 @@ export function TestOutputIcon({
   return match(status)
     .with(undefined, () => (
       <CircleDashedIcon
-        {...props}
         weight="bold"
+        {...props}
         className={twMerge(defaultClassName, props.className, "text-amber-950")}
       />
     ))
     .with("info", () => (
       <InfoIcon
+        weight="fill"
+        {...props}
+        className={twMerge(defaultClassName, props.className, "text-amber-950")}
+      />
+    ))
+    .with("info-optional", () => (
+      <InfoIcon
+        weight="fill"
         {...props}
         className={twMerge(defaultClassName, props.className, "text-amber-950")}
       />
     ))
     .with("warn", () => (
       <WarningCircleIcon
+        weight="fill"
         {...props}
         className={twMerge(
           defaultClassName,
@@ -43,6 +52,7 @@ export function TestOutputIcon({
     ))
     .with("error", () => (
       <XCircleIcon
+        weight="fill"
         {...props}
         className={twMerge(defaultClassName, props.className, "text-red-700")}
       />

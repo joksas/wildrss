@@ -51,7 +51,7 @@ export function fetchFeed(
     staleTime: 10_000,
     queryKey: ["feed", url],
     queryFn: ({ signal }) => _fetchQueryFunction(url, signal),
-    retry: 3,
+    retry: 1,
   });
 }
 
@@ -64,7 +64,7 @@ export async function prefetchFeed(
     staleTime: 10_000,
     queryKey: ["feed", url],
     queryFn: ({ signal }) => _fetchQueryFunction(url, signal),
-    retry: 3,
+    retry: 1,
   });
 }
 

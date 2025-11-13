@@ -85,6 +85,22 @@ function renderPathXML(
         : renderAttrs(tag, attrsRecord, isLeaf);
 
     if (isLeaf) {
+      if (tag === "item") {
+        pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
+
+        // Extra context for items (unchanged, but now as nodes)
+        const item_title = node["title"]?.at(0)?.["@text"];
+        if (item_title)
+          pushLine(depth + 1, ["<title>", item_title, "</title>"]);
+
+        const item_guid = node["guid"]?.at(0)?.["@text"];
+        if (item_guid) pushLine(depth + 1, ["<guid>", item_guid, "</guid>"]);
+
+        // Close tag
+        pushLine(depth, ["</", tag, ">"]);
+
+        return;
+      }
       if (selfClosing) {
         pushLine(depth, ["<", tag, ...attrsNodes, " />"]);
       } else {

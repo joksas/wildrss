@@ -16,29 +16,41 @@ export function TestResultIcon({
 }: { outputs: TestOutput[] | undefined } & ComponentProps<Icon>) {
   const defaultClassName = "flex-none";
 
-  const status: "error" | "warn" | "passed" | undefined = (() => {
-    if (!outputs) return undefined;
-    if (outputs.find((result) => result.status === "error")) return "error";
-    if (outputs.find((result) => result.status === "warn")) return "warn";
-    return "passed";
-  })();
+  const status: "error" | "warn" | "passed" | "passed-optional" | undefined =
+    (() => {
+      if (!outputs) return undefined;
+      if (outputs.find((result) => result.status === "error")) return "error";
+      if (outputs.find((result) => result.status === "warn")) return "warn";
+      if (outputs.find((result) => result.status === "info-optional"))
+        return "passed-optional";
+      return "passed";
+    })();
 
   return match(status)
     .with(undefined, () => (
       <CircleDashedIcon
-        {...props}
         weight="bold"
+        {...props}
         className={twMerge(defaultClassName, props.className, "text-amber-950")}
       />
     ))
     .with("passed", () => (
       <CheckCircleIcon
+        weight="fill"
+        {...props}
+        className={twMerge(defaultClassName, props.className, "text-green-800")}
+      />
+    ))
+    .with("passed-optional", () => (
+      <CheckCircleIcon
+        weight="bold"
         {...props}
         className={twMerge(defaultClassName, props.className, "text-green-800")}
       />
     ))
     .with("warn", () => (
       <WarningCircleIcon
+        weight="fill"
         {...props}
         className={twMerge(
           defaultClassName,
@@ -49,6 +61,7 @@ export function TestResultIcon({
     ))
     .with("error", () => (
       <XCircleIcon
+        weight="fill"
         {...props}
         className={twMerge(defaultClassName, props.className, "text-red-700")}
       />

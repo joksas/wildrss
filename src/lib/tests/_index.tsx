@@ -8,6 +8,7 @@ const STATUS_PRIORITY: Record<TestOutput["status"], number> = {
   error: 0,
   warn: 1,
   info: 2,
+  "info-optional": 2,
 };
 
 /** Test for an RSS feed */
@@ -34,7 +35,7 @@ export type TestArgs = {
 
 /** Test output */
 export type TestOutput = {
-  status: "info" | "error" | "warn";
+  status: "info" | "info-optional" | "error" | "warn";
   message: React.ReactNode;
   path?: Path;
   attribute?: string;

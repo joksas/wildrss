@@ -86,7 +86,8 @@ function _testImage(
   if (extension === "gif") {
     outputs.push({
       status: "warn",
-      message: "GIFs are not well supported across apps",
+      message:
+        "GIFs take up a large amount of listeners' storage and are not supported on all apps",
       path: newPath,
       attribute: "href",
     });

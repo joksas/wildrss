@@ -12,7 +12,7 @@ export function TestOutputsGroup({
       {outputs && (
         <AvatarGroup labelClassName="-ml-0 text-sm">
           {outputs.map((output, i) => (
-            <TestOutputIcon key={i} output={output} size={20} weight="fill" />
+            <TestOutputIcon key={i} output={output} size={20} />
           ))}
         </AvatarGroup>
       )}

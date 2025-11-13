@@ -15,7 +15,11 @@ export default {
     if (!descriptionTag) {
       outputs.push({
         status: "error",
-        message: "Missing <description>",
+        message: (
+          <>
+            Missing <code>&lt;description&gt;</code>
+          </>
+        ),
         path: [
           ["rss", 0],
           ["channel", 0],
@@ -26,7 +30,7 @@ export default {
       if (!description) {
         outputs.push({
           status: "error",
-          message: "Missing <description> value",
+          message: "Missing value",
           path: [
             ["rss", 0],
             ["channel", 0],
@@ -55,8 +59,12 @@ export default {
       const descriptionTag = item.description?.at(0);
       if (!descriptionTag) {
         outputs.push({
-          status: "error",
-          message: "Missing <description>",
+          status: "warn",
+          message: (
+            <>
+              Missing <code>&lt;description&gt;</code>
+            </>
+          ),
           path: [
             ["rss", 0],
             ["channel", 0],
@@ -68,7 +76,7 @@ export default {
         if (!description) {
           outputs.push({
             status: "error",
-            message: "Missing <description> value",
+            message: "Missing value",
             path: [
               ["rss", 0],
               ["channel", 0],

@@ -47,14 +47,13 @@ export function TestResultDisplay({
             <TestResultIcon
               outputs={results}
               size={24}
-              weight="fill"
-              className={clsx("flex-none", {
-                "animate-spin": state !== "pending",
+              className={clsx({
+                "animate-spin": !results && state !== "pending",
               })}
             />
             <span className="font-medium text-lg">{test.name}</span>
           </div>
-          {results && results.length > 1 && (
+          {results && results.length > 0 && (
             <TestOutputsGroup outputs={results} />
           )}
         </Button>
@@ -73,7 +72,7 @@ export function TestResultDisplay({
                 className="flex flex-col gap-2 border-2 border-amber-950 bg-amber-50 py-2 pl-2"
               >
                 <div className="flex items-center gap-1">
-                  <TestOutputIcon output={output} size={20} weight="fill" />
+                  <TestOutputIcon output={output} size={20} />
                   <span className="leading-tight">{output.message}</span>
                 </div>
                 {xml && output.path && (

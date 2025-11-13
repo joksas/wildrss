@@ -18,7 +18,7 @@ export const testItunesOwner: Test = {
           ["channel", 0],
         ],
         {
-          limits: { min: 0, max: 1 },
+          limits: { min: 0, max: 1, pushOptional: true },
           attributes: [],
           children: [
             { name: "itunes:name", min: 1, max: 1 },

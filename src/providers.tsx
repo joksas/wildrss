@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 
 // Constants
 const STALE_TIME_MS = 10_000;
@@ -20,6 +21,8 @@ export function Provider({
   queryClient: QueryClient;
 }) {
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <NuqsAdapter>{children}</NuqsAdapter>
+    </QueryClientProvider>
   );
 }

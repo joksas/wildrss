@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { Result, ResultAsync } from "neverthrow";
+import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { Button, Input, TextField } from "react-aria-components";
 import * as z from "zod";
@@ -31,7 +32,6 @@ import { testValue } from "@/lib/tests/value";
 
 export const Route = createFileRoute("/")({ component: App });
 
-const DEFAULT_URL = "https://www.feed.behindthesch3m3s.com/feed.xml";
 const TESTS: Test[] = [
   testFetching,
   testCORS,
@@ -47,7 +47,11 @@ function App() {
 
   // State
   const [state, setState] = useState<ValidationState>("pending");
-  const [url, setURL] = useState<string>(DEFAULT_URL);
+  const [url, setURL] = useQueryState("url", {
+    defaultValue: "",
+    parse: (raw: string | null) => (raw ? decodeURIComponent(raw) : ""),
+    serialize: (value: string) => encodeURIComponent(value),
+  });
   const isProperURL = z.url().safeParse(url).success;
   const [xml, setXML] = useState<XML | undefined>(undefined);
   const [results, setResults] = useState<Record<string, TestOutput[]>>({});

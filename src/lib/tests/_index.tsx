@@ -19,7 +19,10 @@ export type Test = {
 };
 
 /** Test arguments */
-export type TestArgs = { xml: XML; required_server: boolean };
+export type TestArgs = {
+  xml: XML;
+  server_info?: { headers: Record<string, string> };
+};
 
 /** Test output */
 export type TestOutput = {

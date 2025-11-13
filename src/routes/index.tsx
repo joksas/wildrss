@@ -81,7 +81,7 @@ function App() {
 
       // Parse
       setState("parsing");
-      const { content, required_server } = fetchRes.value;
+      const { content, server_info } = fetchRes.value;
       const parseRes = Result.fromThrowable(parseFeed)(content);
       if (parseRes.isErr()) return setState("pending"); // TODO: set error
       const _xml = parseRes.value;
@@ -90,7 +90,7 @@ function App() {
       // Run tests
       setState("testing");
       for (const test of TESTS) {
-        const result = await test.test({ xml: _xml, required_server });
+        const result = await test.test({ xml: _xml, server_info });
         setResults((prev) => ({ ...prev, [test.key]: result }));
       }
 

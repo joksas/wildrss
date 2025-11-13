@@ -18,14 +18,17 @@ export type XML = _XML<["@text"], ["@attributes"]>;
 async function _fetchQueryFunction(url: string, signal: AbortSignal) {
   try {
     const content = await _fetchFeed({ data: url, signal });
-    return { content, required_server: false };
+    return { content };
   } catch (error) {
     if (isServer) throw error;
     console.error(error);
     console.info(`Retrying fetch for ${url} via server`);
-    const content = await _fetchFeedServer({ data: url, signal });
+    const { content, info: server_info } = await _fetchFeedServer({
+      data: url,
+      signal,
+    });
     console.info(`Successfully fetched ${url} via server`);
-    return { content, required_server: true };
+    return { content, server_info };
   }
 }
 
@@ -35,7 +38,7 @@ export function fetchFeed(
   url: string,
 ): Promise<{
   content: string;
-  required_server: boolean;
+  server_info?: { headers: Record<string, string> };
 }> {
   return client.fetchQuery({
     staleTime: 10_000,
@@ -86,11 +89,15 @@ async function _fetchFeed({
 }: {
   data: string;
   signal: AbortSignal;
-}): Promise<string> {
+}): Promise<{ content: string; info: { headers: Record<string, string> } }> {
   const res = await fetch(url, { signal });
   if (res.status !== 200) throw Error(`Status ${res.status}`);
-  const body = await res.text();
-  return body;
+  const content = await res.text();
+  const headers: Record<string, string> = {};
+  for (const [key, val] of res.headers.entries()) {
+    headers[key] = val;
+  }
+  return { content, info: { headers } };
 }
 const _fetchFeedServer = createServerFn()
   .inputValidator(z.string())

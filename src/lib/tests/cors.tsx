@@ -4,21 +4,38 @@ export const testCORS: Test = {
   key: "permissive-cors",
   group: "basic",
   name: "Permissive CORS",
-  test: async ({ required_server }: TestArgs) => {
-    if (required_server)
+  test: async ({ server_info }: TestArgs) => {
+    if (!server_info) return [];
+    const headers = new Headers(server_info.headers);
+    const allow_origin_header = headers.get("access-control-allow-origin");
+    if (allow_origin_header === null)
       return [
         {
           status: "error",
           message: (
             <>
-              Feed HTTP response is likely missing{" "}
-              <code>Access-Control-Allow-Origin</code> header with value of{" "}
-              <code>*</code>. Webpages without server infrastructure may be
-              unable to parse the feed.
+              Feed HTTP response is missing{" "}
+              <code>Access-Control-Allow-Origin</code> header. Webpages without
+              server infrastructure may be unable to parse the feed.
             </>
           ),
         },
       ];
+    if (allow_origin_header !== "*")
+      return [
+        {
+          status: "error",
+          message: (
+            <>
+              Feed HTTP response <code>Access-Control-Allow-Origin</code> header
+              has a value of <code>{allow_origin_header}</code>. Unless it is
+              set to <code>*</code>, webpages without server infrastructure may
+              be unable to parse the feed.
+            </>
+          ),
+        },
+      ];
+
     return [];
   },
 };

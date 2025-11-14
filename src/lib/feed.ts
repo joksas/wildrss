@@ -1,4 +1,4 @@
-import { isServer, type QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { XMLParser } from "fast-xml-parser";
 import * as z from "zod";
@@ -16,26 +16,14 @@ type _XML<K extends readonly string[], L extends readonly string[]> = {
 export type XML = _XML<["@text"], ["@attributes"]>;
 
 async function _fetchQueryFunction(url: string, signal: AbortSignal) {
-  try {
-    const t1 = performance.now();
-    const { content } = await _fetchFeed({ data: url, signal });
-    const t2 = performance.now();
-    const time_ms = Math.ceil(t2 - t1);
-    return { content, time_ms };
-  } catch (error) {
-    if (isServer) throw error;
-    console.error(error);
-    console.info(`Retrying fetch for ${url} via server`);
-    const t1 = performance.now();
-    const { content, info: server_info } = await _fetchFeedServer({
-      data: url,
-      signal,
-    });
-    const t2 = performance.now();
-    const time_ms = Math.ceil(t2 - t1);
-    console.info(`Successfully fetched ${url} via server`);
-    return { content, time_ms, server_info };
-  }
+  const t1 = performance.now();
+  const { content, info: server_info } = await _fetchFeedServer({
+    data: url,
+    signal,
+  });
+  const t2 = performance.now();
+  const time_ms = Math.ceil(t2 - t1);
+  return { content, time_ms, server_info };
 }
 
 /** Fetch RSS feed */
@@ -45,7 +33,7 @@ export function fetchFeed(
 ): Promise<{
   content: string;
   time_ms: number;
-  server_info?: { headers: Record<string, string> };
+  headers: Record<string, string>;
 }> {
   return client.fetchQuery({
     staleTime: 10_000,

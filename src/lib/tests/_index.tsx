@@ -25,7 +25,7 @@ export type TestArgs = {
   fetching_info: {
     success: boolean;
     time_ms: number;
-    headers?: Record<string, string>;
+    headers: Record<string, string>;
   };
   parsing_info?: {
     success: boolean;

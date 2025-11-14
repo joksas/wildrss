@@ -5,7 +5,6 @@ export const testCORS: Test = {
   group: "basic",
   name: "Permissive CORS",
   test: async ({ fetching_info: { headers } }: TestArgs) => {
-    if (!headers) return [];
     const typed_headers = new Headers(headers);
     const allow_origin_header = typed_headers.get(
       "access-control-allow-origin",

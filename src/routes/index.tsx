@@ -94,11 +94,7 @@ function App() {
 
       // Parse
       setState("parsing");
-      const {
-        content,
-        time_ms: fetching_time_ms,
-        server_info,
-      } = fetchRes.value;
+      const { content, time_ms: fetching_time_ms, headers } = fetchRes.value;
       const parseRes = Result.fromThrowable(parseFeed)(content);
       if (parseRes.isErr()) {
         setResults({
@@ -122,7 +118,7 @@ function App() {
           fetching_info: {
             success: true,
             time_ms: fetching_time_ms,
-            headers: server_info?.headers,
+            headers,
           },
         });
         setResults((prev) => ({ ...prev, [test.key]: result }));
@@ -152,12 +148,13 @@ function App() {
         >
           <Input
             placeholder="Enter feed URL"
-            className="grow truncate font-serif focus:outline-none"
+            className="grow truncate font-sans focus:outline-none"
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
               (window.document.activeElement as HTMLInputElement).blur();
               validate();
             }}
+            autoFocus
           />
           {state === "pending" &&
             (url.startsWith("http://") || url.startsWith("https://")) && (
@@ -182,9 +179,8 @@ function App() {
               <motion.div
                 key={feedInfo.title}
                 className="flex items-center gap-4 overflow-hidden border-4 border-amber-950 bg-amber-100 p-3"
-                initial={{ height: 0 }}
-                animate={{ height: "auto" }}
-                exit={{ height: 0 }}
+                initial={{ opacity: 0, scale: 0.75 }}
+                animate={{ opacity: 1, scale: 1 }}
               >
                 <img
                   src={feedInfo.image}

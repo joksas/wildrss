@@ -1,10 +1,8 @@
 import { Dithering } from "@paper-design/shaders-react";
-import { type ComponentProps, useState } from "react";
-import { useInterval } from "usehooks-ts";
 
 export function Background() {
   return (
-    <div className="fixed h-svh w-screen overflow-hidden">
+    <div className="fixed h-svh w-screen overflow-hidden bg-[#f5c78e]">
       <Dithering
         width="100%"
         height={300}

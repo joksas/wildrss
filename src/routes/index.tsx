@@ -27,6 +27,7 @@ import testDescription from "@/lib/tests/description";
 import testFetching from "@/lib/tests/fetching";
 import testItunesImage from "@/lib/tests/itunes_image";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
+import testLink from "@/lib/tests/link";
 import { testTitle } from "@/lib/tests/title";
 import { testValue } from "@/lib/tests/value";
 
@@ -37,6 +38,7 @@ const TESTS: Test[] = [
   testCORS,
   testTitle,
   testDescription,
+  testLink,
   testValue,
   testItunesOwner,
   testItunesImage,

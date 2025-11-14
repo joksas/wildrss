@@ -1,9 +1,23 @@
+import { Dithering } from "@paper-design/shaders-react";
 import { type ComponentProps, useState } from "react";
 import { useInterval } from "usehooks-ts";
 
 export function Background() {
   return (
-    <div className="fixed h-svh w-screen overflow-hidden bg-[#f5c78e]">
+    <div className="fixed h-svh w-screen overflow-hidden">
+      <Dithering
+        width="100%"
+        height={300}
+        colorBack="#f5c78e"
+        colorFront="#eca56180"
+        shape="simplex"
+        type="8x8"
+        size={1.25}
+        rotation={90}
+        speed={0.25}
+        scale={0.5}
+      />
+
       <div className="absolute inset-0">
         <svg
           viewBox="0 0 1000 100"
@@ -472,156 +486,6 @@ export function Background() {
           />
         </svg>
       </div>
-
-      <Cloud
-        x={40}
-        y={60}
-        x_scale={0.8}
-        y_scale={0.3}
-        opacity={0.3}
-        x_speed={2.1}
-      />
-
-      <Cloud
-        x={70}
-        y={40}
-        x_scale={0.7}
-        y_scale={0.4}
-        opacity={0.3}
-        x_speed={1.8}
-      />
-
-      <Cloud
-        x={0}
-        y={70}
-        x_scale={0.3}
-        y_scale={0.3}
-        opacity={0.2}
-        x_speed={1.05}
-      />
-
-      <Cloud
-        x={40}
-        y={20}
-        x_scale={0.3}
-        y_scale={0.3}
-        opacity={0.2}
-        x_speed={0.8}
-      />
-
-      <Cloud
-        x={-20}
-        y={45}
-        x_scale={0.5}
-        y_scale={0.5}
-        opacity={0.4}
-        x_speed={1.7}
-      />
-
-      <Cloud
-        x={50}
-        y={95}
-        x_scale={0.1}
-        y_scale={0.1}
-        opacity={0.2}
-        x_speed={0.3}
-      />
-
-      <Cloud
-        x={70}
-        y={91}
-        x_scale={0.11}
-        y_scale={0.1}
-        opacity={0.2}
-        x_speed={0.3}
-      />
-
-      <Cloud
-        x={10}
-        y={93}
-        x_scale={0.09}
-        y_scale={0.15}
-        opacity={0.25}
-        x_speed={0.29}
-      />
     </div>
-  );
-}
-
-export function Cloud({
-  x = 0,
-  y = 0,
-  x_speed = 2,
-  x_scale = 1,
-  y_scale = 1,
-  width = 400,
-  height = 100,
-  style,
-  ...rest
-}: Omit<ComponentProps<"svg">, "viewBox" | "xmlns"> & {
-  x?: number; // starting X (%)
-  y?: number; // Y position (px)
-  x_speed?: number; // % per second
-  x_scale?: number;
-  y_scale?: number;
-  width?: number;
-  height?: number;
-}) {
-  const [xPos, setXPos] = useState(x);
-
-  useInterval(() => {
-    setXPos((prev) => {
-      const next = prev + x_speed / 60; // 60fps equivalent
-      // reset to -50% after leaving 150%
-      if (next > 150) return -50;
-      if (next < -50) return 150;
-      return next;
-    });
-  }, 1000 / 60);
-
-  return (
-    <svg
-      viewBox="0 0 400 100"
-      width={width}
-      height={height}
-      style={{
-        position: "absolute",
-        left: `${xPos}%`,
-        top: `${y}px`,
-        transform: `scale(${x_scale}, ${y_scale})`,
-        transformOrigin: "center",
-        willChange: "transform, left",
-        pointerEvents: "none",
-        ...style,
-      }}
-      {...rest}
-      role="img"
-      aria-label="Cloud"
-    >
-      {[
-        [200, 55, 180, 30],
-        [60, 50, 55, 32],
-        [340, 52, 58, 34],
-        [130, 48, 48, 28],
-        [270, 46, 52, 30],
-        [200, 44, 50, 26],
-        [100, 35, 42, 24],
-        [180, 30, 45, 26],
-        [240, 32, 40, 24],
-        [310, 36, 38, 22],
-        [150, 38, 35, 20],
-        [280, 40, 38, 22],
-        [220, 35, 32, 18],
-      ].map(([cx, cy, rx, ry]) => (
-        <ellipse
-          key={JSON.stringify({ cx, cy, rx, ry })}
-          cx={cx}
-          cy={cy}
-          rx={rx}
-          ry={ry}
-          fill="white"
-        />
-      ))}
-    </svg>
   );
 }

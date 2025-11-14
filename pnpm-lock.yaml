@@ -20,6 +20,9 @@ importers:
       '@fontsource/rye':
         specifier: ^5.2.7
         version: 5.2.7
+      '@paper-design/shaders-react':
+        specifier: ^0.0.63
+        version: 0.0.63(@types/react@19.2.3)(react@19.2.0)
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -930,6 +933,18 @@ packages:
   '@oozcitak/util@8.3.8':
     resolution: {integrity: sha512-T8TbSnGsxo6TDBJx/Sgv/BlVJL3tshxZP7Aq5R1mSnM5OcHY2dQaxLMu2+E8u3gN0MLOzdjurqN4ZRVuzQycOQ==}
     engines: {node: '>=8.0'}
+
+  '@paper-design/shaders-react@0.0.63':
+    resolution: {integrity: sha512-+3CQewuWUAQEia+Ar5shufbfhnw0uxQvx1XUaJT5EGLKGyZomUcuTKZqSK8yyfcCAV4n4VTn6wGgDz7gM74VAg==}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      react: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@paper-design/shaders@0.0.63':
+    resolution: {integrity: sha512-e7HF0x7D/vilCqoM/Ed2vYyL51Aj1Y5S5z1OSlMWvhchpeveRziiLJFK5NHk48UDVQJoqvVf/vBNjO6/Ah60Bg==}
 
   '@phosphor-icons/react@2.1.10':
     resolution: {integrity: sha512-vt8Tvq8GLjheAZZYa+YG/pW7HDbov8El/MANW8pOAz4eGxrwhnbfrQZq0Cp4q8zBEu8NIhHdnr+r8thnfRSNYA==}
@@ -3791,6 +3806,15 @@ snapshots:
       '@oozcitak/util': 8.3.8
 
   '@oozcitak/util@8.3.8': {}
+
+  '@paper-design/shaders-react@0.0.63(@types/react@19.2.3)(react@19.2.0)':
+    dependencies:
+      '@paper-design/shaders': 0.0.63
+      react: 19.2.0
+    optionalDependencies:
+      '@types/react': 19.2.3
+
+  '@paper-design/shaders@0.0.63': {}
 
   '@phosphor-icons/react@2.1.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:

@@ -1,3 +1,15 @@
+import * as z from "zod";
+
+export const WebURL = z.url({
+  protocol: /^https?$/,
+  hostname: z.regexes.domain,
+});
+
+/** Checks if valid web URL (http or https) */
+export function isValidWebURL(url: string): boolean {
+  return WebURL.safeParse(url).success;
+}
+
 /** Tests if a URL has an extension */
 export function getUrlExtension(url: string): string | undefined {
   try {

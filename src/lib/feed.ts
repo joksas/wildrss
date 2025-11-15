@@ -17,13 +17,16 @@ export type XML = _XML<["@text"], ["@attributes"]>;
 
 async function _fetchQueryFunction(url: string, signal: AbortSignal) {
   const t1 = performance.now();
-  const { content, info: server_info } = await _fetchFeedServer({
+  const {
+    content,
+    info: { headers },
+  } = await _fetchFeedServer({
     data: url,
     signal,
   });
   const t2 = performance.now();
   const time_ms = Math.ceil(t2 - t1);
-  return { content, time_ms, server_info };
+  return { content, time_ms, headers };
 }
 
 /** Fetch RSS feed */
@@ -86,7 +89,10 @@ async function _fetchFeed({
   data: string;
   signal: AbortSignal;
 }): Promise<{ content: string; info: { headers: Record<string, string> } }> {
-  const res = await fetch(url, { signal });
+  const res = await fetch(url, {
+    signal,
+    headers: { Origin: "https://rssblue.com" },
+  });
   if (res.status !== 200) throw Error(`Status ${res.status}`);
   const content = await res.text();
   const headers: Record<string, string> = {};

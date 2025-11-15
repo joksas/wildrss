@@ -30,11 +30,7 @@ import { testItunesOwner } from "@/lib/tests/itunes_owner";
 import testLink from "@/lib/tests/link";
 import { testTitle } from "@/lib/tests/title";
 import { testValue } from "@/lib/tests/value";
-
-const URLSchema = z.url({
-  protocol: /^https?$/,
-  hostname: z.regexes.domain,
-});
+import { WebURL } from "@/lib/url";
 
 export const Route = createFileRoute("/")({
   validateSearch: z.object({
@@ -42,7 +38,7 @@ export const Route = createFileRoute("/")({
       .string()
       .optional()
       .transform((url) => (url ? decodeURIComponent(url) : url))
-      .pipe(URLSchema.optional())
+      .pipe(WebURL.optional())
       .catch(undefined),
   }),
   loaderDeps: ({ search: { url } }) => ({ url }),
@@ -73,7 +69,7 @@ function App() {
     parse: (raw: string | null) => (raw ? decodeURIComponent(raw) : ""),
     serialize: (value: string) => encodeURIComponent(value),
   });
-  const isProperURL = URLSchema.safeParse(url).success;
+  const isProperURL = WebURL.safeParse(url).success;
   const [xml, setXML] = useState<XML | undefined>(undefined);
   const [results, setResults] = useState<Record<string, TestOutput[]>>({});
   const feedInfo = {

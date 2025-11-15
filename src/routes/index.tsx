@@ -31,7 +31,26 @@ import testLink from "@/lib/tests/link";
 import { testTitle } from "@/lib/tests/title";
 import { testValue } from "@/lib/tests/value";
 
-export const Route = createFileRoute("/")({ component: App });
+const URLSchema = z.url({
+  protocol: /^https?$/,
+  hostname: z.regexes.domain,
+});
+
+export const Route = createFileRoute("/")({
+  validateSearch: z.object({
+    url: z
+      .string()
+      .optional()
+      .transform((url) => (url ? decodeURIComponent(url) : url))
+      .pipe(URLSchema.optional())
+      .catch(undefined),
+  }),
+  loaderDeps: ({ search: { url } }) => ({ url }),
+  loader: async ({ context: { queryClient }, deps: { url } }) => {
+    if (url) prefetchFeed(queryClient, url);
+  },
+  component: App,
+});
 
 const TESTS: Test[] = [
   testFetching,
@@ -54,12 +73,7 @@ function App() {
     parse: (raw: string | null) => (raw ? decodeURIComponent(raw) : ""),
     serialize: (value: string) => encodeURIComponent(value),
   });
-  const isProperURL = z
-    .url({
-      protocol: /^https?$/,
-      hostname: z.regexes.domain,
-    })
-    .safeParse(url).success;
+  const isProperURL = URLSchema.safeParse(url).success;
   const [xml, setXML] = useState<XML | undefined>(undefined);
   const [results, setResults] = useState<Record<string, TestOutput[]>>({});
   const feedInfo = {

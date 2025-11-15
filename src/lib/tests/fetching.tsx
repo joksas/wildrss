@@ -1,7 +1,7 @@
 import type { Test, TestArgs } from "./_index";
 
 // Constants
-const TIME_MS_WARN = 500;
+const TIME_MS_WARN = 1000;
 const TIME_MS_GOOD = 200;
 
 export default {

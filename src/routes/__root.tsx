@@ -1,5 +1,5 @@
-// import ryeFont from "@fontsource/rye/";
 import ryeFont from "@fontsource/rye/files/rye-latin-400-normal.woff2?url";
+import ryeFontExt from "@fontsource/rye/files/rye-latin-ext-400-normal.woff2?url";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
@@ -48,6 +48,13 @@ export const Route = createRootRouteWithContext<{
         type: "font/woff2",
         crossOrigin: "anonymous",
         href: ryeFont,
+      },
+      {
+        rel: "preload",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+        href: ryeFontExt,
       },
       {
         rel: "icon",

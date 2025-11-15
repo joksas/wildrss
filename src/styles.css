@@ -2,11 +2,12 @@
 
 @import "@fontsource/rye";
 @import "@fontsource-variable/playfair-display";
+@import "@fontsource-variable/georama";
 
 @theme inline {
     --font-display: "Rye", sans-serif;
-    --font-serif: "Playfair Display Variable", sans-serif;
-    --font-sans-serif: "Georama Variable", sans-serif;
+    --font-serif: "Playfair Display Variable", serif;
+    --font-sans: "Georama Variable", sans-serif;
     --font-mono: "Cutive Mono", monospace;
 }
 

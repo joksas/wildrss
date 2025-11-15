@@ -96,18 +96,19 @@ function App() {
 
       // Fetch
       setState("fetching");
-      await new Promise((resolve) => setTimeout(resolve, 1)); // Artificial delay
+      await new Promise((resolve) => setTimeout(resolve, 1));
       const fetchRes = await ResultAsync.fromPromise(
         fetchFeed(client, url),
         (e) => e,
       );
       if (fetchRes.isErr()) {
         setResults({
-          [testFetching["key"]]: [
+          [testFetching.key]: [
             { status: "error", message: "Failed to download" },
           ],
         });
-        return setState("pending");
+        setState("pending");
+        return;
       }
 
       // Parse
@@ -116,20 +117,23 @@ function App() {
       const parseRes = Result.fromThrowable(parseFeed)(content);
       if (parseRes.isErr()) {
         setResults({
-          [testFetching["key"]]: [
+          [testFetching.key]: [
             {
               status: "error",
               message: "This does not look like an RSS feed",
             },
           ],
         });
-        return setState("pending"); // TODO: set error
+        setState("pending");
+        return;
       }
       const _xml = parseRes.value;
       setXML(_xml);
 
       // Run tests
       setState("testing");
+      const allResults: Record<string, TestOutput[]> = {};
+
       for (const test of TESTS) {
         const result = await test.test({
           xml: _xml,
@@ -139,13 +143,15 @@ function App() {
             headers,
           },
         });
-        setResults((prev) => ({ ...prev, [test.key]: result }));
+        allResults[test.key] = result;
       }
 
+      setResults(allResults);
       setState("pending");
     } finally {
     }
   };
+
   // Validate on load
   useEffect(() => {
     if (!isProperURL) return;

@@ -52,7 +52,7 @@ function _testImage(
   outputs.push(
     ...checkTag(tags, "itunes:image", path, {
       limits: required ? { min: 1, max: 1 } : { min: 0, max: 1 },
-      attributes: [{ name: "href", required: true }],
+      attributes: [{ name: "href", type: "required" }],
       children: [],
     }),
   );

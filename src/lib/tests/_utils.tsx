@@ -7,7 +7,13 @@ export function checkTag(
   path: Path,
   options: {
     limits?: { min: number; max: number; pushOptional?: boolean };
-    attributes?: { name: string; required: boolean }[];
+    attributes?: {
+      name: string;
+      type: "optional" | "recommended" | "required";
+      validator?: (props: {
+        attributes: Record<string, string | undefined>;
+      }) => Omit<Omit<TestOutput, "path">, "attribute">[];
+    }[];
     children?: { name: string; min: number; max?: number }[];
   },
 ): TestOutput[] {
@@ -87,7 +93,7 @@ export function checkTag(
 
       // Required attributes
       const requiredAttributes = documentedAttributes
-        .filter((attr) => attr.required)
+        .filter((attr) => attr.type === "required")
         .map((attr) => attr.name);
       for (const requiredAttribute of requiredAttributes) {
         if (!attributes.includes(requiredAttribute))
@@ -96,6 +102,23 @@ export function checkTag(
             message: (
               <span>
                 Attribute <code>{requiredAttribute}</code> is required
+              </span>
+            ),
+            path: tagPath,
+          });
+      }
+
+      // Recommended attributes
+      const recommendedAttributes = documentedAttributes
+        .filter((attr) => attr.type === "recommended")
+        .map((attr) => attr.name);
+      for (const recommended of recommendedAttributes) {
+        if (!attributes.includes(recommended))
+          outputs.push({
+            status: "warn",
+            message: (
+              <span>
+                Attribute <code>{recommended}</code> is recommended
               </span>
             ),
             path: tagPath,
@@ -119,6 +142,19 @@ export function checkTag(
             ),
             path: tagPath,
           });
+      }
+
+      // Additional validation
+      for (const { validator, name } of documentedAttributes) {
+        if (!validator) continue;
+        const attribute_outputs = validator({
+          attributes: tag["@attributes"]?.[0] ?? {},
+        }).map((output) => ({
+          ...output,
+          path: tagPath,
+          attribute: name,
+        }));
+        outputs.push(...attribute_outputs);
       }
     }
 

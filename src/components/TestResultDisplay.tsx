@@ -5,6 +5,7 @@ import {
   DisclosurePanel,
   Heading,
 } from "react-aria-components";
+import * as z from "zod";
 import type { XML } from "@/lib/feed";
 import type { Test, TestOutput, ValidationState } from "@/lib/tests/_index";
 import { TestOutputIcon } from "./TestOutputIcon";
@@ -73,7 +74,11 @@ export function TestResultDisplay({
               >
                 <div className="flex items-center gap-1">
                   <TestOutputIcon output={output} size={20} />
-                  <span className="leading-tight">{output.message}</span>
+                  <span className="leading-tight">
+                    {output.message instanceof z.ZodError
+                      ? z.prettifyError(output.message).replace("✖ ", "")
+                      : output.message}
+                  </span>
                 </div>
                 {xml && output.path && (
                   <XmlPathPreview

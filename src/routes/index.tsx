@@ -30,7 +30,7 @@ import { testItunesOwner } from "@/lib/tests/itunes_owner";
 import testLink from "@/lib/tests/link";
 import { testTitle } from "@/lib/tests/title";
 import { testValue } from "@/lib/tests/value";
-import { WebURL } from "@/lib/url";
+import { isWebURL, WebURL } from "@/lib/url";
 
 export const Route = createFileRoute("/")({
   validateSearch: z.object({
@@ -69,7 +69,7 @@ function App() {
     parse: (raw: string | null) => (raw ? decodeURIComponent(raw) : ""),
     serialize: (value: string) => encodeURIComponent(value),
   });
-  const isProperURL = WebURL.safeParse(url).success;
+  const isProperURL = isWebURL(url);
   const [xml, setXML] = useState<XML | undefined>(undefined);
   const [results, setResults] = useState<Record<string, TestOutput[]>>({});
   const feedInfo = {

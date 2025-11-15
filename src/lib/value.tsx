@@ -1,5 +1,4 @@
 import * as z from "zod";
-import { isEmail } from "../email";
 import type { Test, TestArgs, TestOutput } from "./_index";
 import { checkTag } from "./_utils";
 
@@ -129,8 +128,6 @@ export const testValue: Test = {
 
                   const _type = attributes.type;
                   const address = attributes.address;
-
-                  // Keysend
                   if (
                     _type === "node" &&
                     address &&
@@ -143,19 +140,6 @@ export const testValue: Test = {
                           If <code>type</code> is <code>node</code>,{" "}
                           <code>address</code> must be {KEYSEND_ADDRESS_LENGTH}{" "}
                           characters long - found {address.length}
-                        </>
-                      ),
-                    });
-
-                  // Lightning address
-                  if (_type === "lnaddress" && address && !isEmail(address))
-                    outputs.push({
-                      status: "error",
-                      message: (
-                        <>
-                          If <code>type</code> is <code>lnaddress</code>,{" "}
-                          <code>address</code> must look like an email, i.e.{" "}
-                          <code>username@domain.com</code>
                         </>
                       ),
                     });

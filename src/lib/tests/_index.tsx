@@ -1,4 +1,5 @@
 import { match } from "ts-pattern";
+import type * as z from "zod";
 import type { XML } from "../feed";
 
 export type ValidationState = "pending" | "fetching" | "parsing" | "testing";
@@ -36,7 +37,7 @@ export type TestArgs = {
 /** Test output */
 export type TestOutput = {
   status: "info" | "info-optional" | "error" | "warn";
-  message: React.ReactNode;
+  message: React.ReactNode | z.ZodError;
   path?: Path;
   attribute?: string;
   text?: boolean;

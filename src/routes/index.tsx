@@ -186,12 +186,16 @@ function App() {
             </Button>
           )}
           {url.trim().length > 0 && !isProperURL && (
-            <div className="flex items-center gap-2 text-red-700">Bad URL</div>
+            <div className="flex items-center gap-2 font-medium text-red-700">
+              Bad URL
+            </div>
           )}
           {(state === "fetching" ||
             state === "parsing" ||
             state === "testing") && (
-            <ProgressCircle isIndeterminate size={28} />
+            <div className="flex size-7 items-center justify-center">
+              <ProgressCircle size={24} />
+            </div>
           )}
         </TextField>
       </div>

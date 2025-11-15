@@ -12,7 +12,7 @@ export const testCORS: Test = {
     if (allow_origin_header === null)
       return [
         {
-          status: "error",
+          status: "warn",
           message: (
             <>
               Feed HTTP response is missing{" "}

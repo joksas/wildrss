@@ -91,7 +91,7 @@ async function _fetchFeed({
 }): Promise<{ content: string; info: { headers: Record<string, string> } }> {
   const res = await fetch(url, {
     signal,
-    headers: { Origin: "https://rssblue.com" },
+    headers: { Origin: "http://localhost:3000" },
   });
   if (res.status !== 200) throw Error(`Status ${res.status}`);
   const content = await res.text();

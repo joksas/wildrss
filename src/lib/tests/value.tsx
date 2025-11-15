@@ -40,11 +40,13 @@ export const testValue: Test = {
 
 function _testValue(tag: XML | undefined, path: Path): TestOutput[] {
   const outputs = [];
+  const channel = path.at(-1)?.[0] === "channel";
+  const firstItem = path.at(-1)?.[0] === "item" && path.at(-1)?.[1] === 0;
 
   const podcastValueTags = tag?.["podcast:value"];
   outputs.push(
     ...checkTag(podcastValueTags, "podcast:value", path, {
-      limits: { min: 0, max: 1, pushOptional: true },
+      limits: { min: 0, max: 1, pushOptional: channel },
       attributes: [
         { name: "type", type: "required" },
         { name: "method", type: "optional" },
@@ -119,7 +121,7 @@ function _testValue(tag: XML | undefined, path: Path): TestOutput[] {
                 const outputs: TestOutput[] = [];
 
                 const _type = attributes["type"];
-                if (_type === "node")
+                if (_type === "node" && (channel || firstItem))
                   outputs.push({
                     status: "info",
                     message: (

@@ -54,7 +54,12 @@ function App() {
     parse: (raw: string | null) => (raw ? decodeURIComponent(raw) : ""),
     serialize: (value: string) => encodeURIComponent(value),
   });
-  const isProperURL = z.url().safeParse(url).success;
+  const isProperURL = z
+    .url({
+      protocol: /^https?$/,
+      hostname: z.regexes.domain,
+    })
+    .safeParse(url).success;
   const [xml, setXML] = useState<XML | undefined>(undefined);
   const [results, setResults] = useState<Record<string, TestOutput[]>>({});
   const feedInfo = {
@@ -66,6 +71,7 @@ function App() {
       "@attributes"
     ][0].href,
   };
+  const canValidate = isProperURL && state === "pending";
 
   useEffect(() => {
     if (!isProperURL) return;
@@ -74,7 +80,7 @@ function App() {
 
   const validate = async () => {
     try {
-      if (state !== "pending") return;
+      if (!canValidate) return;
       setResults({});
       setXML(undefined);
 
@@ -145,12 +151,12 @@ function App() {
         <TextField
           value={url}
           onChange={setURL}
-          className="flex w-[300px] items-center border-2 border-black bg-white/60 px-3 py-2 font-serif text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+          className="flex w-[300px] items-center gap-2 border-2 border-black bg-white/60 px-3 py-2 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
           aria-label="Feed URL"
         >
           <Input
             placeholder="Enter feed URL"
-            className="grow truncate font-sans focus:outline-none"
+            className="grow truncate focus:outline-none"
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
               (window.document.activeElement as HTMLInputElement).blur();
@@ -158,12 +164,14 @@ function App() {
             }}
             autoFocus
           />
-          {state === "pending" &&
-            (url.startsWith("http://") || url.startsWith("https://")) && (
-              <Button onPress={validate} className="cursor-pointer">
-                <KeyReturnIcon size={28} />
-              </Button>
-            )}
+          {canValidate && (
+            <Button onPress={validate} className="cursor-pointer">
+              <KeyReturnIcon size={28} />
+            </Button>
+          )}
+          {url.trim().length > 0 && !isProperURL && (
+            <div className="flex items-center gap-2 text-red-700">Bad URL</div>
+          )}
           {(state === "fetching" ||
             state === "parsing" ||
             state === "testing") && (

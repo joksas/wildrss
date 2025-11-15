@@ -10,8 +10,8 @@ export function Background() {
         colorFront="#eca56180"
         shape="simplex"
         type="8x8"
-        size={1.25}
-        rotation={90}
+        size={1.5}
+        rotation={97}
         speed={0.25}
         scale={0.5}
       />

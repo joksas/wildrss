@@ -50,7 +50,10 @@ function _testValue(tag: XML | undefined, path: Path): TestOutput[] {
         { name: "method", type: "optional" },
         { name: "suggested", type: "optional" },
       ],
-      children: [{ name: "podcast:valueRecipient", min: 1 }],
+      children: [
+        { name: "podcast:valueRecipient", min: 1 },
+        { name: "podcast:valueTimeSplit", min: 0 },
+      ],
     }),
   );
 

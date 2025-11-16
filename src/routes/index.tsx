@@ -22,15 +22,15 @@ import {
   type TestOutput,
   type ValidationState,
 } from "@/lib/tests/_index";
-import { testCORS } from "@/lib/tests/cors";
+import testCORS from "@/lib/tests/cors";
 import testDescription from "@/lib/tests/description";
 import testFetching from "@/lib/tests/fetching";
 import testItunesImage from "@/lib/tests/itunes_image";
-import { testItunesOwner } from "@/lib/tests/itunes_owner";
+import testItunesOwner from "@/lib/tests/itunes_owner";
 import testLink from "@/lib/tests/link";
 import testPodcastGuid from "@/lib/tests/podcast_guid";
-import { testTitle } from "@/lib/tests/title";
-import { testValue } from "@/lib/tests/value";
+import testPodcastValue from "@/lib/tests/podcast_value";
+import testTitle from "@/lib/tests/title";
 import { isWebURL, WebURL } from "@/lib/url";
 
 export const Route = createFileRoute("/")({
@@ -56,7 +56,7 @@ const TESTS: Test[] = [
   testDescription,
   testLink,
   testPodcastGuid,
-  testValue,
+  testPodcastValue,
   testItunesOwner,
   testItunesImage,
 ];

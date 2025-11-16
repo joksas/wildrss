@@ -1,6 +1,6 @@
 import type { Test, TestArgs } from "./_index";
 
-export const testCORS: Test = {
+export default {
   key: "permissive-cors",
   group: "basic",
   name: "Permissive CORS",
@@ -39,4 +39,4 @@ export const testCORS: Test = {
 
     return [];
   },
-};
+} satisfies Test;

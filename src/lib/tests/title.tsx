@@ -1,6 +1,6 @@
 import type { Test, TestArgs } from "./_index";
 
-export const testTitle: Test = {
+export default {
   key: "title",
   group: "rss",
   name: <code>&lt;title&gt;</code>,
@@ -32,4 +32,4 @@ export const testTitle: Test = {
       ];
     return [];
   },
-};
+} satisfies Test;

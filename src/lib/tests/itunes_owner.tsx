@@ -1,7 +1,7 @@
 import type { Test, TestArgs } from "./_index";
 import { checkTag } from "./_utils";
 
-export const testItunesOwner: Test = {
+export default {
   key: "itunes:owner",
   group: "itunes",
   name: <code>&lt;itunes:owner&gt;</code>,
@@ -68,4 +68,4 @@ export const testItunesOwner: Test = {
 
     return outputs;
   },
-};
+} satisfies Test;

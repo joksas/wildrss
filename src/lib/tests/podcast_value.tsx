@@ -7,7 +7,7 @@ import { checkTag, type MinimalTestOutput } from "./_utils";
 // Constants
 const KEYSEND_ADDRESS_LENGTH = 66;
 
-export const testValue: Test = {
+export default {
   key: "podcast:value",
   group: "podcast",
   name: <code>&lt;podcast:value&gt;</code>,
@@ -50,7 +50,7 @@ export const testValue: Test = {
 
     return outputs;
   },
-};
+} satisfies Test;
 
 function _testValue(
   tag: XML | undefined,

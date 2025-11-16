@@ -2,7 +2,7 @@ import * as z from "zod";
 import { isEmail } from "../email";
 import type { XML } from "../feed";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
-import { checkTag } from "./_utils";
+import { checkTag, type MinimalTestOutput } from "./_utils";
 
 // Constants
 const KEYSEND_ADDRESS_LENGTH = 66;
@@ -16,21 +16,35 @@ export const testValue: Test = {
 
     const channel = xml.rss?.at(0)?.channel?.at(0);
     outputs.push(
-      ..._testValue(channel, [
-        ["rss", 0],
-        ["channel", 0],
-      ]),
+      ..._testValue(
+        channel,
+        [
+          ["rss", 0],
+          ["channel", 0],
+        ],
+        undefined,
+      ),
     );
 
     const items = xml.rss?.at(0)?.channel?.at(0)?.item ?? [];
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
+      const duration = z
+        .number()
+        .nonnegative()
+        .optional()
+        .catch(undefined)
+        .parse(item["itunes:duration"]?.at(0)?.["@text"]);
       outputs.push(
-        ..._testValue(item, [
-          ["rss", 0],
-          ["channel", 0],
-          ["item", i],
-        ]),
+        ..._testValue(
+          item,
+          [
+            ["rss", 0],
+            ["channel", 0],
+            ["item", i],
+          ],
+          duration,
+        ),
       );
     }
 
@@ -38,7 +52,11 @@ export const testValue: Test = {
   },
 };
 
-function _testValue(tag: XML | undefined, path: Path): TestOutput[] {
+function _testValue(
+  tag: XML | undefined,
+  path: Path,
+  duration: number | undefined,
+): TestOutput[] {
   const outputs = [];
   const channel = path.at(-1)?.[0] === "channel";
   const firstItem = path.at(-1)?.[0] === "item" && path.at(-1)?.[1] === 0;
@@ -118,7 +136,7 @@ function _testValue(tag: XML | undefined, path: Path): TestOutput[] {
               name: "type",
               type: "required",
               validator: ({ attributes }) => {
-                const outputs: TestOutput[] = [];
+                const outputs: MinimalTestOutput[] = [];
 
                 const _type = attributes["type"];
                 if (_type === "node" && (channel || firstItem))
@@ -147,7 +165,7 @@ function _testValue(tag: XML | undefined, path: Path): TestOutput[] {
               name: "address",
               type: "required",
               validator: ({ attributes }) => {
-                const outputs: TestOutput[] = [];
+                const outputs: MinimalTestOutput[] = [];
 
                 const _type = attributes.type;
                 const address = attributes.address;
@@ -189,7 +207,7 @@ function _testValue(tag: XML | undefined, path: Path): TestOutput[] {
               name: "split",
               type: "required",
               validator: ({ attributes }) => {
-                const outputs: TestOutput[] = [];
+                const outputs: MinimalTestOutput[] = [];
 
                 const split = attributes.split;
                 const error = z.coerce
@@ -207,7 +225,7 @@ function _testValue(tag: XML | undefined, path: Path): TestOutput[] {
               name: "fee",
               type: "optional",
               validator: ({ attributes }) => {
-                const outputs: TestOutput[] = [];
+                const outputs: MinimalTestOutput[] = [];
 
                 const fee = attributes.fee;
                 const error = z.coerce
@@ -215,6 +233,123 @@ function _testValue(tag: XML | undefined, path: Path): TestOutput[] {
                   .optional()
                   .safeParse(fee).error;
                 if (error) outputs.push({ status: "error", message: error });
+
+                return outputs;
+              },
+            },
+          ],
+          children: [],
+        },
+      ),
+    );
+  }
+
+  const podcastVTSTags = podcastValueTags?.at(0)?.["podcast:valueTimeSplit"];
+  if (podcastVTSTags) {
+    outputs.push(
+      ...checkTag(
+        podcastVTSTags,
+        "podcast:valueTimeSplit",
+        [...path, ["podcast:value", 0]],
+        {
+          attributes: [
+            {
+              name: "startTime",
+              type: "required",
+              validator: ({ attributes }) => {
+                const outputs: MinimalTestOutput[] = [];
+
+                const startTime = attributes.startTime;
+                const startTimeRes = z.coerce
+                  .number()
+                  .nonnegative()
+                  .optional()
+                  .safeParse(startTime);
+                if (startTimeRes.success) {
+                  const startTimeParsed = startTimeRes.data;
+                  if (
+                    startTimeParsed !== undefined &&
+                    duration !== undefined &&
+                    startTimeParsed > duration
+                  ) {
+                    outputs.push({
+                      status: "error",
+                      message: `Remote start time (${Math.round(startTimeParsed)}) cannot be greater than item duration (${Math.round(duration)})`,
+                    });
+                  }
+                } else {
+                  outputs.push({
+                    status: "error",
+                    message: startTimeRes.error,
+                  });
+                }
+
+                return outputs;
+              },
+            },
+            {
+              name: "duration",
+              type: "required",
+              validator: ({ attributes }) => {
+                const outputs: MinimalTestOutput[] = [];
+
+                const duration = attributes.duration;
+                const error = z.coerce
+                  .number()
+                  .positive()
+                  .optional()
+                  .safeParse(duration).error;
+                if (error) outputs.push({ status: "error", message: error });
+
+                return outputs;
+              },
+            },
+            {
+              name: "remoteStartTime",
+              type: "optional",
+              validator: ({ attributes }) => {
+                const outputs: MinimalTestOutput[] = [];
+
+                const remoteStartTime = attributes.remoteStartTime;
+                const error = z.coerce
+                  .number()
+                  .nonnegative()
+                  .optional()
+                  .safeParse(remoteStartTime).error;
+                if (error) outputs.push({ status: "error", message: error });
+
+                return outputs;
+              },
+            },
+            {
+              name: "remotePercentage",
+              type: "optional",
+              validator: ({ attributes }) => {
+                const outputs: MinimalTestOutput[] = [];
+
+                const remotePercentage = attributes.remotePercentage;
+                const numberError = z.coerce
+                  .number()
+                  .optional()
+                  .safeParse(remotePercentage).error;
+                if (numberError) {
+                  outputs.push({ status: "error", message: numberError });
+                } else {
+                  const rangeError = z.coerce
+                    .number()
+                    .min(0, {
+                      message:
+                        "Remote percentage must be at least 0 - most apps will assume 0% in this case",
+                    })
+                    .max(100, {
+                      message:
+                        "Remote percentage must be at most 100 - most apps will assume 100% in this case",
+                    })
+                    .optional()
+                    .safeParse(remotePercentage).error;
+                  if (rangeError)
+                    outputs.push({ status: "warn", message: rangeError });
+                }
 
                 return outputs;
               },

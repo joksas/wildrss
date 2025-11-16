@@ -1,6 +1,8 @@
 import type { XML } from "../feed";
 import type { Path, TestOutput } from "./_index";
 
+export type MinimalTestOutput = Omit<Omit<TestOutput, "path">, "attribute">;
+
 export function checkTag(
   tags: XML[] | undefined,
   name: string,
@@ -12,7 +14,7 @@ export function checkTag(
       type: "optional" | "recommended" | "required";
       validator?: (props: {
         attributes: Record<string, string | undefined>;
-      }) => Omit<Omit<TestOutput, "path">, "attribute">[];
+      }) => MinimalTestOutput[];
     }[];
     children?: { name: string; min: number; max?: number }[];
   },
@@ -131,17 +133,28 @@ export function checkTag(
       );
       for (const attribute of attributes) {
         const isDocumented = documentedAttributeNames.includes(attribute);
-        if (!isDocumented)
+        if (!isDocumented) {
+          const existingButWrongCase = documentedAttributeNames.find(
+            (documentedAttribute) =>
+              documentedAttribute.toLowerCase() === attribute.toLowerCase(),
+          );
           outputs.push({
             status: "warn",
             message: (
               <span>
                 Unrecognized attribute <code>{attribute}</code> - most apps will
                 likely ignore it
+                {existingButWrongCase && (
+                  <>
+                    . Did you mean <code>{existingButWrongCase}</code>?
+                  </>
+                )}
               </span>
             ),
             path: tagPath,
+            attribute,
           });
+        }
       }
 
       // Additional validation

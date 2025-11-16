@@ -5,9 +5,9 @@ export function Background() {
     <div className="fixed h-svh w-screen overflow-hidden bg-[#f5c78e]">
       <Dithering
         width="100%"
-        height={300}
+        height={400}
         colorBack="#f5c78e"
-        colorFront="#eca56180"
+        colorFront="#eca561a0"
         shape="simplex"
         type="8x8"
         size={1.5}

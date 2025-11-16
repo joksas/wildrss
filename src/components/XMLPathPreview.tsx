@@ -39,11 +39,10 @@ function renderPathXML(
         nodes.push(
           <span key={`attr-${tag}-${key}`}>
             {" "}
-            {key}="
             <span className="rounded bg-amber-200 px-0.5">
-              {escAttrValue(String(raw))}
+              {key}="
+              {escAttrValue(String(raw))}"
             </span>
-            "
           </span>,
         );
       } else {

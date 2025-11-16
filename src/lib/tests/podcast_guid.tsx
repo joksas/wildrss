@@ -1,5 +1,4 @@
 import { match } from "ts-pattern";
-import * as z from "zod";
 import { getUUIDInfo } from "../string";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkTag } from "./_utils";

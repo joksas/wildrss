@@ -28,6 +28,7 @@ import testFetching from "@/lib/tests/fetching";
 import testItunesImage from "@/lib/tests/itunes_image";
 import { testItunesOwner } from "@/lib/tests/itunes_owner";
 import testLink from "@/lib/tests/link";
+import testPodcastGuid from "@/lib/tests/podcast_guid";
 import { testTitle } from "@/lib/tests/title";
 import { testValue } from "@/lib/tests/value";
 import { isWebURL, WebURL } from "@/lib/url";
@@ -54,6 +55,7 @@ const TESTS: Test[] = [
   testTitle,
   testDescription,
   testLink,
+  testPodcastGuid,
   testValue,
   testItunesOwner,
   testItunesImage,

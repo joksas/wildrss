@@ -355,6 +355,10 @@ function _testValue(
               },
             },
           ],
+          children: [
+            { name: "podcast:remoteItem", min: 0 },
+            { name: "podcast:valueRecipient", min: 0 },
+          ],
         },
       ),
     );

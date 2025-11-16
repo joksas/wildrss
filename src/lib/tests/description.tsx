@@ -30,12 +30,17 @@ export default {
       if (!description) {
         outputs.push({
           status: "error",
-          message: "Missing value",
+          message: (
+            <>
+              Missing <code>description</code> value
+            </>
+          ),
           path: [
             ["rss", 0],
             ["channel", 0],
             ["description", 0],
           ],
+          text: true,
         });
       } else {
         if (description.length > FEED_DESCRIPTION_LIMIT) {
@@ -76,7 +81,15 @@ export default {
         if (!description) {
           outputs.push({
             status: "error",
-            message: "Missing value",
+            message: (
+              <>
+                Missing{" "}
+                <code>
+                  {"<"}description{">"}
+                </code>{" "}
+                value
+              </>
+            ),
             path: [
               ["rss", 0],
               ["channel", 0],

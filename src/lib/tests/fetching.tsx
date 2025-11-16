@@ -29,14 +29,14 @@ export default {
       return [
         {
           status: "info",
-          message: `The feed was downloaded in ${time_ms}ms`,
+          message: `Downloaded in ${time_ms}ms`,
         },
       ];
 
     return [
       {
         status: "info",
-        message: `The feed was downloaded in ${time_ms}ms - that's fast!`,
+        message: `Downloaded in ${time_ms}ms - that's fast!`,
       },
     ];
   },

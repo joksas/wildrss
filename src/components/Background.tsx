@@ -1,4 +1,5 @@
 import { Dithering } from "@paper-design/shaders-react";
+import { motion, useTransform } from "motion/react";
 
 export function Background() {
   return (
@@ -14,6 +15,18 @@ export function Background() {
         rotation={97}
         speed={0.25}
         scale={0.5}
+      />
+
+      {/* Sun */}
+      <motion.div
+        className="absolute top-20 right-32 h-32 w-32 rounded-full"
+        style={{
+          backgroundColor: "#ff8c42",
+          border: "none",
+          boxShadow: "0 0 40px #ff8c42",
+        }}
+        animate={{ scale: [1, 1.05, 1] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
 
       <div className="absolute inset-0">

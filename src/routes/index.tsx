@@ -30,6 +30,7 @@ import testItunesOwner from "@/lib/tests/itunes_owner";
 import testLink from "@/lib/tests/link";
 import testPodcastGuid from "@/lib/tests/podcast_guid";
 import testPodcastValue from "@/lib/tests/podcast_value";
+import testRSSEnclosure from "@/lib/tests/rss_enclosure";
 import testTitle from "@/lib/tests/title";
 import { isWebURL, WebURL } from "@/lib/url";
 
@@ -54,6 +55,7 @@ const TESTS: Test[] = [
   testCORS,
   testTitle,
   testDescription,
+  testRSSEnclosure,
   testLink,
   testPodcastGuid,
   testPodcastValue,

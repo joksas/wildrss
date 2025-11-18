@@ -4,6 +4,7 @@ import * as z from "zod";
 export const WebURL = z.url({
   protocol: /^https?$/,
   hostname: z.regexes.domain,
+  message: "Not a valid web URL",
 });
 
 /** Checks if valid web URL (http or https) */

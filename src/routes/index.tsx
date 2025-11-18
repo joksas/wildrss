@@ -171,7 +171,7 @@ function App() {
         <TextField
           value={url}
           onChange={setURL}
-          className="flex w-[300px] items-center gap-2 border-2 border-black bg-white/60 px-3 py-2 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+          className="flex w-full items-center gap-2 border-2 border-black bg-white/60 px-3 py-2 text-xl sm:w-[300px] sm:w-[400px] md:w-[500px] lg:w-[600px]"
           aria-label="Feed URL"
         >
           <Input

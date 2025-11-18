@@ -88,6 +88,17 @@ export function TestResultDisplay({
                     text={output.text}
                   />
                 )}
+                {xml &&
+                  output.paths &&
+                  output.paths.map((path, idx) => (
+                    <XmlPathPreview
+                      key={idx}
+                      xml={xml}
+                      path={path}
+                      attribute={output.attribute}
+                      text={output.text}
+                    />
+                  ))}
               </div>
             ))}
         </div>

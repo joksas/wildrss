@@ -20,7 +20,7 @@ export const APPLE_PODCASTS_ENCLOSURE_EXTENSIONS = [
 ] satisfies EnclosureExtension[];
 
 const ALLOWED_MIMETYPES: Record<EnclosureExtension, string[]> = {
-  mp3: ["audio/mpeg"],
+  mp3: ["audio/mpeg", "audio/mp3"],
   m4a: ["audio/mp4", "audio/x-m4a", "audio/m4a"],
   mov: ["video/quicktime"],
   mp4: ["video/mp4"],

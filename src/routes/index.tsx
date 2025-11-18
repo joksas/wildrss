@@ -31,6 +31,7 @@ import testLink from "@/lib/tests/link";
 import testPodcastGuid from "@/lib/tests/podcast_guid";
 import testPodcastValue from "@/lib/tests/podcast_value";
 import testRSSEnclosure from "@/lib/tests/rss_enclosure";
+import testRSSGUID from "@/lib/tests/rss_guid";
 import testTitle from "@/lib/tests/title";
 import { isWebURL, WebURL } from "@/lib/url";
 
@@ -56,6 +57,7 @@ const TESTS: Test[] = [
   testTitle,
   testDescription,
   testRSSEnclosure,
+  testRSSGUID,
   testLink,
   testPodcastGuid,
   testPodcastValue,

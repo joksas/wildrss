@@ -13,6 +13,7 @@ export function checkTag(
       name: string;
       type: "optional" | "recommended" | "required";
       validator?: (props: {
+        text: string | undefined;
         attributes: Record<string, string | undefined>;
       }) => MinimalTestOutput[];
     }[];
@@ -161,6 +162,7 @@ export function checkTag(
       for (const { validator, name } of documentedAttributes) {
         if (!validator) continue;
         const attribute_outputs = validator({
+          text: tag["@text"],
           attributes: tag["@attributes"]?.[0] ?? {},
         }).map((output) => ({
           ...output,

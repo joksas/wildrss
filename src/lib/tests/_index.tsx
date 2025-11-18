@@ -39,6 +39,7 @@ export type TestOutput = {
   status: "info" | "info-optional" | "error" | "warn";
   message: React.ReactNode | z.ZodError;
   path?: Path;
+  paths?: Path[];
   attribute?: string;
   text?: boolean;
 };

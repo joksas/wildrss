@@ -1,4 +1,10 @@
 import { KeyReturnIcon } from "@phosphor-icons/react";
+import {
+  createCollection,
+  eq,
+  localStorageCollectionOptions,
+  useLiveQuery,
+} from "@tanstack/react-db";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
@@ -34,6 +40,21 @@ import testRSSEnclosure from "@/lib/tests/rss_enclosure";
 import testRSSGUID from "@/lib/tests/rss_guid";
 import testTitle from "@/lib/tests/title";
 import { isWebURL, WebURL } from "@/lib/url";
+
+const feedInfos = createCollection(
+  localStorageCollectionOptions({
+    id: "feed-infos",
+    storageKey: "feed-infos",
+    getKey: (item) => item.url,
+    schema: z.object({
+      url: WebURL,
+      title: z.string().trim().nonempty().optional().catch(undefined),
+      author: z.string().trim().nonempty().optional().catch(undefined),
+      image: WebURL.optional().catch(undefined),
+      updated: z.date(),
+    }),
+  }),
+);
 
 export const Route = createFileRoute("/")({
   validateSearch: z.object({
@@ -78,21 +99,22 @@ function App() {
   const isProperURL = isWebURL(url);
   const [xml, setXML] = useState<XML | undefined>(undefined);
   const [results, setResults] = useState<Record<string, TestOutput[]>>({});
-  const feedInfo = {
-    title: xml?.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.["@text"],
-    author: xml?.rss?.at(0)?.channel?.at(0)?.["itunes:author"]?.at(0)?.[
-      "@text"
-    ],
-    image: xml?.rss?.at(0)?.channel?.at(0)?.["itunes:image"]?.at(0)?.[
-      "@attributes"
-    ][0].href,
-  };
+  const { data: feedInfo } = useLiveQuery(
+    (q) =>
+      q
+        .from({ feedInfos })
+        .where(({ feedInfos }) => eq(feedInfos.url, url))
+        .findOne(),
+    [url],
+  );
   const canValidate = isProperURL && state === "pending";
+  const hasResults = Object.entries(results).length > 0;
 
   useEffect(() => {
     if (!isProperURL) return;
     cancelFeedQueries(client).then(() => prefetchFeed(client, url));
   }, [client, url, isProperURL]);
+  useEffect(() => setResults({}), [url]);
 
   const validate = async () => {
     try {
@@ -135,6 +157,17 @@ function App() {
       }
       const _xml = parseRes.value;
       setXML(_xml);
+      Result.fromThrowable(feedInfos.insert)({
+        url,
+        title: _xml.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.["@text"],
+        author: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:author"]?.at(0)?.[
+          "@text"
+        ],
+        image: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:image"]?.at(0)?.[
+          "@attributes"
+        ][0].href,
+        updated: new Date(),
+      });
 
       // Run tests
       setState("testing");
@@ -211,7 +244,7 @@ function App() {
         </header>
         <div className="flex flex-col gap-5 p-5">
           <AnimatePresence mode="popLayout">
-            {feedInfo.author && feedInfo.image && (
+            {hasResults && feedInfo?.title && feedInfo.image && (
               <motion.div
                 key={feedInfo.title}
                 className="flex items-center gap-4 overflow-hidden border-4 border-amber-950 bg-amber-100 p-3"

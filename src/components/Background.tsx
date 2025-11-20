@@ -1,5 +1,5 @@
 import { Dithering } from "@paper-design/shaders-react";
-import { motion, useTransform } from "motion/react";
+import { motion } from "motion/react";
 
 export function Background() {
   return (

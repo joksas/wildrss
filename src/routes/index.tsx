@@ -1,4 +1,3 @@
-import { KeyReturnIcon } from "@phosphor-icons/react";
 import {
   createCollection,
   eq,
@@ -10,8 +9,22 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { Result, ResultAsync } from "neverthrow";
 import { useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
-import { Button, Input, TextField } from "react-aria-components";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useFilter } from "react-aria";
+import {
+  ComboBox,
+  Input,
+  ListBox,
+  ListBoxItem,
+  Popover,
+} from "react-aria-components";
 import * as z from "zod";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { TestGroupDisplay } from "@/components/TestGroupDisplay";
@@ -118,6 +131,7 @@ function App() {
 
   const validate = async () => {
     try {
+      setManuallyValidate(false);
       if (!canValidate) return;
       setResults({});
       setXML(undefined);
@@ -157,17 +171,34 @@ function App() {
       }
       const _xml = parseRes.value;
       setXML(_xml);
-      Result.fromThrowable(feedInfos.insert)({
-        url,
-        title: _xml.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.["@text"],
-        author: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:author"]?.at(0)?.[
-          "@text"
-        ],
-        image: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:image"]?.at(0)?.[
-          "@attributes"
-        ][0].href,
-        updated: new Date(),
-      });
+      if (feedInfo) {
+        feedInfos.update(feedInfo.url, (feedInfo) => {
+          feedInfo.title = _xml.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.[
+            "@text"
+          ];
+          feedInfo.author = _xml.rss
+            ?.at(0)
+            ?.channel?.at(0)
+            ?.["itunes:author"]?.at(0)?.["@text"];
+          feedInfo.image = _xml.rss
+            ?.at(0)
+            ?.channel?.at(0)
+            ?.["itunes:image"]?.at(0)?.["@attributes"][0].href;
+          feedInfo.updated = new Date();
+        });
+      } else {
+        Result.fromThrowable(feedInfos.insert)({
+          url,
+          title: _xml.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.["@text"],
+          author: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:author"]?.at(0)?.[
+            "@text"
+          ],
+          image: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:image"]?.at(0)?.[
+            "@attributes"
+          ][0].href,
+          updated: new Date(),
+        });
+      }
 
       // Run tests
       setState("testing");
@@ -194,8 +225,15 @@ function App() {
   // Validate on load
   useEffect(() => {
     if (!isProperURL) return;
+    console.log("validate on load");
     validate();
   }, []);
+
+  // Manually validate
+  const [manuallyValidate, setManuallyValidate] = useState(false);
+  useEffect(() => {
+    if (manuallyValidate) validate();
+  }, [manuallyValidate]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 px-3 py-3">
@@ -203,40 +241,15 @@ function App() {
         <h1 className="text-center font-bold font-display text-5xl">
           Wild Wild RSS
         </h1>
-        <TextField
-          value={url}
-          onChange={setURL}
-          className="flex w-full items-center gap-2 border-2 border-black bg-white/60 px-3 py-2 text-xl sm:w-[300px] sm:w-[400px] md:w-[500px] lg:w-[600px]"
-          aria-label="Feed URL"
-        >
-          <Input
-            placeholder="Enter feed URL"
-            className="grow truncate focus:outline-none"
-            onKeyDown={(e) => {
-              if (e.key !== "Enter") return;
-              (window.document.activeElement as HTMLInputElement).blur();
-              validate();
-            }}
-            autoFocus
-          />
-          {canValidate && (
-            <Button onPress={validate} className="cursor-pointer">
-              <KeyReturnIcon size={28} />
-            </Button>
-          )}
-          {url.trim().length > 0 && !isProperURL && (
-            <div className="flex items-center gap-2 font-medium text-red-700">
-              Bad URL
-            </div>
-          )}
-          {(state === "fetching" ||
-            state === "parsing" ||
-            state === "testing") && (
-            <div className="flex size-7 items-center justify-center">
-              <ProgressCircle size={24} />
-            </div>
-          )}
-        </TextField>
+        <FeedSearchInput
+          url={url}
+          setURL={setURL}
+          error={url.trim().length > 0 && !isProperURL ? "Bad URL" : undefined}
+          loading={
+            state === "fetching" || state === "parsing" || state === "testing"
+          }
+          onSubmit={async () => setManuallyValidate(true)}
+        />
       </div>
       <section className="mt-[120px] w-full max-w-5xl grow border-8 border-amber-950 bg-amber-50 text-amber-950">
         <header className="border-amber-950 border-b-8 bg-amber-950 px-5 py-2 text-center font-bold font-display text-3xl text-amber-50">
@@ -282,5 +295,117 @@ function App() {
         </div>
       </section>
     </div>
+  );
+}
+
+function FeedSearchInput({
+  url,
+  setURL,
+  error,
+  loading,
+  onSubmit,
+}: {
+  url: string;
+  setURL: Dispatch<SetStateAction<string>>;
+  error?: string;
+  loading?: boolean;
+  onSubmit: () => Promise<void>;
+}) {
+  const { data: allFeedInfos } = useLiveQuery(
+    (q) =>
+      q
+        .from({ feedInfos })
+        .select(({ feedInfos }) => ({ ...feedInfos }))
+        .orderBy(({ feedInfos }) => feedInfos.updated, "desc"),
+    [],
+  );
+  const { contains } = useFilter({ sensitivity: "base" });
+  const filteredFeedInfos = useMemo(
+    () =>
+      allFeedInfos
+        .filter(
+          (item) =>
+            contains(item.url, url) ||
+            (!!item.title && contains(item.title, url)),
+        )
+        .map((item) => ({ id: item.url, ...item })),
+    [allFeedInfos, url, contains],
+  );
+  const trigger = useRef(null);
+  console.log({ filteredFeedInfos });
+
+  return (
+    <ComboBox
+      allowsCustomValue
+      menuTrigger="focus"
+      inputValue={url}
+      onInputChange={setURL}
+      items={filteredFeedInfos}
+    >
+      <div
+        ref={trigger}
+        className="flex w-full items-center gap-2 border-2 border-black bg-white/60 px-3 py-2 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+      >
+        <Input
+          type="url"
+          placeholder="Enter feed URL"
+          className="grow truncate focus:outline-none"
+          autoFocus
+          required
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            (window.document.activeElement as HTMLInputElement).blur();
+            onSubmit();
+          }}
+        />
+        {error && (
+          <div className="flex items-center gap-2 font-medium text-red-700">
+            {error}
+          </div>
+        )}
+        {loading && (
+          <div className="flex size-7 items-center justify-center">
+            <ProgressCircle size={24} />
+          </div>
+        )}
+      </div>
+      <Popover
+        placement="bottom"
+        triggerRef={trigger}
+        className="flex w-full flex-col items-center gap-2 border-2 border-black text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+        isKeyboardDismissDisabled={true}
+      >
+        <div className="w-full">
+          <div className="flex w-full grow items-center gap-1 bg-white/60 px-3">
+            <div className="h-[1.5px] w-8 flex-none bg-amber-950" />
+            <span className="flex-none text-sm">Recent validations</span>
+            <div className="h-[1.5px] grow bg-amber-950" />
+          </div>
+          <ListBox items={filteredFeedInfos} className="w-full">
+            {(info) => (
+              <ListBoxItem
+                id={info.url}
+                key={info.url}
+                onAction={() => {
+                  setURL(info.url);
+                  (window.document.activeElement as HTMLInputElement).blur();
+                  onSubmit();
+                }}
+                className="flex w-full grow items-center gap-2 bg-white/60 px-3 py-2 focus:bg-white/90"
+              >
+                <img
+                  src={info.image}
+                  alt="Podcast artwork"
+                  className="size-7 object-cover object-center sepia-[0.7]"
+                  loading="lazy"
+                />
+
+                {info.title}
+              </ListBoxItem>
+            )}
+          </ListBox>
+        </div>
+      </Popover>
+    </ComboBox>
   );
 }

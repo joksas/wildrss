@@ -98,7 +98,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <Background />
-        <div className="relative z-10">{children}</div>
+        <main className="relative z-10">{children}</main>
         <TanStackDevtools
           config={{
             position: "bottom-right",

@@ -197,7 +197,7 @@ function App() {
     <div className="flex flex-col items-center justify-center gap-2 px-3 py-3">
       <div className="flex h-[125px] w-full flex-col items-center justify-center gap-3">
         <h1 className="text-center font-bold font-display text-5xl">
-          Wild Wild RSS
+          Wild RSS
         </h1>
         <FeedSearchInput
           url={url}
@@ -225,7 +225,7 @@ function App() {
                 <img
                   src={feedInfo.image}
                   alt="Feed artwork"
-                  className="size-20 object-cover object-center sepia-[0.7]"
+                  className="hidden size-20 object-cover object-center sepia-[0.7] sm:flex"
                   loading="lazy"
                 />
                 <div className="flex flex-col font-display">
@@ -294,7 +294,7 @@ function FeedSearchInput({
     >
       <div
         ref={trigger}
-        className="flex w-full items-center gap-2 border-2 border-black bg-white/60 px-3 py-2 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+        className="flex w-[375px] items-center gap-2 border-2 border-black bg-white/60 px-3 py-2 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
       >
         <Input
           type="url"
@@ -320,7 +320,7 @@ function FeedSearchInput({
       </div>
       <Popover placement="bottom" triggerRef={trigger}>
         {filteredFeedInfos.length > 0 && (
-          <div className="flex w-full flex-col items-center border-2 border-black text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]">
+          <div className="flex w-[375px] flex-col items-center border-2 border-black text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]">
             <div className="flex w-full grow items-center gap-2 bg-white/60 px-3 py-0.5">
               <div className="h-[1.5px] w-7 flex-none bg-amber-950" />
               <span className="flex-none text-sm">Recent validations</span>
@@ -345,11 +345,11 @@ function FeedSearchInput({
                     className="size-7 object-cover object-center sepia-[0.7]"
                     loading="lazy"
                   />
-                  <div className="flex flex-col">
-                    <span className="font-medium text-sm leading-tight">
+                  <div className="flex min-w-0 flex-col">
+                    <span className="line-clamp-1 font-medium text-sm leading-tight">
                       {info.title}
                     </span>
-                    <span className="font-light text-xs leading-tight">
+                    <span className="line-clamp-1 font-light text-xs leading-tight">
                       {info.url}
                     </span>
                   </div>

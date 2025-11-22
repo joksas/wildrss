@@ -7,7 +7,6 @@ import {
   type Dispatch,
   type SetStateAction,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -18,6 +17,7 @@ import {
   ListBoxItem,
   Popover,
 } from "react-aria-components";
+import { useDocumentTitle } from "usehooks-ts";
 import * as z from "zod";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { TestGroupDisplay } from "@/components/TestGroupDisplay";
@@ -48,6 +48,12 @@ import testRSSGUID from "@/lib/tests/rss_guid";
 import testTitle from "@/lib/tests/title";
 import { isWebURL, WebURL } from "@/lib/url";
 
+// Constants
+export const WEBSITE_NAME = "Wild RSS";
+export const WEBSITE_DESCRIPTION =
+  "RSS validator for truly wild feeds. Support for Apple Podcasts (iTunes) and Podcasting 2.0 namespaces.";
+export const WEBSITE_IMAGE = "og.png";
+
 export const Route = createFileRoute("/")({
   validateSearch: z.object({
     url: z
@@ -61,6 +67,20 @@ export const Route = createFileRoute("/")({
   loader: async ({ context: { queryClient }, deps: { url } }) => {
     if (url) prefetchFeed(queryClient, url);
   },
+  head: (ctx) => ({
+    meta: ctx.match.search.url
+      ? [
+          {
+            name: "og:description",
+            content: `Validation of ${ctx.match.search.url}`,
+          },
+          {
+            name: "twitter:description",
+            content: `Validation of ${ctx.match.search.url}`,
+          },
+        ]
+      : undefined,
+  }),
   component: App,
 });
 
@@ -193,10 +213,15 @@ function App() {
     if (manuallyValidate) validate();
   }, [manuallyValidate]);
 
+  // HTML Title
+  useDocumentTitle(
+    feedInfo?.title ? `${feedInfo.title} - ${WEBSITE_NAME}` : WEBSITE_NAME,
+  );
+
   return (
     <div className="flex flex-col items-center justify-center gap-2 px-3 py-3">
       <div className="flex h-[125px] w-full flex-col items-center justify-center gap-3">
-        <h1 className="text-center font-bold font-display text-5xl">
+        <h1 className="text-center font-bold font-display text-5xl text-amber-950">
           Wild RSS
         </h1>
         <FeedSearchInput
@@ -209,7 +234,7 @@ function App() {
           onSubmit={async () => setManuallyValidate(true)}
         />
       </div>
-      <section className="mt-[120px] w-full max-w-5xl grow border-8 border-amber-950 bg-amber-50 text-amber-950">
+      <section className="mt-[120px] w-full max-w-5xl grow border-8 border-amber-950 bg-amber-50 text-red-950">
         <header className="border-amber-950 border-b-8 bg-amber-950 px-5 py-2 text-center font-bold font-display text-3xl text-amber-50">
           Report
         </header>
@@ -294,12 +319,12 @@ function FeedSearchInput({
     >
       <div
         ref={trigger}
-        className="flex w-[375px] items-center gap-2 border-2 border-black bg-white/60 px-3 py-2 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+        className="flex w-[375px] items-center gap-2 border-2 border-amber-950 bg-amber-50/70 px-3 py-2 text-amber-950 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
       >
         <Input
           type="url"
           placeholder="Enter feed URL"
-          className="grow truncate outline-none focus:outline-none"
+          className="grow truncate outline-none placeholder:text-amber-950/60 focus:outline-none"
           required
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;
@@ -320,8 +345,8 @@ function FeedSearchInput({
       </div>
       <Popover placement="bottom" triggerRef={trigger}>
         {filteredFeedInfos.length > 0 && (
-          <div className="flex w-[375px] flex-col items-center border-2 border-black text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]">
-            <div className="flex w-full grow items-center gap-2 bg-white/60 px-3 py-0.5">
+          <div className="flex w-[375px] flex-col items-center border-2 border-amber-950 text-amber-950 text-xl shadow-lg sm:w-[400px] md:w-[500px] lg:w-[600px]">
+            <div className="flex w-full grow items-center gap-2 bg-amber-50/70 px-3 py-0.5">
               <div className="h-[1.5px] w-7 flex-none bg-amber-950" />
               <span className="flex-none text-sm">Recent validations</span>
               <div className="h-[1.5px] grow bg-amber-950" />
@@ -336,7 +361,7 @@ function FeedSearchInput({
                     (window.document.activeElement as HTMLInputElement).blur();
                     onSubmit();
                   }}
-                  className="flex w-full grow cursor-pointer items-center gap-2 bg-white/60 px-3 py-2 focus:bg-white/90"
+                  className="flex w-full grow cursor-pointer items-center gap-2 bg-amber-50/70 px-3 py-2 focus:bg-amber-50"
                   textValue={info.title}
                 >
                   <img

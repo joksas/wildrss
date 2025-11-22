@@ -11,6 +11,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Background } from "@/components/Background";
 import appCss from "../styles.css?url";
+import { WEBSITE_DESCRIPTION, WEBSITE_IMAGE, WEBSITE_NAME } from ".";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -25,7 +26,31 @@ export const Route = createRootRouteWithContext<{
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "Wild Wild RSS",
+        title: WEBSITE_NAME,
+      },
+      {
+        name: "og:title",
+        content: WEBSITE_NAME,
+      },
+      {
+        name: "og:description",
+        content: WEBSITE_DESCRIPTION,
+      },
+      {
+        name: "twitter:description",
+        content: WEBSITE_DESCRIPTION,
+      },
+      {
+        name: "twitter:title",
+        content: WEBSITE_NAME,
+      },
+      {
+        name: "og:image",
+        content: WEBSITE_IMAGE,
+      },
+      {
+        name: "twitter:image",
+        content: WEBSITE_IMAGE,
       },
       {
         name: "apple-mobile-web-app-title",

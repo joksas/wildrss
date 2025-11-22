@@ -12,6 +12,7 @@ export const FeedInfo = z.object({
 });
 export type FeedInfo = z.infer<typeof FeedInfo>;
 const VALIDATIONS_KEY = "validations";
+const MAX_FEEDS = 10;
 
 export function useRecentValidations(): FeedInfo[] {
   const [value] = useLocalStorage<FeedInfo[]>(VALIDATIONS_KEY, []);
@@ -38,7 +39,7 @@ export function useUpsertRecentValidation(): (info: FeedInfo) => void {
 
       // Sort by updated descending
       return next
-        .slice()
+        .slice(0, MAX_FEEDS)
         .sort((a, b) => Date.parse(b.updated) - Date.parse(a.updated));
     });
   };

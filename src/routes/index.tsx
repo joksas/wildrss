@@ -1,9 +1,3 @@
-import {
-  createCollection,
-  eq,
-  localStorageCollectionOptions,
-  useLiveQuery,
-} from "@tanstack/react-db";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
@@ -17,7 +11,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { useFilter } from "react-aria";
 import {
   ComboBox,
   Input,
@@ -35,6 +28,7 @@ import {
   prefetchFeed,
   type XML,
 } from "@/lib/feed";
+import { useRecentValidations, useUpsertRecentValidation } from "@/lib/recent";
 import {
   TEST_GROUPS,
   type Test,
@@ -53,21 +47,6 @@ import testRSSEnclosure from "@/lib/tests/rss_enclosure";
 import testRSSGUID from "@/lib/tests/rss_guid";
 import testTitle from "@/lib/tests/title";
 import { isWebURL, WebURL } from "@/lib/url";
-
-const feedInfos = createCollection(
-  localStorageCollectionOptions({
-    id: "feed-infos",
-    storageKey: "feed-infos",
-    getKey: (item) => item.url,
-    schema: z.object({
-      url: WebURL,
-      title: z.string().trim().nonempty().optional().catch(undefined),
-      author: z.string().trim().nonempty().optional().catch(undefined),
-      image: WebURL.optional().catch(undefined),
-      updated: z.date(),
-    }),
-  }),
-);
 
 export const Route = createFileRoute("/")({
   validateSearch: z.object({
@@ -112,16 +91,13 @@ function App() {
   const isProperURL = isWebURL(url);
   const [xml, setXML] = useState<XML | undefined>(undefined);
   const [results, setResults] = useState<Record<string, TestOutput[]>>({});
-  const { data: feedInfo } = useLiveQuery(
-    (q) =>
-      q
-        .from({ feedInfos })
-        .where(({ feedInfos }) => eq(feedInfos.url, url))
-        .findOne(),
-    [url],
-  );
   const canValidate = isProperURL && state === "pending";
   const hasResults = Object.entries(results).length > 0;
+  const recentValidations = useRecentValidations();
+  const feedInfo = recentValidations.find(
+    (validation) => validation.url.trim() === url.trim(),
+  );
+  const upsertRecentValidation = useUpsertRecentValidation();
 
   useEffect(() => {
     if (!isProperURL) return;
@@ -171,34 +147,17 @@ function App() {
       }
       const _xml = parseRes.value;
       setXML(_xml);
-      if (feedInfo) {
-        feedInfos.update(feedInfo.url, (feedInfo) => {
-          feedInfo.title = _xml.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.[
-            "@text"
-          ];
-          feedInfo.author = _xml.rss
-            ?.at(0)
-            ?.channel?.at(0)
-            ?.["itunes:author"]?.at(0)?.["@text"];
-          feedInfo.image = _xml.rss
-            ?.at(0)
-            ?.channel?.at(0)
-            ?.["itunes:image"]?.at(0)?.["@attributes"][0].href;
-          feedInfo.updated = new Date();
-        });
-      } else {
-        Result.fromThrowable(feedInfos.insert)({
-          url,
-          title: _xml.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.["@text"],
-          author: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:author"]?.at(0)?.[
-            "@text"
-          ],
-          image: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:image"]?.at(0)?.[
-            "@attributes"
-          ][0].href,
-          updated: new Date(),
-        });
-      }
+      upsertRecentValidation({
+        url,
+        title: _xml.rss?.at(0)?.channel?.at(0)?.title?.at(0)?.["@text"],
+        author: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:author"]?.at(0)?.[
+          "@text"
+        ],
+        image: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:image"]?.at(0)?.[
+          "@attributes"
+        ][0].href,
+        updated: new Date().toISOString(),
+      });
 
       // Run tests
       setState("testing");
@@ -225,7 +184,6 @@ function App() {
   // Validate on load
   useEffect(() => {
     if (!isProperURL) return;
-    console.log("validate on load");
     validate();
   }, []);
 
@@ -266,7 +224,7 @@ function App() {
               >
                 <img
                   src={feedInfo.image}
-                  alt="Podcast artwork"
+                  alt="Feed artwork"
                   className="size-20 object-cover object-center sepia-[0.7]"
                   loading="lazy"
                 />
@@ -311,28 +269,20 @@ function FeedSearchInput({
   loading?: boolean;
   onSubmit: () => Promise<void>;
 }) {
-  const { data: allFeedInfos } = useLiveQuery(
-    (q) =>
-      q
-        .from({ feedInfos })
-        .select(({ feedInfos }) => ({ ...feedInfos }))
-        .orderBy(({ feedInfos }) => feedInfos.updated, "desc"),
-    [],
-  );
-  const { contains } = useFilter({ sensitivity: "base" });
+  const allFeedInfos = useRecentValidations();
   const filteredFeedInfos = useMemo(
     () =>
       allFeedInfos
         .filter(
           (item) =>
-            contains(item.url, url) ||
-            (!!item.title && contains(item.title, url)),
+            item.url !== url &&
+            (item.url.includes(url) ||
+              (!!item.title && item.title.includes(url))),
         )
         .map((item) => ({ id: item.url, ...item })),
-    [allFeedInfos, url, contains],
+    [allFeedInfos, url],
   );
   const trigger = useRef(null);
-  console.log({ filteredFeedInfos });
 
   return (
     <ComboBox
@@ -340,6 +290,7 @@ function FeedSearchInput({
       menuTrigger="focus"
       inputValue={url}
       onInputChange={setURL}
+      aria-label="Feed URL"
       items={filteredFeedInfos}
     >
       <div
@@ -349,7 +300,7 @@ function FeedSearchInput({
         <Input
           type="url"
           placeholder="Enter feed URL"
-          className="grow truncate focus:outline-none"
+          className="grow truncate outline-none focus:outline-none"
           autoFocus
           required
           onKeyDown={(e) => {
@@ -376,7 +327,7 @@ function FeedSearchInput({
         isKeyboardDismissDisabled={true}
       >
         <div className="w-full">
-          <div className="flex w-full grow items-center gap-1 bg-white/60 px-3">
+          <div className="flex w-full grow items-center gap-1 bg-white/60 px-3 py-0.5">
             <div className="h-[1.5px] w-8 flex-none bg-amber-950" />
             <span className="flex-none text-sm">Recent validations</span>
             <div className="h-[1.5px] grow bg-amber-950" />
@@ -391,16 +342,23 @@ function FeedSearchInput({
                   (window.document.activeElement as HTMLInputElement).blur();
                   onSubmit();
                 }}
-                className="flex w-full grow items-center gap-2 bg-white/60 px-3 py-2 focus:bg-white/90"
+                className="flex w-full grow cursor-pointer items-center gap-2 bg-white/60 px-3 py-2 focus:bg-white/90"
+                textValue={info.title}
               >
                 <img
                   src={info.image}
-                  alt="Podcast artwork"
+                  alt="Feed artwork"
                   className="size-7 object-cover object-center sepia-[0.7]"
                   loading="lazy"
                 />
-
-                {info.title}
+                <div className="flex flex-col">
+                  <span className="font-medium text-sm leading-tight">
+                    {info.title}
+                  </span>
+                  <span className="font-light text-xs leading-tight">
+                    {info.url}
+                  </span>
+                </div>
               </ListBoxItem>
             )}
           </ListBox>

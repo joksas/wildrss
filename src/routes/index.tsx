@@ -270,28 +270,27 @@ function FeedSearchInput({
   onSubmit: () => Promise<void>;
 }) {
   const allFeedInfos = useRecentValidations();
-  const filteredFeedInfos = useMemo(
-    () =>
-      allFeedInfos
-        .filter(
-          (item) =>
-            item.url !== url &&
-            (item.url.includes(url) ||
-              (!!item.title && item.title.includes(url))),
-        )
-        .map((item) => ({ id: item.url, ...item })),
-    [allFeedInfos, url],
-  );
+  const filteredFeedInfos = allFeedInfos.filter((item) => {
+    const urlLower = url.toLocaleLowerCase().trim();
+    const itemURLLower = item.url.toLocaleLowerCase().trim();
+    const itemTitleLower = item.title?.toLocaleLowerCase().trim();
+    if (urlLower === itemURLLower) return false;
+    if (itemURLLower.includes(urlLower)) return true;
+    if (itemTitleLower?.includes(urlLower)) return true;
+    return false;
+  });
   const trigger = useRef(null);
 
   return (
     <ComboBox
       allowsCustomValue
+      allowsEmptyCollection
       menuTrigger="focus"
       inputValue={url}
       onInputChange={setURL}
       aria-label="Feed URL"
       items={filteredFeedInfos}
+      autoFocus
     >
       <div
         ref={trigger}
@@ -301,7 +300,6 @@ function FeedSearchInput({
           type="url"
           placeholder="Enter feed URL"
           className="grow truncate outline-none focus:outline-none"
-          autoFocus
           required
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;
@@ -320,49 +318,46 @@ function FeedSearchInput({
           </div>
         )}
       </div>
-      <Popover
-        placement="bottom"
-        triggerRef={trigger}
-        className="flex w-full flex-col items-center gap-2 border-2 border-black text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
-        isKeyboardDismissDisabled={true}
-      >
-        <div className="w-full">
-          <div className="flex w-full grow items-center gap-1 bg-white/60 px-3 py-0.5">
-            <div className="h-[1.5px] w-8 flex-none bg-amber-950" />
-            <span className="flex-none text-sm">Recent validations</span>
-            <div className="h-[1.5px] grow bg-amber-950" />
+      <Popover placement="bottom" triggerRef={trigger}>
+        {filteredFeedInfos.length > 0 && (
+          <div className="flex w-full flex-col items-center border-2 border-black text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]">
+            <div className="flex w-full grow items-center gap-2 bg-white/60 px-3 py-0.5">
+              <div className="h-[1.5px] w-7 flex-none bg-amber-950" />
+              <span className="flex-none text-sm">Recent validations</span>
+              <div className="h-[1.5px] grow bg-amber-950" />
+            </div>
+            <ListBox items={filteredFeedInfos} className="w-full">
+              {(info) => (
+                <ListBoxItem
+                  id={info.url}
+                  key={info.url}
+                  onAction={() => {
+                    setURL(info.url);
+                    (window.document.activeElement as HTMLInputElement).blur();
+                    onSubmit();
+                  }}
+                  className="flex w-full grow cursor-pointer items-center gap-2 bg-white/60 px-3 py-2 focus:bg-white/90"
+                  textValue={info.title}
+                >
+                  <img
+                    src={info.image}
+                    alt="Feed artwork"
+                    className="size-7 object-cover object-center sepia-[0.7]"
+                    loading="lazy"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm leading-tight">
+                      {info.title}
+                    </span>
+                    <span className="font-light text-xs leading-tight">
+                      {info.url}
+                    </span>
+                  </div>
+                </ListBoxItem>
+              )}
+            </ListBox>
           </div>
-          <ListBox items={filteredFeedInfos} className="w-full">
-            {(info) => (
-              <ListBoxItem
-                id={info.url}
-                key={info.url}
-                onAction={() => {
-                  setURL(info.url);
-                  (window.document.activeElement as HTMLInputElement).blur();
-                  onSubmit();
-                }}
-                className="flex w-full grow cursor-pointer items-center gap-2 bg-white/60 px-3 py-2 focus:bg-white/90"
-                textValue={info.title}
-              >
-                <img
-                  src={info.image}
-                  alt="Feed artwork"
-                  className="size-7 object-cover object-center sepia-[0.7]"
-                  loading="lazy"
-                />
-                <div className="flex flex-col">
-                  <span className="font-medium text-sm leading-tight">
-                    {info.title}
-                  </span>
-                  <span className="font-light text-xs leading-tight">
-                    {info.url}
-                  </span>
-                </div>
-              </ListBoxItem>
-            )}
-          </ListBox>
-        </div>
+        )}
       </Popover>
     </ComboBox>
   );

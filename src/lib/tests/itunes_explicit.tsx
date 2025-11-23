@@ -30,7 +30,26 @@ export default {
                 .stringbool({ truthy: ["true"], falsy: ["false"] })
                 .safeParse(text);
               if (res.error) {
-                outputs.push({ status: "error", message: res.error });
+                const isYesNo = z
+                  .stringbool({ truthy: ["yes"], falsy: ["no"] })
+                  .safeParse(text).success;
+                if (isYesNo) {
+                  outputs.push({
+                    status: "warn",
+                    message: (
+                      <>
+                        <code>
+                          {"<"}itunes:explicit{">"}
+                        </code>{" "}
+                        guidelines recommend using <code>true</code>/
+                        <code>false</code> instead of <code>yes</code>/
+                        <code>no</code>
+                      </>
+                    ),
+                  });
+                } else {
+                  outputs.push({ status: "error", message: res.error });
+                }
               } else {
                 const explicit = res.data;
                 outputs.push({

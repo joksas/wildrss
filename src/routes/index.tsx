@@ -311,6 +311,9 @@ function FeedSearchInput({
   loading?: boolean;
   onSubmit: () => Promise<void>;
 }) {
+  const client = useQueryClient();
+  const onHover = (prefetchURL: string) => prefetchFeed(client, prefetchURL);
+
   const allFeedInfos = useRecentValidations();
   const filteredFeedInfos = allFeedInfos.filter((item) => {
     const urlLower = url.toLocaleLowerCase().trim();
@@ -371,6 +374,7 @@ function FeedSearchInput({
             <ListBox items={filteredFeedInfos} className="w-full">
               {(info) => (
                 <ListBoxItem
+                  onMouseOver={() => onHover(info.url)}
                   id={info.url}
                   key={info.url}
                   onAction={() => {

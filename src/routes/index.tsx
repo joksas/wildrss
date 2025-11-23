@@ -29,6 +29,7 @@ import {
   type XML,
 } from "@/lib/feed";
 import { useRecentValidations, useUpsertRecentValidation } from "@/lib/recent";
+import { extractTitle } from "@/lib/string";
 import {
   TEST_GROUPS,
   type Test,
@@ -67,20 +68,26 @@ export const Route = createFileRoute("/")({
   loader: async ({ context: { queryClient }, deps: { url } }) => {
     if (url) prefetchFeed(queryClient, url);
   },
-  head: (ctx) => ({
-    meta: ctx.match.search.url
-      ? [
-          {
-            name: "og:description",
-            content: `Validation of ${ctx.match.search.url}`,
-          },
-          {
-            name: "twitter:description",
-            content: `Validation of ${ctx.match.search.url}`,
-          },
-        ]
-      : undefined,
-  }),
+  head: async (ctx) => {
+    const url = ctx.match.search.url;
+    if (!url) return {};
+    const { content } = await ResultAsync.fromPromise(
+      fetchFeed(ctx.match.context.queryClient, url),
+      (e) => e,
+    ).unwrapOr({ content: undefined });
+    if (!content) return {};
+    const title = extractTitle(content);
+    if (!title) return {};
+
+    return {
+      meta: [
+        {
+          name: "og:title",
+          content: `${title} - ${WEBSITE_NAME}`,
+        },
+      ],
+    };
+  },
   component: App,
 });
 

@@ -10,3 +10,9 @@ export function getUUIDInfo(id: string): UUID_VERSION | undefined {
   }
   return undefined;
 }
+
+/** Extract title using a regular expression */
+export function extractTitle(xml: string): string | undefined {
+  const match = xml.match(/<title[^>]*>([^<]*)<\/title>/i);
+  return match?.at(1);
+}

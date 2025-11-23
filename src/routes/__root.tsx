@@ -29,6 +29,10 @@ export const Route = createRootRouteWithContext<{
         title: WEBSITE_NAME,
       },
       {
+        name: "og:site_name",
+        content: WEBSITE_NAME,
+      },
+      {
         name: "og:title",
         content: WEBSITE_NAME,
       },
@@ -47,6 +51,18 @@ export const Route = createRootRouteWithContext<{
       {
         name: "og:image",
         content: WEBSITE_IMAGE,
+      },
+      {
+        name: "og:image:width",
+        content: "1200",
+      },
+      {
+        name: "og:image:height",
+        content: "630",
+      },
+      {
+        name: "og:image:type",
+        content: "image/png",
       },
       {
         name: "twitter:image",

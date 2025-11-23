@@ -18,6 +18,12 @@ export function checkTag(
       }) => MinimalTestOutput[];
     }[];
     children?: { name: string; min: number; max?: number }[];
+    text?: {
+      validator?: (props: {
+        text: string | undefined;
+        attributes: Record<string, string | undefined>;
+      }) => MinimalTestOutput[];
+    };
   },
 ): TestOutput[] {
   const outputs: TestOutput[] = [];
@@ -252,6 +258,20 @@ export function checkTag(
         }
       }
     }
+
+    // Text
+    if (!options.text?.validator) continue;
+    const textOutputs = options.text
+      .validator({
+        text: tag["@text"],
+        attributes: tag["@attributes"]?.[0] ?? {},
+      })
+      .map((output) => ({
+        ...output,
+        path: tagPath,
+        text: true,
+      }));
+    outputs.push(...textOutputs);
   }
 
   return outputs;

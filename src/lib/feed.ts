@@ -75,6 +75,7 @@ export function parseFeed(xml_string: string): XML {
     alwaysCreateTextNode: true,
     attributesGroupName: "@attributes",
     textNodeName: "@text",
+    parseTagValue: false,
     attributeNamePrefix: "",
     isArray: () => true,
   });

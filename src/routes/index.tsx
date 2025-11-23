@@ -39,6 +39,7 @@ import {
 import testCORS from "@/lib/tests/cors";
 import testDescription from "@/lib/tests/description";
 import testFetching from "@/lib/tests/fetching";
+import testItunesExplicit from "@/lib/tests/itunes_explicit";
 import testItunesImage from "@/lib/tests/itunes_image";
 import testItunesOwner from "@/lib/tests/itunes_owner";
 import testLink from "@/lib/tests/link";
@@ -104,15 +105,19 @@ export const Route = createFileRoute("/")({
 const TESTS: Test[] = [
   testFetching,
   testCORS,
+
   testTitle,
   testDescription,
   testRSSEnclosure,
   testRSSGUID,
   testLink,
+
+  testItunesExplicit,
+  testItunesImage,
+  testItunesOwner,
+
   testPodcastGuid,
   testPodcastValue,
-  testItunesOwner,
-  testItunesImage,
 ];
 
 function App() {

@@ -11,7 +11,12 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Background } from "@/components/Background";
 import appCss from "../styles.css?url";
-import { WEBSITE_DESCRIPTION, WEBSITE_IMAGE, WEBSITE_NAME } from ".";
+import {
+  WEBSITE_DESCRIPTION,
+  WEBSITE_IMAGE,
+  WEBSITE_NAME,
+  WEBSITE_URL,
+} from ".";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -63,6 +68,14 @@ export const Route = createRootRouteWithContext<{
       {
         name: "og:image:type",
         content: "image/png",
+      },
+      {
+        name: "og:url",
+        content: WEBSITE_URL,
+      },
+      {
+        name: "twitter:url",
+        content: WEBSITE_URL,
       },
       {
         name: "twitter:image",

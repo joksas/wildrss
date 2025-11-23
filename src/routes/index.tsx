@@ -50,6 +50,7 @@ import testTitle from "@/lib/tests/title";
 import { isWebURL, WebURL } from "@/lib/url";
 
 // Constants
+export const WEBSITE_URL = "https://wildrss.com";
 export const WEBSITE_NAME = "Wild RSS";
 export const WEBSITE_DESCRIPTION =
   "RSS validator for truly wild feeds. Support for Apple Podcasts (iTunes) and Podcasting 2.0 namespaces.";
@@ -78,12 +79,21 @@ export const Route = createFileRoute("/")({
     if (!content) return {};
     const title = extractTitle(content);
     if (!title) return {};
+    const urlEncoded = encodeURIComponent(url);
 
     return {
       meta: [
         {
           name: "og:title",
           content: `${title} - ${WEBSITE_NAME}`,
+        },
+        {
+          name: "og:url",
+          content: `${WEBSITE_URL}?url=${urlEncoded}`,
+        },
+        {
+          name: "twitter:url",
+          content: `${WEBSITE_URL}?url=${urlEncoded}`,
         },
       ],
     };

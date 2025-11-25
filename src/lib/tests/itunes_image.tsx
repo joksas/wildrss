@@ -4,6 +4,10 @@ import { getUrlExtension } from "../url";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkTag } from "./_utils";
 
+// Constants
+const GIF_WARN_MESSAGE =
+  "GIFs take up a large amount of listeners' storage and are not supported on all apps";
+
 export default {
   key: "itunes:image",
   group: "itunes",
@@ -38,7 +42,16 @@ export default {
       );
     }
 
-    return outputs;
+    let seen = false;
+
+    const filtered_outputs = outputs.filter((output) => {
+      if (output.message !== GIF_WARN_MESSAGE) return true;
+      if (seen) return false;
+      seen = true;
+      return true;
+    });
+
+    return filtered_outputs;
   },
 } satisfies Test;
 
@@ -86,8 +99,7 @@ function _testImage(
   if (extension === "gif") {
     outputs.push({
       status: "warn",
-      message:
-        "GIFs take up a large amount of listeners' storage and are not supported on all apps",
+      message: GIF_WARN_MESSAGE,
       path: newPath,
       attribute: "href",
     });

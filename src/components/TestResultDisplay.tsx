@@ -88,7 +88,7 @@ export function TestResultDisplay({
                     text={output.text}
                   />
                 )}
-                {xml && output.paths && (
+                {xml && output.paths && output.paths.length > 0 && (
                   <div className="flex flex-col divide-y divide-dashed divide-amber-950">
                     {output.paths.map((path, idx) => (
                       <XmlPathPreview

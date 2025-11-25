@@ -6,7 +6,31 @@ import { checkTag, type MinimalTestOutput } from "./_utils";
 
 // Constants
 const LIVE_STATUSES = ["pending", "live", "ended"] as const;
-const DATETIME_SCHEMA = z.iso.datetime({ offset: true });
+const DATETIME_SCHEMA = z
+  .string()
+  .transform((input) => normalizeBasicOffset(input))
+  .pipe(z.iso.datetime({ offset: true }));
+
+const normalizeBasicOffset = (value: string): string => {
+  // Matches ...±HHMM at the end, but not already with a colon
+  const match = value.match(/(Z|[+-]\d{2}:\d{2}|[+-]\d{4})$/);
+  if (!match) return value; // no offset → let zod complain if offset is required
+
+  const suffix = match[1];
+
+  // Already Z or extended offset, nothing to do
+  if (suffix === "Z" || /^[+-]\d{2}:\d{2}$/.test(suffix)) {
+    return value;
+  }
+
+  // suffix is basic offset like +0500 / -1130
+  const sign = suffix[0];
+  const hours = suffix.slice(1, 3);
+  const minutes = suffix.slice(3, 5);
+  const extended = `${sign}${hours}:${minutes}`;
+
+  return value.slice(0, -suffix.length) + extended;
+};
 
 export default {
   key: "podcast:liveItem",

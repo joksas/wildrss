@@ -100,7 +100,7 @@ function _checkEnclosures({
               validator: ({ attributes }) => {
                 const outputs: MinimalTestOutput[] = [];
 
-                const length = attributes["length"];
+                const length = attributes.length;
                 if (length === undefined) return [];
 
                 const error = z.coerce

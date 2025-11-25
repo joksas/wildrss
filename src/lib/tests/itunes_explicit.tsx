@@ -41,9 +41,8 @@ export default {
                         <code>
                           {"<"}itunes:explicit{">"}
                         </code>{" "}
-                        guidelines recommend using <code>true</code>/
-                        <code>false</code> instead of <code>yes</code>/
-                        <code>no</code>
+                        documentation uses <code>true</code>/<code>false</code>{" "}
+                        instead of <code>yes</code>/<code>no</code>
                       </>
                     ),
                   });

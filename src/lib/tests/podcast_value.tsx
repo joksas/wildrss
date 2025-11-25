@@ -59,7 +59,6 @@ function _testValue(
 ): TestOutput[] {
   const outputs = [];
   const channel = path.at(-1)?.[0] === "channel";
-  const firstItem = path.at(-1)?.[0] === "item" && path.at(-1)?.[1] === 0;
 
   const podcastValueTags = tag?.["podcast:value"];
   outputs.push(
@@ -139,7 +138,7 @@ function _testValue(
                 const outputs: MinimalTestOutput[] = [];
 
                 const _type = attributes["type"];
-                if (_type === "node" && (channel || firstItem))
+                if (_type === "node" && channel)
                   outputs.push({
                     status: "info",
                     message: (

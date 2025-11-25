@@ -20,6 +20,7 @@ export function checkTag(
     children?: { name: string; min: number; max?: number }[];
     text?: {
       validator?: (props: {
+        idx: number;
         text: string | undefined;
         attributes: Record<string, string | undefined>;
       }) => MinimalTestOutput[];
@@ -263,6 +264,7 @@ export function checkTag(
     if (!options.text?.validator) continue;
     const textOutputs = options.text
       .validator({
+        idx: i,
         text: tag["@text"],
         attributes: tag["@attributes"]?.[0] ?? {},
       })

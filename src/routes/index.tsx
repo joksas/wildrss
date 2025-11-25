@@ -19,6 +19,7 @@ import {
 } from "react-aria-components";
 import { useDocumentTitle } from "usehooks-ts";
 import * as z from "zod";
+import { en } from "zod/locales";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { TestGroupDisplay } from "@/components/TestGroupDisplay";
 import {
@@ -49,6 +50,8 @@ import testRSSEnclosure from "@/lib/tests/rss_enclosure";
 import testRSSGUID from "@/lib/tests/rss_guid";
 import testTitle from "@/lib/tests/title";
 import { isWebURL, WebURL } from "@/lib/url";
+
+z.config(en());
 
 // Constants
 export const WEBSITE_URL = "https://wildrss.com";

@@ -45,6 +45,7 @@ import testItunesImage from "@/lib/tests/itunes_image";
 import testItunesOwner from "@/lib/tests/itunes_owner";
 import testLink from "@/lib/tests/link";
 import testPodcastGuid from "@/lib/tests/podcast_guid";
+import testPodcastLiveItem from "@/lib/tests/podcast_live_item";
 import testPodcastValue from "@/lib/tests/podcast_value";
 import testRSSEnclosure from "@/lib/tests/rss_enclosure";
 import testRSSGUID from "@/lib/tests/rss_guid";
@@ -121,6 +122,7 @@ const TESTS: Test[] = [
 
   testPodcastGuid,
   testPodcastValue,
+  testPodcastLiveItem,
 ];
 
 function App() {

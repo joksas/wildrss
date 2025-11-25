@@ -1,3 +1,4 @@
+import type * as z from "zod";
 import type { XML } from "../feed";
 import type { Path, TestOutput } from "./_index";
 
@@ -8,7 +9,7 @@ export function checkTag(
   name: string,
   path: Path,
   options: {
-    limits?: { min: number; max: number; pushOptional?: boolean };
+    limits?: { min: number; max?: number; pushOptional?: boolean };
     attributes?: {
       name: string;
       type: "optional" | "recommended" | "required";
@@ -16,6 +17,7 @@ export function checkTag(
         text: string | undefined;
         attributes: Record<string, string | undefined>;
       }) => MinimalTestOutput[];
+      schema?: z.ZodSchema;
     }[];
     children?: { name: string; min: number; max?: number }[];
     text?: {
@@ -51,7 +53,7 @@ export function checkTag(
         path,
       });
     }
-    if (numTags > max) {
+    if (max !== undefined && numTags > max) {
       outputs.push({
         status: "error",
         message: (
@@ -166,17 +168,35 @@ export function checkTag(
       }
 
       // Additional validation
-      for (const { validator, name } of documentedAttributes) {
-        if (!validator) continue;
-        const attribute_outputs = validator({
-          text: tag["@text"],
-          attributes: tag["@attributes"]?.[0] ?? {},
-        }).map((output) => ({
-          ...output,
-          path: tagPath,
-          attribute: name,
-        }));
-        outputs.push(...attribute_outputs);
+      for (const { name, validator, schema } of documentedAttributes) {
+        if (validator) {
+          try {
+            const attribute_outputs = validator({
+              text: tag["@text"],
+              attributes: tag["@attributes"]?.[0] ?? {},
+            }).map((output) => ({
+              ...output,
+              path: tagPath,
+              attribute: name,
+            }));
+            outputs.push(...attribute_outputs);
+          } finally {
+          }
+        }
+        if (schema) {
+          const attr = tag["@attributes"]?.[0][name];
+          console.log(attr, attr.length);
+          if (!attr) continue;
+          const error = schema.safeParse(attr).error;
+          if (error) {
+            outputs.push({
+              status: "error",
+              message: error,
+              path: tagPath,
+              attribute: name,
+            });
+          }
+        }
       }
     }
 

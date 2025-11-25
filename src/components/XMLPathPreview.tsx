@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
 import type { XML } from "@/lib/feed";
 import type { Path } from "@/lib/tests/_index";
 
@@ -86,7 +87,7 @@ function renderPathXML(
         : renderAttrs(tag, attrsRecord, isLeaf);
 
     if (isLeaf) {
-      if (tag === "item") {
+      if (tag === "item" || tag === "podcast:liveItem") {
         pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
 
         // Extra context for items (unchanged, but now as nodes)
@@ -124,7 +125,7 @@ function renderPathXML(
     pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
 
     // Extra context for items (unchanged, but now as nodes)
-    if (tag === "item") {
+    if (tag === "item" || tag === "podcast:liveItem") {
       const item_title = node["title"]?.at(0)?.["@text"];
       if (item_title) {
         pushLine(depth + 1, ["<title>", item_title, "</title>"]);
@@ -151,11 +152,13 @@ export function XmlPathPreview({
   path,
   attribute,
   text,
+  className,
 }: {
   xml: XML;
   path: Path;
   attribute?: string;
   text?: boolean;
+  className?: string;
 }) {
   const xmlNodes = renderPathXML(xml, path, {
     attributeToHighlight: attribute,
@@ -163,7 +166,7 @@ export function XmlPathPreview({
   });
 
   return (
-    <pre className="overflow-x-auto">
+    <pre className={twMerge("overflow-x-auto", className)}>
       <code>{xmlNodes}</code>
     </pre>
   );

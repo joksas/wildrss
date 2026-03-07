@@ -49,10 +49,11 @@ export function FeedSearchInput({
       aria-label="Feed URL"
       items={filteredFeedInfos}
       autoFocus
+      className="flex w-full justify-center"
     >
       <div
         ref={trigger}
-        className="flex w-[375px] items-center gap-2 border-2 border-amber-950 bg-amber-50/70 px-3 py-2 text-amber-950 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+        className="flex items-center gap-2 border-2 border-amber-950 bg-amber-50/70 px-3 py-2 text-amber-950 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
       >
         <Input
           type="url"

@@ -37,7 +37,7 @@ export function TestResultDisplay({
       <Heading>
         <Button
           className={clsx(
-            "flex w-full items-center justify-between gap-1.5 py-2 pr-4 pl-3",
+            "flex w-full flex-col justify-between gap-1.5 py-2 pr-4 pl-3 sm:flex-row sm:items-center",
             {
               "cursor-pointer": expandable,
             },

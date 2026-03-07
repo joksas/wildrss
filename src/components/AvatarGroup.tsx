@@ -1,26 +1,19 @@
 import clsx from "clsx";
 import { Children, isValidElement } from "react";
-import { twMerge } from "tailwind-merge";
 
-export function AvatarGroup({
-  children,
-  max = 3,
-  moreLabel = (count) => `+${count} ${count === 1 ? "other" : "others"}`,
-  className,
-  labelClassName,
-}: {
-  children: React.ReactNode;
-  max?: number;
-  moreLabel?: (extraCount: number) => string;
-  className?: string;
-  labelClassName?: string;
-}) {
+// Constants
+const MAX = 3;
+
+export function AvatarGroup({ children }: { children: React.ReactNode }) {
+  const moreLabel = (count: number) =>
+    `+${count} ${count === 1 ? "other" : "others"}`;
+
   const valid_children = Children.toArray(children).filter(isValidElement);
-  const visible_children = valid_children.slice(0, max);
+  const visible_children = valid_children.slice(0, MAX);
   const num_extra = valid_children.length - visible_children.length;
 
   return (
-    <div className={twMerge("flex items-center", className)}>
+    <div className="flex items-center">
       {visible_children.map((child, i) => (
         <div
           key={child.key}
@@ -32,9 +25,7 @@ export function AvatarGroup({
       ))}
 
       {num_extra > 0 && (
-        <span className={twMerge("ml-2 select-none", labelClassName)}>
-          {moreLabel(num_extra)}
-        </span>
+        <span className="select-none text-sm">{moreLabel(num_extra)}</span>
       )}
     </div>
   );

@@ -53,7 +53,7 @@ export function FeedSearchInput({
     >
       <div
         ref={trigger}
-        className="flex items-center gap-2 border-2 border-amber-950 bg-amber-50/70 px-3 py-2 text-amber-950 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
+        className="flex w-full items-center gap-2 border-2 border-amber-950 bg-amber-50/70 px-3 py-2 text-amber-950 text-xl sm:w-[400px] md:w-[500px] lg:w-[600px]"
       >
         <Input
           type="url"

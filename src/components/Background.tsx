@@ -19,7 +19,7 @@ export function Background() {
 
       {/* Sun */}
       <motion.div
-        className="absolute top-20 right-32 h-32 w-32 rounded-full"
+        className="absolute top-20 right-4 h-32 w-32 rounded-full sm:right-32"
         style={{
           backgroundColor: "#ff8c42",
           border: "none",
@@ -29,7 +29,7 @@ export function Background() {
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 scale-x-300 sm:scale-x-100">
         <svg
           viewBox="0 0 1000 100"
           preserveAspectRatio="none"

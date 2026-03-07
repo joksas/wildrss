@@ -16,10 +16,11 @@ export function isWebURL(url: string): boolean {
 export function getUrlExtension(url: string): string | undefined {
   try {
     const { pathname } = new URL(url);
-    const last_segment = pathname.split("/").pop() || "";
-    const parts = last_segment.split(".").filter(Boolean);
-    if (parts.length < 2) return undefined;
-    return parts.slice(1).join(".");
+    const lastSegment = decodeURIComponent(pathname.split("/").pop() || "");
+    const dotIndex = lastSegment.lastIndexOf(".");
+    if (dotIndex <= 0) return undefined;
+    const ext = lastSegment.slice(dotIndex + 1);
+    return ext || undefined;
   } catch {
     return undefined;
   }

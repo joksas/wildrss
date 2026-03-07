@@ -185,7 +185,6 @@ export function checkTag(
         }
         if (schema) {
           const attr = tag["@attributes"]?.[0][name];
-          console.log(attr, attr.length);
           if (!attr) continue;
           const error = schema.safeParse(attr).error;
           if (error) {

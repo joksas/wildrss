@@ -1,7 +1,5 @@
 import * as z from "zod";
-import { isEmail } from "../email";
-import type { XML } from "../feed";
-import type { Path, Test, TestArgs, TestOutput } from "./_index";
+import type { Test, TestArgs, TestOutput } from "./_index";
 import { checkTag, type MinimalTestOutput } from "./_utils";
 
 // Constants

@@ -89,7 +89,7 @@ async function _fetchFeed({
   signal,
 }: {
   data: string;
-  signal: AbortSignal;
+  signal?: AbortSignal;
 }): Promise<{ content: string; info: { headers: Record<string, string> } }> {
   const res = await fetch(url, {
     signal,
@@ -105,7 +105,7 @@ async function _fetchFeed({
 }
 const _fetchFeedServer = createServerFn()
   .inputValidator(z.string())
-  .handler(async ({ data, signal }) => {
+  .handler(async ({ data }) => {
     "use server";
-    return _fetchFeed({ data, signal });
+    return _fetchFeed({ data });
   });

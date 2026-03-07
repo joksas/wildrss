@@ -30,72 +30,30 @@ export const Route = createRootRouteWithContext<{
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
-      {
-        title: WEBSITE_NAME,
-      },
-      {
-        name: "og:site_name",
-        content: WEBSITE_NAME,
-      },
-      {
-        name: "og:title",
-        content: WEBSITE_NAME,
-      },
-      {
-        name: "og:description",
-        content: WEBSITE_DESCRIPTION,
-      },
-      {
-        name: "twitter:description",
-        content: WEBSITE_DESCRIPTION,
-      },
-      {
-        name: "twitter:title",
-        content: WEBSITE_NAME,
-      },
-      {
-        name: "og:image",
-        content: WEBSITE_IMAGE,
-      },
-      {
-        name: "og:image:width",
-        content: "1200",
-      },
-      {
-        name: "og:image:height",
-        content: "630",
-      },
-      {
-        name: "og:image:type",
-        content: "image/png",
-      },
-      {
-        name: "og:url",
-        content: WEBSITE_URL,
-      },
-      {
-        name: "twitter:url",
-        content: WEBSITE_URL,
-      },
-      {
-        name: "twitter:image",
-        content: WEBSITE_IMAGE,
-      },
-      {
-        name: "apple-mobile-web-app-title",
-        content: "Wild Wild RSS",
-      },
+      // Name
+      { title: WEBSITE_NAME },
+      { name: "og:site_name", content: WEBSITE_NAME },
+      { name: "og:title", content: WEBSITE_NAME },
+      { name: "twitter:title", content: WEBSITE_NAME },
+      { name: "apple-mobile-web-app-title", content: WEBSITE_NAME },
+      // Description
+      { name: "og:description", content: WEBSITE_DESCRIPTION },
+      { name: "twitter:description", content: WEBSITE_DESCRIPTION },
+      // Image
+      { name: "og:image", content: WEBSITE_IMAGE },
+      { name: "og:image:width", content: "1200" },
+      { name: "og:image:height", content: "630" },
+      { name: "og:image:type", content: "image/png" },
+      { name: "twitter:image", content: WEBSITE_IMAGE },
+      // URL
+      { name: "og:url", content: WEBSITE_URL },
+      { name: "twitter:url", content: WEBSITE_URL },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      {
-        rel: "preload",
-        as: "style",
-        href: appCss,
-      },
+      // CSS
+      { rel: "stylesheet", href: appCss },
+      { rel: "preload", as: "style", href: appCss },
+      // Fonts
       {
         rel: "preload",
         as: "font",
@@ -110,6 +68,7 @@ export const Route = createRootRouteWithContext<{
         crossOrigin: "anonymous",
         href: ryeFontExt,
       },
+      // Favicon
       {
         rel: "icon",
         type: "image/png",
@@ -146,7 +105,7 @@ export const Route = createRootRouteWithContext<{
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="overscroll-none font-sans">
+    <html lang="en" className="pointer-fine:overscroll-none font-sans">
       <head>
         <HeadContent />
       </head>

@@ -64,24 +64,6 @@ export default {
       );
     }
 
-    for (const [title, paths] of Object.entries(allTitles)) {
-      if (paths.length <= 1) continue;
-      outputs.push({
-        status: "error",
-        message: (
-          <>
-            Found {paths.length}{" "}
-            <code>
-              {"<"}title{">"}
-            </code>{" "}
-            instances of <code>{title}</code>
-          </>
-        ),
-        paths,
-        text: true,
-      });
-    }
-
     for (const kind of ["channel", "podcast:liveItem", "item"]) {
       const numTitles = Object.entries(allTitles).reduce(
         (sum, [, paths]) =>

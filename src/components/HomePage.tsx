@@ -1,4 +1,24 @@
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  TEST_GROUPS,
+  type Test,
+  type TestOutput,
+  type ValidationState,
+} from "@tests/_index";
+import testCORS from "@tests/cors";
+import testDescription from "@tests/description";
+import testFetching from "@tests/fetching";
+import testItunesExplicit from "@tests/itunes_explicit";
+import testItunesImage from "@tests/itunes_image";
+import testItunesOwner from "@tests/itunes_owner";
+import testLink from "@tests/link";
+import testPodcastChat from "@tests/podcast_chat";
+import testPodcastGuid from "@tests/podcast_guid";
+import testPodcastLiveItem from "@tests/podcast_live_item";
+import testPodcastValue from "@tests/podcast_value";
+import testRSSEnclosure from "@tests/rss_enclosure";
+import testRSSGUID from "@tests/rss_guid";
+import testTitle from "@tests/title";
 import { AnimatePresence, motion } from "motion/react";
 import { Result, ResultAsync } from "neverthrow";
 import { useQueryState } from "nuqs";
@@ -15,26 +35,6 @@ import {
   type XML,
 } from "@/lib/feed";
 import { useRecentValidations, useUpsertRecentValidation } from "@/lib/recent";
-import {
-  TEST_GROUPS,
-  type Test,
-  type TestOutput,
-  type ValidationState,
-} from "@/lib/tests/_index";
-import testCORS from "@/lib/tests/cors";
-import testDescription from "@/lib/tests/description";
-import testFetching from "@/lib/tests/fetching";
-import testItunesExplicit from "@/lib/tests/itunes_explicit";
-import testItunesImage from "@/lib/tests/itunes_image";
-import testItunesOwner from "@/lib/tests/itunes_owner";
-import testLink from "@/lib/tests/link";
-import testPodcastChat from "@/lib/tests/podcast_chat";
-import testPodcastGuid from "@/lib/tests/podcast_guid";
-import testPodcastLiveItem from "@/lib/tests/podcast_live_item";
-import testPodcastValue from "@/lib/tests/podcast_value";
-import testRSSEnclosure from "@/lib/tests/rss_enclosure";
-import testRSSGUID from "@/lib/tests/rss_guid";
-import testTitle from "@/lib/tests/title";
 import { isWebURL } from "@/lib/url";
 import { WEBSITE_NAME } from "@/routes";
 import { FeedSearchInput } from "./FeedSearchInput";

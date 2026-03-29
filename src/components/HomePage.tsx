@@ -28,6 +28,7 @@ import testItunesExplicit from "@/lib/tests/itunes_explicit";
 import testItunesImage from "@/lib/tests/itunes_image";
 import testItunesOwner from "@/lib/tests/itunes_owner";
 import testLink from "@/lib/tests/link";
+import testPodcastChat from "@/lib/tests/podcast_chat";
 import testPodcastGuid from "@/lib/tests/podcast_guid";
 import testPodcastLiveItem from "@/lib/tests/podcast_live_item";
 import testPodcastValue from "@/lib/tests/podcast_value";
@@ -58,6 +59,7 @@ const TESTS: Test[] = [
   testPodcastGuid,
   testPodcastValue,
   testPodcastLiveItem,
+  testPodcastChat,
 ];
 
 export function HomePage() {

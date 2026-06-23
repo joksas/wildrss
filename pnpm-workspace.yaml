@@ -1,0 +1,32 @@
+allowBuilds:
+  esbuild: false
+  sharp: false
+  workerd: false
+minimumReleaseAgeExclude:
+  - vite@8.1.0
+  - '@biomejs/biome@2.5.1'
+  - '@biomejs/cli-darwin-arm64@2.5.1'
+  - '@biomejs/cli-darwin-x64@2.5.1'
+  - '@biomejs/cli-linux-arm64-musl@2.5.1'
+  - '@biomejs/cli-linux-arm64@2.5.1'
+  - '@biomejs/cli-linux-x64-musl@2.5.1'
+  - '@biomejs/cli-linux-x64@2.5.1'
+  - '@biomejs/cli-win32-arm64@2.5.1'
+  - '@biomejs/cli-win32-x64@2.5.1'
+  - '@cloudflare/vite-plugin@1.42.2'
+  - '@cloudflare/workerd-darwin-64@1.20260623.1'
+  - '@cloudflare/workerd-darwin-arm64@1.20260623.1'
+  - '@cloudflare/workerd-linux-64@1.20260623.1'
+  - '@cloudflare/workerd-linux-arm64@1.20260623.1'
+  - '@cloudflare/workerd-windows-64@1.20260623.1'
+  - '@tanstack/query-core@5.101.1'
+  - '@tanstack/query-devtools@5.101.1'
+  - '@tanstack/react-query-devtools@5.101.1'
+  - '@tanstack/react-query@5.101.1'
+  - '@vitejs/plugin-react@6.0.3'
+  - framer-motion@12.41.0
+  - miniflare@4.20260623.0
+  - motion-dom@12.41.0
+  - motion@12.41.0
+  - workerd@1.20260623.1
+  - wrangler@4.104.0

@@ -37,10 +37,10 @@ export function useUpsertRecentValidation(): (info: FeedInfo) => void {
         );
       }
 
-      // Sort by updated descending
+      // Sort by updated descending, then cap
       return next
-        .slice(0, MAX_FEEDS)
-        .sort((a, b) => Date.parse(b.updated) - Date.parse(a.updated));
+        .sort((a, b) => Date.parse(b.updated) - Date.parse(a.updated))
+        .slice(0, MAX_FEEDS);
     });
   };
 }

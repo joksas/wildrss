@@ -4,10 +4,10 @@ import { Children, isValidElement } from "react";
 // Constants
 const MAX = 3;
 
-export function AvatarGroup({ children }: { children: React.ReactNode }) {
-  const moreLabel = (count: number) =>
-    `+${count} ${count === 1 ? "other" : "others"}`;
+const moreLabel = (count: number) =>
+  `+${count} ${count === 1 ? "other" : "others"}`;
 
+export function AvatarGroup({ children }: { children: React.ReactNode }) {
   const valid_children = Children.toArray(children).filter(isValidElement);
   const visible_children = valid_children.slice(0, MAX);
   const num_extra = valid_children.length - visible_children.length;

@@ -90,9 +90,9 @@ export function TestResultDisplay({
                 )}
                 {xml && output.paths && output.paths.length > 0 && (
                   <div className="flex flex-col divide-y divide-dashed divide-amber-950">
-                    {output.paths.map((path, idx) => (
+                    {output.paths.map((path) => (
                       <XmlPathPreview
-                        key={idx}
+                        key={path.map(([tag, i]) => `${tag}-${i}`).join("/")}
                         xml={xml}
                         path={path}
                         attribute={output.attribute}

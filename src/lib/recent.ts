@@ -3,7 +3,7 @@ import * as z from "zod";
 import { WebURL } from "./url";
 
 // Constants
-export const FeedInfo = z.object({
+const FeedInfo = z.object({
   url: WebURL,
   title: z.string().trim().nonempty().optional().catch(undefined),
   author: z.string().trim().nonempty().optional().catch(undefined),

@@ -3,15 +3,9 @@ import { ResultAsync } from "neverthrow";
 import * as z from "zod";
 import { HomePage } from "@/components/HomePage";
 import { fetchFeed, prefetchFeed } from "@/lib/feed";
+import { WEBSITE_NAME, WEBSITE_URL } from "@/lib/site";
 import { extractTitle } from "@/lib/string";
 import { WebURL } from "@/lib/url";
-
-// Constants
-export const WEBSITE_URL = "https://wildrss.com";
-export const WEBSITE_NAME = "Wild RSS";
-export const WEBSITE_DESCRIPTION =
-  "RSS validator for truly wild feeds. Support for Apple Podcasts (iTunes) and Podcasting 2.0 namespaces.";
-export const WEBSITE_IMAGE = "og.png";
 
 // Route
 export const Route = createFileRoute("/")({

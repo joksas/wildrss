@@ -27,20 +27,19 @@ export function TestGroupDisplay({
       <span className="font-bold font-display text-2xl">
         {getTestGroupName(group)}
       </span>
-      {tests
-        .filter((test) => test.group === group)
-        .map((test) => {
-          const outputs = sortTestOutputs(results[test.key]);
-          return (
-            <TestResultDisplay
-              key={test.key}
-              xml={xml}
-              state={state}
-              test={test}
-              outputs={outputs}
-            />
-          );
-        })}
+      {tests.flatMap((test) => {
+        if (test.group !== group) return [];
+        const outputs = sortTestOutputs(results[test.key]);
+        return [
+          <TestResultDisplay
+            key={test.key}
+            xml={xml}
+            state={state}
+            test={test}
+            outputs={outputs}
+          />,
+        ];
+      })}
     </div>
   );
 }

@@ -1,9 +1,10 @@
 import { Dithering } from "@paper-design/shaders-react";
-import { motion } from "motion/react";
+import { domAnimation, LazyMotion, m } from "motion/react";
 
 export function Background() {
   return (
-    <div className="fixed h-svh w-screen overflow-hidden bg-[#f5c78e]">
+    <LazyMotion features={domAnimation}>
+      <div className="fixed h-svh w-screen overflow-hidden bg-[#f5c78e]">
       <Dithering
         width="100%"
         height={400}
@@ -18,7 +19,7 @@ export function Background() {
       />
 
       {/* Sun */}
-      <motion.div
+      <m.div
         className="absolute top-20 right-4 h-32 w-32 rounded-full sm:right-32"
         style={{
           backgroundColor: "#ff8c42",
@@ -497,6 +498,7 @@ export function Background() {
           />
         </svg>
       </div>
-    </div>
+      </div>
+    </LazyMotion>
   );
 }

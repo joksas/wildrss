@@ -22,7 +22,7 @@ export function FeedSearchInput({
   setURL: Dispatch<SetStateAction<string>>;
   error?: string;
   loading?: boolean;
-  onSubmit: () => Promise<void>;
+  onSubmit: (targetURL?: string) => Promise<void>;
 }) {
   const client = useQueryClient();
   const onHover = (prefetchURL: string) => prefetchFeed(client, prefetchURL);
@@ -94,7 +94,7 @@ export function FeedSearchInput({
                   onAction={() => {
                     setURL(info.url);
                     (window.document.activeElement as HTMLInputElement).blur();
-                    onSubmit();
+                    onSubmit(info.url);
                   }}
                   className="flex w-full grow cursor-pointer items-center gap-2 bg-amber-50/70 px-3 py-2 focus:bg-amber-50"
                   textValue={info.title}

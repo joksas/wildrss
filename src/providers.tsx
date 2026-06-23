@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MotionConfig } from "motion/react";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 
 // Constants
@@ -22,7 +23,9 @@ export function Provider({
 }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <NuqsAdapter>{children}</NuqsAdapter>
+      <MotionConfig reducedMotion="user">
+        <NuqsAdapter>{children}</NuqsAdapter>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

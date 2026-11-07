@@ -4,6 +4,25 @@ import type { Path, TestOutput } from "./_index";
 
 export type MinimalTestOutput = Omit<Omit<TestOutput, "path">, "attribute">;
 
+/** Output marking an optional tag as absent from the whole feed */
+export function optionalTagAbsent(name: string, path: Path): TestOutput {
+  return {
+    status: "info-optional",
+    message: (
+      <span>
+        No{" "}
+        <code>
+          {`<`}
+          {name}
+          {`>`}
+        </code>{" "}
+        tags found (optional)
+      </span>
+    ),
+    path,
+  };
+}
+
 export function checkTag(
   tags: XML[] | undefined,
   name: string,
@@ -72,21 +91,7 @@ export function checkTag(
       });
     }
     if (numTags === 0 && min === 0 && pushOptional) {
-      outputs.push({
-        status: "info-optional",
-        message: (
-          <span>
-            No{" "}
-            <code>
-              {`<`}
-              {name}
-              {`>`}
-            </code>{" "}
-            tags found (optional)
-          </span>
-        ),
-        path,
-      });
+      outputs.push(optionalTagAbsent(name, path));
     }
   }
 

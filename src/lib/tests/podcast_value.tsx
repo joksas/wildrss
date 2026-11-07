@@ -4,7 +4,11 @@ import { isEmail } from "../email";
 import type { XML } from "../feed";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkRemoteItems } from "./_remote_item";
-import { checkTag, type MinimalTestOutput } from "./_utils";
+import {
+  checkTag,
+  type MinimalTestOutput,
+  optionalTagAbsent,
+} from "./_utils";
 
 // Constants
 const KEYSEND_ADDRESS_LENGTH = 66;
@@ -57,6 +61,13 @@ export default {
       );
     }
 
+    const numValues = [channel, ...items, ...liveItems].reduce(
+      (sum, parent) => sum + (parent?.["podcast:value"]?.length ?? 0),
+      0,
+    );
+    if (numValues === 0)
+      outputs.push(optionalTagAbsent("podcast:value", channelPath));
+
     return outputs;
   },
 } satisfies Test;
@@ -77,7 +88,7 @@ function _testValue({
   const valueTags = parent?.["podcast:value"];
   outputs.push(
     ...checkTag(valueTags, "podcast:value", path, {
-      limits: { min: 0, pushOptional: kind === "channel" },
+      limits: { min: 0 },
       attributes: [
         { name: "type", type: "required" },
         { name: "method", type: "required" },

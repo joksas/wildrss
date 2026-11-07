@@ -8,6 +8,7 @@ import {
 import testCORS from "@tests/cors";
 import testDescription from "@tests/description";
 import testFetching from "@tests/fetching";
+import testItunesDuration from "@tests/itunes_duration";
 import testItunesExplicit from "@tests/itunes_explicit";
 import testItunesImage from "@tests/itunes_image";
 import testItunesOwner from "@tests/itunes_owner";
@@ -54,6 +55,7 @@ const TESTS: Test[] = [
 
 	testItunesExplicit,
 	testItunesImage,
+	testItunesDuration,
 	testItunesOwner,
 
 	testPodcastNamespace,

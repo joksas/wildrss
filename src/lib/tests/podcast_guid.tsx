@@ -1,5 +1,5 @@
 import { match } from "ts-pattern";
-import { getUUIDInfo } from "../string";
+import { derivePodcastGUID, getUUIDInfo } from "../string";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkTag } from "./_utils";
 
@@ -7,7 +7,7 @@ export default {
   key: "podcast:guid",
   group: "podcast",
   name: <code>&lt;podcast:guid&gt;</code>,
-  test: async ({ xml }: TestArgs) => {
+  test: async ({ xml, feed_url }: TestArgs) => {
     const outputs: TestOutput[] = [];
 
     const basePath: Path = [
@@ -58,6 +58,33 @@ export default {
           text: true,
         });
       });
+
+    if (uuidInfo !== "v5") return outputs;
+
+    // A feed that moved keeps the GUID derived from its original URL, so a mismatch is informational only
+    const derivedGUID = await derivePodcastGUID(feed_url);
+    if (derivedGUID === guid.trim().toLowerCase()) {
+      outputs.push({
+        status: "info",
+        message: "GUID matches the value derived from this feed's URL",
+        path: guidPath,
+        text: true,
+      });
+    } else {
+      outputs.push({
+        status: "info",
+        message: (
+          <>
+            GUID differs from the value derived from this feed's URL (
+            <code>{derivedGUID}</code>). This is expected if the feed has moved:
+            the GUID is derived once from the original feed URL and must stay
+            unchanged afterwards
+          </>
+        ),
+        path: guidPath,
+        text: true,
+      });
+    }
 
     return outputs;
   },

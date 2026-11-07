@@ -70,10 +70,24 @@ function _testImage(
     }),
   );
 
-  const hrefRaw = tags?.at(0)?.["@attributes"].at(0)?.href;
-  if (!hrefRaw) return outputs;
-
   const newPath: Path = [...path, ["itunes:image", 0]];
+
+  const hrefRaw = tags?.at(0)?.["@attributes"]?.at(0)?.href;
+  const textURL = tags?.at(0)?.["@text"]?.trim();
+  if (!hrefRaw && textURL && z.url().safeParse(textURL).success) {
+    outputs.push({
+      status: "error",
+      message: (
+        <>
+          Image URL is given as text - it must be given in the{" "}
+          <code>href</code> attribute instead
+        </>
+      ),
+      path: newPath,
+      text: true,
+    });
+  }
+  if (!hrefRaw) return outputs;
 
   const hrefParsed = z.url().safeParse(hrefRaw);
   if (!hrefParsed.success) {

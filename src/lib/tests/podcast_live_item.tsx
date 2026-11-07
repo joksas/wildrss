@@ -1,9 +1,11 @@
 import * as z from "zod";
-import type { Test, TestArgs, TestOutput } from "./_index";
+import type { XML } from "../feed";
+import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkTag, type MinimalTestOutput } from "./_utils";
 
 // Constants
 const LIVE_STATUSES = ["pending", "live", "ended"] as const;
+const STALE_MS = 24 * 3600 * 1000;
 const DATETIME_SCHEMA = z
   .string()
   .transform((input) => normalizeBasicOffset(input))
@@ -69,22 +71,10 @@ export default {
                 const pending = attributes["status"] === "pending";
                 if (!pending) return [];
 
-                const now = Date.now();
-                const diff_seconds = Math.round((start.getTime() - now) / 1000);
-                if (diff_seconds < -24 * 3600)
+                if (start.getTime() < Date.now() - STALE_MS)
                   outputs.push({
                     status: "warn",
-                    message: `Start time of a pending livestream should not be more than 24 hours in the past - found ${new Intl.DateTimeFormat(
-                      "en-US",
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "numeric",
-                        timeZoneName: "shortGeneric",
-                      },
-                    ).format(start)}`,
+                    message: `Start time of a pending livestream should not be more than 24 hours in the past - found ${formatDate(start)}`,
                   });
 
                 return outputs;
@@ -121,6 +111,36 @@ export default {
     );
     if (liveItems.length === 0) return outputs;
 
+    for (let i = 0; i < liveItems.length; i++) {
+      const liveItem = liveItems[i];
+      const liveItemPath: Path = [
+        ["rss", 0],
+        ["channel", 0],
+        ["podcast:liveItem", i],
+      ];
+
+      outputs.push(
+        ...checkTag(
+          liveItem["podcast:contentLink"],
+          "podcast:contentLink",
+          liveItemPath,
+          {
+            limits: { min: 1 },
+            attributes: [{ name: "href", type: "required", schema: z.url() }],
+            children: [],
+          },
+        ),
+      );
+
+      const statusOutput = _checkStatusTiming(liveItem);
+      if (statusOutput)
+        outputs.push({
+          ...statusOutput,
+          path: liveItemPath,
+          attribute: "status",
+        });
+    }
+
     for (const status of LIVE_STATUSES) {
       const filteredLiveItems = liveItems
         .map((item, idx) => ({ item, idx }))
@@ -148,3 +168,46 @@ export default {
     return outputs;
   },
 } satisfies Test;
+
+/** Check that a live item's status agrees with its scheduled start and end times */
+function _checkStatusTiming(liveItem: XML): MinimalTestOutput | undefined {
+  const attributes = liveItem["@attributes"]?.[0] ?? {};
+  const start = parseDate(attributes.start);
+  const end = parseDate(attributes.end);
+  const now = Date.now();
+
+  if (attributes.status === "ended" && start && start.getTime() > now)
+    return {
+      status: "warn",
+      message: `Livestream is marked as ended, but its start time is in the future - found ${formatDate(start)}`,
+    };
+
+  if (attributes.status === "live" && start && start.getTime() > now + STALE_MS)
+    return {
+      status: "warn",
+      message: `Livestream is marked as live, but its start time is more than 24 hours in the future - found ${formatDate(start)}`,
+    };
+
+  if (attributes.status === "live" && end && end.getTime() < now - STALE_MS)
+    return {
+      status: "warn",
+      message: `Livestream is marked as live, but its end time was more than 24 hours ago (${formatDate(end)}). Apps rely on status, so it will keep appearing as live`,
+    };
+
+  return undefined;
+}
+
+function parseDate(value: string | undefined): Date | undefined {
+  return DATETIME_SCHEMA.transform((s) => new Date(s)).safeParse(value).data;
+}
+
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    timeZoneName: "shortGeneric",
+  }).format(date);
+}

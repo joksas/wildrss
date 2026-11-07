@@ -15,6 +15,7 @@ import testLink from "@tests/link";
 import testPodcastChat from "@tests/podcast_chat";
 import testPodcastGuid from "@tests/podcast_guid";
 import testPodcastLiveItem from "@tests/podcast_live_item";
+import testPodcastNamespace from "@tests/podcast_namespace";
 import testPodcastValue from "@tests/podcast_value";
 import testRSSEnclosure from "@tests/rss_enclosure";
 import testRSSGUID from "@tests/rss_guid";
@@ -55,6 +56,7 @@ const TESTS: Test[] = [
 	testItunesImage,
 	testItunesOwner,
 
+	testPodcastNamespace,
 	testPodcastGuid,
 	testPodcastValue,
 	testPodcastLiveItem,
@@ -143,7 +145,7 @@ export function HomePage() {
 				],
 				image: _xml.rss?.at(0)?.channel?.at(0)?.["itunes:image"]?.at(0)?.[
 					"@attributes"
-				][0].href,
+				]?.[0]?.href,
 				updated: new Date().toISOString(),
 			});
 
@@ -153,14 +155,26 @@ export function HomePage() {
 
 			await Promise.all(
 				TESTS.map(async (test) => {
-					allResults[test.key] = await test.test({
-						xml: _xml,
-						fetching_info: {
-							success: true,
-							time_ms: fetching_time_ms,
-							headers,
-						},
-					});
+					try {
+						allResults[test.key] = await test.test({
+							xml: _xml,
+							feed_url: targetURL,
+							fetching_info: {
+								success: true,
+								time_ms: fetching_time_ms,
+								headers,
+							},
+						});
+					} catch (error) {
+						console.error(`Test ${test.key} failed`, error);
+						allResults[test.key] = [
+							{
+								status: "error",
+								message:
+									"This check failed to run on this feed - the feed may have an unexpected structure",
+							},
+						];
+					}
 				}),
 			);
 

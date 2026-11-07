@@ -23,6 +23,7 @@ export type Test = {
 /** Test arguments */
 export type TestArgs = {
 	xml: XML;
+	feed_url: string;
 	fetching_info: {
 		success: boolean;
 		time_ms: number;

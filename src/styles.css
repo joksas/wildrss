@@ -33,6 +33,11 @@
     --color-fail: #b23b26;
     --color-mark: #f0c97c;
 
+    /* Code inks */
+    --color-code-tag: #8c3a1f;
+    --color-code-attr: #6b5442;
+    --color-code-string: #2f5068;
+
     --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
     --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 }
@@ -73,6 +78,27 @@
     background-color: var(--color-paper-deep);
     padding: 0 0.25em;
     border-radius: 2px;
+}
+
+/* XML excerpt tokens */
+.th-tag {
+    color: var(--color-code-tag);
+}
+
+.th-attr {
+    color: var(--color-code-attr);
+}
+
+.th-string {
+    color: var(--color-code-string);
+}
+
+.th-comment {
+    color: var(--color-ink-muted);
+}
+
+.xml-mark {
+    background-color: var(--color-mark);
 }
 
 /* Disclosure panel height follows React Aria's measured value */

@@ -1,178 +1,86 @@
-import type { ReactNode } from "react";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import {
+	createHighlighter,
+	type HighlightRenderNode,
+	renderTokens,
+} from "@tanstack/highlight/core";
+import { html } from "@tanstack/highlight/languages/html";
+import { type ReactNode, useMemo, useState } from "react";
+import { Button } from "react-aria-components";
 import { twMerge } from "tailwind-merge";
 import type { XML } from "@/lib/feed";
 import type { Path } from "@/lib/tests/_index";
+import { buildXmlExcerpt } from "@/lib/xml_excerpt";
 
-function escAttrValue(value: string): string {
-	return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-}
+const highlighter = createHighlighter({ languages: [html] });
 
-type HighlightOptions = {
-	attributeToHighlight?: string;
-	highlightText?: boolean;
-};
+/** Occurrences shown before the excerpt is expanded */
+const COLLAPSED_LIMIT = 3;
 
-function renderPathXML(
-	root: XML,
-	path: Path,
-	options?: HighlightOptions,
-): ReactNode[] {
-	const indent = "  ";
-	const lines: ReactNode[] = [];
-	const { attributeToHighlight, highlightText } = options ?? {};
-
-	function renderAttrs(
-		tag: string,
-		attrs?: Record<string, string>,
-		isLeaf: boolean = false,
-	): ReactNode[] {
-		if (!attrs) return [];
-		const keys = Object.keys(attrs).sort((a) =>
-			a === attributeToHighlight ? -1 : 0,
-		);
-		const nodes: ReactNode[] = [];
-
-		for (const key of keys) {
-			const raw = attrs[key] ?? "";
-			const shouldHighlight = isLeaf && attributeToHighlight === key;
-
-			if (shouldHighlight) {
-				nodes.push(
-					<span key={`attr-${tag}-${key}`}>
-						{" "}
-						<span className="bg-mark rounded-[2px] px-0.5">
-							{key}="
-							{escAttrValue(String(raw))}"
-						</span>
-					</span>,
-				);
-			} else {
-				nodes.push(` ${key}="${escAttrValue(String(raw))}"`);
-			}
-		}
-
-		return nodes;
-	}
-
-	function renderTextContent(text: string, isLeaf: boolean): ReactNode {
-		if (!isLeaf || !highlightText) return text;
-		return <span className="bg-mark rounded-[2px] px-0.5">{text}</span>;
-	}
-
-	function pushLine(depth: number, parts: ReactNode[]): void {
-		const indentStr = indent.repeat(depth);
-		lines.push(
-			<span key={lines.length}>
-				{indentStr}
-				{parts}
-			</span>,
-		);
-		lines.push("\n");
-	}
-
-	function step(parent: XML, depth: number, segmentIndex: number): void {
-		const [tag, idx] = path[segmentIndex];
-
-		const node = parent[tag]?.at(idx) as XML | undefined;
-		if (!node) return;
-
-		const attrsRecord = node["@attributes"]?.[0];
-		const text = node["@text"]?.trim();
-		const isLeaf = segmentIndex === path.length - 1;
-		const selfClosing = isLeaf && !text;
-
-		const attrsNodes =
-			path.length > 1 && tag === "rss"
-				? [] // hide rss attrs for readability, as before
-				: renderAttrs(tag, attrsRecord, isLeaf);
-
-		if (isLeaf) {
-			if (tag === "item" || tag === "podcast:liveItem") {
-				pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
-
-				// Extra context for items (unchanged, but now as nodes)
-				const item_title = node["title"]?.at(0)?.["@text"];
-				if (item_title)
-					pushLine(depth + 1, ["<title>", item_title, "</title>"]);
-
-				const item_guid = node["guid"]?.at(0)?.["@text"];
-				if (item_guid) pushLine(depth + 1, ["<guid>", item_guid, "</guid>"]);
-
-				// Close tag
-				pushLine(depth, ["</", tag, ">"]);
-
-				return;
-			}
-			if (selfClosing) {
-				pushLine(depth, ["<", tag, ...attrsNodes, " />"]);
-			} else {
-				const textNode = text ? renderTextContent(text, true) : "";
-				pushLine(depth, [
-					"<",
-					tag,
-					...attrsNodes,
-					">",
-					textNode,
-					"</",
-					tag,
-					">",
-				]);
-			}
-			return;
-		}
-
-		// Non-leaf: open tag
-		pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
-
-		// Extra context for items (unchanged, but now as nodes)
-		if (tag === "item" || tag === "podcast:liveItem") {
-			const item_title = node["title"]?.at(0)?.["@text"];
-			if (item_title) {
-				pushLine(depth + 1, ["<title>", item_title, "</title>"]);
-			}
-
-			const item_guid = node["guid"]?.at(0)?.["@text"];
-			if (item_guid) {
-				pushLine(depth + 1, ["<guid>", item_guid, "</guid>"]);
-			}
-		}
-
-		step(node, depth + 1, segmentIndex + 1);
-
-		// Close tag
-		pushLine(depth, ["</", tag, ">"]);
-	}
-
-	step(root, 0, 0);
-	return lines;
-}
-
+/** Highlighted XML excerpt of the feed elements at the given paths */
 export function XmlPathPreview({
 	xml,
-	path,
+	paths,
 	attribute,
 	text,
 	className,
 }: {
 	xml: XML;
-	path: Path;
+	paths: Path[];
 	attribute?: string;
 	text?: boolean;
 	className?: string;
 }) {
-	const xmlNodes = renderPathXML(xml, path, {
-		attributeToHighlight: attribute,
-		highlightText: text,
-	});
+	const [expanded, setExpanded] = useState(false);
+	const collapsible = paths.length > COLLAPSED_LIMIT;
+
+	const nodes = useMemo(() => {
+		const excerpt = buildXmlExcerpt(xml, paths, {
+			attribute,
+			text,
+			limit: expanded ? undefined : COLLAPSED_LIMIT,
+		});
+		const { tokens } = highlighter.tokenize(excerpt.code, { lang: "xml" });
+		return renderTokens(tokens, {
+			decorations: excerpt.marks.map((range) => ({
+				range,
+				className: "xml-mark",
+			})),
+		});
+	}, [xml, paths, attribute, text, expanded]);
 
 	return (
-		<pre
-			className={twMerge(
-				"border-rule bg-paper-deep/50 max-h-80 overflow-auto border px-3 py-2.5 font-mono text-[13px] leading-relaxed",
-				className,
+		<div className={twMerge("border-rule bg-paper-deep/50 border", className)}>
+			<pre
+				className={`overflow-auto px-3 py-2.5 font-mono text-[13px] leading-relaxed ${expanded ? "max-h-128" : ""}`}
+			>
+				<code>{nodes.map(_renderNode)}</code>
+			</pre>
+			{collapsible && (
+				<Button
+					onPress={() => setExpanded((value) => !value)}
+					className="border-rule text-ink-muted pointer-fine:data-hovered:bg-paper-deep pointer-fine:data-hovered:text-ink data-pressed:bg-paper-deep focus-visible:bg-paper-deep flex w-full cursor-pointer items-center gap-1.5 border-t px-3 py-1.5 text-left text-sm transition-colors duration-150 ease-out outline-none"
+				>
+					<CaretDownIcon
+						aria-hidden
+						size={12}
+						weight="bold"
+						className={`transition-transform duration-200 ease-(--ease-out-strong) ${expanded ? "rotate-180" : ""}`}
+					/>
+					{expanded
+						? `Show first ${COLLAPSED_LIMIT}`
+						: `Show all ${paths.length}`}
+				</Button>
 			)}
-		>
-			<code>{xmlNodes}</code>
-		</pre>
+		</div>
+	);
+}
+
+function _renderNode(node: HighlightRenderNode, index: number): ReactNode {
+	if (node.type === "text") return node.value;
+	return (
+		<span key={index} className={node.classNames.join(" ")}>
+			{node.children.map(_renderNode)}
+		</span>
 	);
 }

@@ -7,7 +7,12 @@ import {
 } from "react-aria-components";
 import * as z from "zod";
 import type { XML } from "@/lib/feed";
-import type { Test, TestOutput, ValidationState } from "@/lib/tests/_index";
+import type {
+	Path,
+	Test,
+	TestOutput,
+	ValidationState,
+} from "@/lib/tests/_index";
 import { TestOutputIcon } from "./TestOutputIcon";
 import { TestResultIcon } from "./TestResultIcon";
 import { XmlPathPreview } from "./XMLPathPreview";
@@ -86,27 +91,13 @@ export function TestResultDisplay({
 										: output.message}
 								</span>
 							</div>
-							{xml && output.path && (
+							{xml && _outputPaths(output).length > 0 && (
 								<XmlPathPreview
 									xml={xml}
-									path={output.path}
+									paths={_outputPaths(output)}
 									attribute={output.attribute}
 									text={output.text}
 								/>
-							)}
-							{xml && output.paths && output.paths.length > 0 && (
-								<div className="divide-rule border-rule bg-paper-deep/50 flex flex-col divide-y divide-dashed border">
-									{output.paths.map((path) => (
-										<XmlPathPreview
-											key={path.map(([tag, i]) => `${tag}-${i}`).join("/")}
-											xml={xml}
-											path={path}
-											attribute={output.attribute}
-											text={output.text}
-											className="border-0 bg-transparent"
-										/>
-									))}
-								</div>
 							)}
 						</li>
 					))}
@@ -114,4 +105,10 @@ export function TestResultDisplay({
 			</DisclosurePanel>
 		</Disclosure>
 	);
+}
+
+/** Every feed path an output points at */
+function _outputPaths(output: TestOutput): Path[] {
+	if (output.paths?.length) return output.paths;
+	return output.path ? [output.path] : [];
 }

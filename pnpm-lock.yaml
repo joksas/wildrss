@@ -32,6 +32,9 @@ importers:
       '@tanstack/devtools-vite':
         specifier: 0.8.6
         version: 0.8.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(vite@8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.21.0))
+      '@tanstack/highlight':
+        specifier: 1.2.11
+        version: 1.2.11
       '@tanstack/react-devtools':
         specifier: 0.10.14
         version: 0.10.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(csstype@3.2.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(solid-js@1.9.18)
@@ -1434,6 +1437,10 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       solid-js: ^1.9.13
+
+  '@tanstack/highlight@1.2.11':
+    resolution: {integrity: sha512-U8Aac/Y/Y4ym6JRi/waDK/D7uce+1feMdOU163KmhNFBdbcilnE9O4RDIdJ31cWcf+Z4esXv/lJyG1P4BOTY7A==}
+    engines: {node: '>=18'}
 
   '@tanstack/history@1.162.5':
     resolution: {integrity: sha512-w1+YvwmTkwt5n8yUqEH3IWZ9DsmorCZW/EQ3KYHnqEgIkOZpH54NvW6/Epq3Dzb8H0ifIeYX8PExvrNLIH5FIA==}
@@ -3749,6 +3756,8 @@ snapshots:
       - bufferutil
       - csstype
       - utf-8-validate
+
+  '@tanstack/highlight@1.2.11': {}
 
   '@tanstack/history@1.162.5': {}
 

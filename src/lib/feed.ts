@@ -104,7 +104,7 @@ async function _fetchFeed({
 	return { content, info: { headers } };
 }
 const _fetchFeedServer = createServerFn()
-	.inputValidator(z.string())
+	.validator(z.string())
 	.handler(async ({ data }) => {
 		"use server";
 		return _fetchFeed({ data });

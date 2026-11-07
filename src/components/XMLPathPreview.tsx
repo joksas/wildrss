@@ -27,7 +27,7 @@ function renderPathXML(
     isLeaf: boolean = false,
   ): ReactNode[] {
     if (!attrs) return [];
-    const keys = Object.keys(attrs).sort((a, b) =>
+    const keys = Object.keys(attrs).sort((a) =>
       a === attributeToHighlight ? -1 : 0,
     );
     const nodes: ReactNode[] = [];

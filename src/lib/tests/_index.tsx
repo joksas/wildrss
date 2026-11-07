@@ -6,42 +6,42 @@ export type ValidationState = "pending" | "fetching" | "parsing" | "testing";
 
 /** Sort priority */
 const STATUS_PRIORITY: Record<TestOutput["status"], number> = {
-  error: 0,
-  warn: 1,
-  info: 2,
-  "info-optional": 2,
+	error: 0,
+	warn: 1,
+	info: 2,
+	"info-optional": 2,
 };
 
 /** Test for an RSS feed */
 export type Test = {
-  key: string;
-  group: TestGroup;
-  name: React.ReactNode;
-  test: (args: TestArgs) => Promise<TestOutput[]>;
+	key: string;
+	group: TestGroup;
+	name: React.ReactNode;
+	test: (args: TestArgs) => Promise<TestOutput[]>;
 };
 
 /** Test arguments */
 export type TestArgs = {
-  xml: XML;
-  fetching_info: {
-    success: boolean;
-    time_ms: number;
-    headers: Record<string, string>;
-  };
-  parsing_info?: {
-    success: boolean;
-    time_ms: number;
-  };
+	xml: XML;
+	fetching_info: {
+		success: boolean;
+		time_ms: number;
+		headers: Record<string, string>;
+	};
+	parsing_info?: {
+		success: boolean;
+		time_ms: number;
+	};
 };
 
 /** Test output */
 export type TestOutput = {
-  status: "info" | "info-optional" | "error" | "warn";
-  message: React.ReactNode | z.ZodError;
-  path?: Path;
-  paths?: Path[];
-  attribute?: string;
-  text?: boolean;
+	status: "info" | "info-optional" | "error" | "warn";
+	message: React.ReactNode | z.ZodError;
+	path?: Path;
+	paths?: Path[];
+	attribute?: string;
+	text?: boolean;
 };
 
 /** Test error path */
@@ -49,22 +49,34 @@ export type Path = [tag: string, index: number][];
 
 /** Sort an array of TestOutput objects in-place by status */
 export function sortTestOutputs(
-  outputs: TestOutput[] | undefined,
+	outputs: TestOutput[] | undefined,
 ): TestOutput[] | undefined {
-  if (!outputs) return undefined;
-  return outputs.sort(
-    (a, b) => STATUS_PRIORITY[a.status] - STATUS_PRIORITY[b.status],
-  );
+	if (!outputs) return undefined;
+	return outputs.sort(
+		(a, b) => STATUS_PRIORITY[a.status] - STATUS_PRIORITY[b.status],
+	);
+}
+
+/** Overall verdict of a single test */
+export type TestVerdict = "error" | "warn" | "passed" | "passed-optional";
+
+/** Derive a test's verdict from its outputs */
+export function getTestVerdict(outputs: TestOutput[]): TestVerdict {
+	if (outputs.some((output) => output.status === "error")) return "error";
+	if (outputs.some((output) => output.status === "warn")) return "warn";
+	if (outputs.some((output) => output.status === "info-optional"))
+		return "passed-optional";
+	return "passed";
 }
 
 export const TEST_GROUPS = ["basic", "rss", "itunes", "podcast"] as const;
 export type TestGroup = (typeof TEST_GROUPS)[number];
 
 export function getTestGroupName(group: TestGroup): string {
-  return match(group)
-    .with("basic", () => "Basic tests")
-    .with("rss", () => "RSS namespace tests")
-    .with("itunes", () => "Apple Podcasts namespace tests")
-    .with("podcast", () => "Podcast namespace tests")
-    .exhaustive();
+	return match(group)
+		.with("basic", () => "Basic tests")
+		.with("rss", () => "RSS namespace tests")
+		.with("itunes", () => "Apple Podcasts namespace tests")
+		.with("podcast", () => "Podcast namespace tests")
+		.exhaustive();
 }

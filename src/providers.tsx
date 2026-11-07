@@ -1,16 +1,13 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MotionConfig } from "motion/react";
+import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export function Provider({
-  children,
-  queryClient,
+	children,
+	queryClient,
 }: {
-  children: React.ReactNode;
-  queryClient: QueryClient;
+	children: React.ReactNode;
+	queryClient: QueryClient;
 }) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <MotionConfig reducedMotion="user">{children}</MotionConfig>
-    </QueryClientProvider>
-  );
+	return (
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+	);
 }

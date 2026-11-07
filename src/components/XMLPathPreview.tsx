@@ -4,170 +4,175 @@ import type { XML } from "@/lib/feed";
 import type { Path } from "@/lib/tests/_index";
 
 function escAttrValue(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+	return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 }
 
 type HighlightOptions = {
-  attributeToHighlight?: string;
-  highlightText?: boolean;
+	attributeToHighlight?: string;
+	highlightText?: boolean;
 };
 
 function renderPathXML(
-  root: XML,
-  path: Path,
-  options?: HighlightOptions,
+	root: XML,
+	path: Path,
+	options?: HighlightOptions,
 ): ReactNode[] {
-  const indent = "  ";
-  const lines: ReactNode[] = [];
-  const { attributeToHighlight, highlightText } = options ?? {};
+	const indent = "  ";
+	const lines: ReactNode[] = [];
+	const { attributeToHighlight, highlightText } = options ?? {};
 
-  function renderAttrs(
-    tag: string,
-    attrs?: Record<string, string>,
-    isLeaf: boolean = false,
-  ): ReactNode[] {
-    if (!attrs) return [];
-    const keys = Object.keys(attrs).sort((a) =>
-      a === attributeToHighlight ? -1 : 0,
-    );
-    const nodes: ReactNode[] = [];
+	function renderAttrs(
+		tag: string,
+		attrs?: Record<string, string>,
+		isLeaf: boolean = false,
+	): ReactNode[] {
+		if (!attrs) return [];
+		const keys = Object.keys(attrs).sort((a) =>
+			a === attributeToHighlight ? -1 : 0,
+		);
+		const nodes: ReactNode[] = [];
 
-    for (const key of keys) {
-      const raw = attrs[key] ?? "";
-      const shouldHighlight = isLeaf && attributeToHighlight === key;
+		for (const key of keys) {
+			const raw = attrs[key] ?? "";
+			const shouldHighlight = isLeaf && attributeToHighlight === key;
 
-      if (shouldHighlight) {
-        nodes.push(
-          <span key={`attr-${tag}-${key}`}>
-            {" "}
-            <span className="rounded bg-amber-200 px-0.5">
-              {key}="
-              {escAttrValue(String(raw))}"
-            </span>
-          </span>,
-        );
-      } else {
-        nodes.push(` ${key}="${escAttrValue(String(raw))}"`);
-      }
-    }
+			if (shouldHighlight) {
+				nodes.push(
+					<span key={`attr-${tag}-${key}`}>
+						{" "}
+						<span className="bg-mark rounded-[2px] px-0.5">
+							{key}="
+							{escAttrValue(String(raw))}"
+						</span>
+					</span>,
+				);
+			} else {
+				nodes.push(` ${key}="${escAttrValue(String(raw))}"`);
+			}
+		}
 
-    return nodes;
-  }
+		return nodes;
+	}
 
-  function renderTextContent(text: string, isLeaf: boolean): ReactNode {
-    if (!isLeaf || !highlightText) return text;
-    return <span className="rounded bg-amber-200 px-0.5">{text}</span>;
-  }
+	function renderTextContent(text: string, isLeaf: boolean): ReactNode {
+		if (!isLeaf || !highlightText) return text;
+		return <span className="bg-mark rounded-[2px] px-0.5">{text}</span>;
+	}
 
-  function pushLine(depth: number, parts: ReactNode[]): void {
-    const indentStr = indent.repeat(depth);
-    lines.push(
-      <span key={lines.length}>
-        {indentStr}
-        {parts}
-      </span>,
-    );
-    lines.push("\n");
-  }
+	function pushLine(depth: number, parts: ReactNode[]): void {
+		const indentStr = indent.repeat(depth);
+		lines.push(
+			<span key={lines.length}>
+				{indentStr}
+				{parts}
+			</span>,
+		);
+		lines.push("\n");
+	}
 
-  function step(parent: XML, depth: number, segmentIndex: number): void {
-    const [tag, idx] = path[segmentIndex];
+	function step(parent: XML, depth: number, segmentIndex: number): void {
+		const [tag, idx] = path[segmentIndex];
 
-    const node = parent[tag]?.at(idx) as XML | undefined;
-    if (!node) return;
+		const node = parent[tag]?.at(idx) as XML | undefined;
+		if (!node) return;
 
-    const attrsRecord = node["@attributes"]?.[0];
-    const text = node["@text"]?.trim();
-    const isLeaf = segmentIndex === path.length - 1;
-    const selfClosing = isLeaf && !text;
+		const attrsRecord = node["@attributes"]?.[0];
+		const text = node["@text"]?.trim();
+		const isLeaf = segmentIndex === path.length - 1;
+		const selfClosing = isLeaf && !text;
 
-    const attrsNodes =
-      path.length > 1 && tag === "rss"
-        ? [] // hide rss attrs for readability, as before
-        : renderAttrs(tag, attrsRecord, isLeaf);
+		const attrsNodes =
+			path.length > 1 && tag === "rss"
+				? [] // hide rss attrs for readability, as before
+				: renderAttrs(tag, attrsRecord, isLeaf);
 
-    if (isLeaf) {
-      if (tag === "item" || tag === "podcast:liveItem") {
-        pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
+		if (isLeaf) {
+			if (tag === "item" || tag === "podcast:liveItem") {
+				pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
 
-        // Extra context for items (unchanged, but now as nodes)
-        const item_title = node["title"]?.at(0)?.["@text"];
-        if (item_title)
-          pushLine(depth + 1, ["<title>", item_title, "</title>"]);
+				// Extra context for items (unchanged, but now as nodes)
+				const item_title = node["title"]?.at(0)?.["@text"];
+				if (item_title)
+					pushLine(depth + 1, ["<title>", item_title, "</title>"]);
 
-        const item_guid = node["guid"]?.at(0)?.["@text"];
-        if (item_guid) pushLine(depth + 1, ["<guid>", item_guid, "</guid>"]);
+				const item_guid = node["guid"]?.at(0)?.["@text"];
+				if (item_guid) pushLine(depth + 1, ["<guid>", item_guid, "</guid>"]);
 
-        // Close tag
-        pushLine(depth, ["</", tag, ">"]);
+				// Close tag
+				pushLine(depth, ["</", tag, ">"]);
 
-        return;
-      }
-      if (selfClosing) {
-        pushLine(depth, ["<", tag, ...attrsNodes, " />"]);
-      } else {
-        const textNode = text ? renderTextContent(text, true) : "";
-        pushLine(depth, [
-          "<",
-          tag,
-          ...attrsNodes,
-          ">",
-          textNode,
-          "</",
-          tag,
-          ">",
-        ]);
-      }
-      return;
-    }
+				return;
+			}
+			if (selfClosing) {
+				pushLine(depth, ["<", tag, ...attrsNodes, " />"]);
+			} else {
+				const textNode = text ? renderTextContent(text, true) : "";
+				pushLine(depth, [
+					"<",
+					tag,
+					...attrsNodes,
+					">",
+					textNode,
+					"</",
+					tag,
+					">",
+				]);
+			}
+			return;
+		}
 
-    // Non-leaf: open tag
-    pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
+		// Non-leaf: open tag
+		pushLine(depth, ["<", tag, ...attrsNodes, ">"]);
 
-    // Extra context for items (unchanged, but now as nodes)
-    if (tag === "item" || tag === "podcast:liveItem") {
-      const item_title = node["title"]?.at(0)?.["@text"];
-      if (item_title) {
-        pushLine(depth + 1, ["<title>", item_title, "</title>"]);
-      }
+		// Extra context for items (unchanged, but now as nodes)
+		if (tag === "item" || tag === "podcast:liveItem") {
+			const item_title = node["title"]?.at(0)?.["@text"];
+			if (item_title) {
+				pushLine(depth + 1, ["<title>", item_title, "</title>"]);
+			}
 
-      const item_guid = node["guid"]?.at(0)?.["@text"];
-      if (item_guid) {
-        pushLine(depth + 1, ["<guid>", item_guid, "</guid>"]);
-      }
-    }
+			const item_guid = node["guid"]?.at(0)?.["@text"];
+			if (item_guid) {
+				pushLine(depth + 1, ["<guid>", item_guid, "</guid>"]);
+			}
+		}
 
-    step(node, depth + 1, segmentIndex + 1);
+		step(node, depth + 1, segmentIndex + 1);
 
-    // Close tag
-    pushLine(depth, ["</", tag, ">"]);
-  }
+		// Close tag
+		pushLine(depth, ["</", tag, ">"]);
+	}
 
-  step(root, 0, 0);
-  return lines;
+	step(root, 0, 0);
+	return lines;
 }
 
 export function XmlPathPreview({
-  xml,
-  path,
-  attribute,
-  text,
-  className,
+	xml,
+	path,
+	attribute,
+	text,
+	className,
 }: {
-  xml: XML;
-  path: Path;
-  attribute?: string;
-  text?: boolean;
-  className?: string;
+	xml: XML;
+	path: Path;
+	attribute?: string;
+	text?: boolean;
+	className?: string;
 }) {
-  const xmlNodes = renderPathXML(xml, path, {
-    attributeToHighlight: attribute,
-    highlightText: text,
-  });
+	const xmlNodes = renderPathXML(xml, path, {
+		attributeToHighlight: attribute,
+		highlightText: text,
+	});
 
-  return (
-    <pre className={twMerge("overflow-x-auto", className)}>
-      <code>{xmlNodes}</code>
-    </pre>
-  );
+	return (
+		<pre
+			className={twMerge(
+				"border-rule bg-paper-deep/50 max-h-80 overflow-auto border px-3 py-2.5 font-mono text-[13px] leading-relaxed",
+				className,
+			)}
+		>
+			<code>{xmlNodes}</code>
+		</pre>
+	);
 }

@@ -1,111 +1,117 @@
-import clsx from "clsx";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import {
-  Button,
-  Disclosure,
-  DisclosurePanel,
-  Heading,
+	Button,
+	Disclosure,
+	DisclosurePanel,
+	Heading,
 } from "react-aria-components";
 import * as z from "zod";
 import type { XML } from "@/lib/feed";
 import type { Test, TestOutput, ValidationState } from "@/lib/tests/_index";
 import { TestOutputIcon } from "./TestOutputIcon";
-import { TestOutputsGroup } from "./TestOutputsGroup";
 import { TestResultIcon } from "./TestResultIcon";
 import { XmlPathPreview } from "./XMLPathPreview";
 
+/** One ledger row: a test's verdict, with its outputs in a collapsible panel */
 export function TestResultDisplay({
-  xml,
-  test,
-  state,
-  outputs: results,
+	xml,
+	test,
+	state,
+	outputs,
+	index,
 }: {
-  xml: XML | undefined;
-  test: Test;
-  state: ValidationState;
-  outputs: TestOutput[] | undefined;
+	xml: XML | undefined;
+	test: Test;
+	state: ValidationState;
+	outputs: TestOutput[] | undefined;
+	index: number;
 }) {
-  // Number of results
-  const num_total = results?.length ?? 0;
-  const expandable = num_total > 0;
+	const expandable = (outputs?.length ?? 0) > 0;
+	const problems =
+		outputs?.filter(
+			(output) => output.status === "error" || output.status === "warn",
+		).length ?? 0;
+	const running = !outputs && state !== "pending";
 
-  return (
-    <Disclosure
-      className={clsx(
-        "flex flex-col border-2 border-amber-950 bg-amber-100 data-[expanded=true]:gap-2",
-      )}
-    >
-      <Heading>
-        <Button
-          className={clsx(
-            "flex w-full flex-col justify-between gap-1.5 py-2 pr-4 pl-3 sm:flex-row sm:items-center",
-            {
-              "cursor-pointer": expandable,
-            },
-          )}
-          slot={expandable ? "trigger" : undefined}
-        >
-          <div className="flex items-center gap-1.5">
-            <TestResultIcon
-              outputs={results}
-              size={24}
-              className={clsx({
-                "animate-spin": !results && state !== "pending",
-              })}
-            />
-            <span className="font-medium text-lg">{test.name}</span>
-          </div>
-          {results && results.length > 0 && (
-            <TestOutputsGroup outputs={results} />
-          )}
-        </Button>
-      </Heading>
-      <DisclosurePanel>
-        <div className="flex flex-col gap-3 px-3 pb-3">
-          {results
-            ?.sort((a, b) => {
-              if (a.status === b.status) return 0;
-              if (a.status === "error") return -1;
-              return 1;
-            })
-            .map((output, i) => (
-              <div
-                key={i}
-                className="flex flex-col gap-2 border-2 border-amber-950 bg-amber-50 py-2 pl-2"
-              >
-                <div className="flex items-center gap-1">
-                  <TestOutputIcon output={output} size={20} />
-                  <span className="leading-tight">
-                    {output.message instanceof z.ZodError
-                      ? z.prettifyError(output.message).replace("✖ ", "")
-                      : output.message}
-                  </span>
-                </div>
-                {xml && output.path && (
-                  <XmlPathPreview
-                    xml={xml}
-                    path={output.path}
-                    attribute={output.attribute}
-                    text={output.text}
-                  />
-                )}
-                {xml && output.paths && output.paths.length > 0 && (
-                  <div className="flex flex-col divide-y divide-dashed divide-amber-950">
-                    {output.paths.map((path) => (
-                      <XmlPathPreview
-                        key={path.map(([tag, i]) => `${tag}-${i}`).join("/")}
-                        xml={xml}
-                        path={path}
-                        attribute={output.attribute}
-                        text={output.text}
-                        className="py-2"
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-        </div>
-      </DisclosurePanel>
-    </Disclosure>
-  );
+	return (
+		<Disclosure className="group border-rule border-b">
+			<Heading>
+				<Button
+					slot={expandable ? "trigger" : undefined}
+					className={`focus-visible:bg-paper-deep pointer-fine:data-hovered:bg-paper-deep/70 data-pressed:bg-paper-deep -mx-2 flex w-[calc(100%+1rem)] items-center gap-3 px-2 py-3 text-left transition-colors duration-150 ease-out outline-none ${expandable ? "cursor-pointer" : "cursor-default"}`}
+				>
+					<TestResultIcon
+						key={outputs ? "resolved" : "pending"}
+						outputs={outputs}
+						size={22}
+						className={running ? "animate-spin" : "verdict-reveal"}
+						style={{ transitionDelay: `${index * 40}ms` }}
+					/>
+					<span className="min-w-0 grow truncate text-[17px] font-medium [&_code]:font-mono [&_code]:text-base [&_code]:font-normal">
+						{test.name}
+					</span>
+					{problems > 0 && (
+						<span className="text-ink-muted flex-none text-[15px] tabular-nums">
+							{problems}
+							<span className="sr-only">
+								{problems === 1 ? " problem" : " problems"}
+							</span>
+						</span>
+					)}
+					<CaretDownIcon
+						aria-hidden
+						size={14}
+						weight="bold"
+						className={`text-ink-muted flex-none transition-transform duration-200 ease-(--ease-out-strong) group-data-expanded:rotate-180 ${expandable ? "" : "invisible"}`}
+					/>
+				</Button>
+			</Heading>
+			<DisclosurePanel className="disclosure-panel">
+				<ul className="flex flex-col gap-4 pt-1 pb-5 pl-[34px]">
+					{outputs?.map((output, i) => (
+						<li
+							// biome-ignore lint/suspicious/noArrayIndexKey: outputs have no stable identity
+							key={i}
+							className="flex flex-col gap-2"
+						>
+							<div className="flex items-start gap-2">
+								<TestOutputIcon
+									status={output.status}
+									size={16}
+									className="mt-[3px]"
+								/>
+								<span className="prose-message leading-snug">
+									{output.message instanceof z.ZodError
+										? z.prettifyError(output.message).replace("✖ ", "")
+										: output.message}
+								</span>
+							</div>
+							{xml && output.path && (
+								<XmlPathPreview
+									xml={xml}
+									path={output.path}
+									attribute={output.attribute}
+									text={output.text}
+								/>
+							)}
+							{xml && output.paths && output.paths.length > 0 && (
+								<div className="divide-rule border-rule bg-paper-deep/50 flex flex-col divide-y divide-dashed border">
+									{output.paths.map((path) => (
+										<XmlPathPreview
+											key={path.map(([tag, i]) => `${tag}-${i}`).join("/")}
+											xml={xml}
+											path={path}
+											attribute={output.attribute}
+											text={output.text}
+											className="border-0 bg-transparent"
+										/>
+									))}
+								</div>
+							)}
+						</li>
+					))}
+				</ul>
+			</DisclosurePanel>
+		</Disclosure>
+	);
 }

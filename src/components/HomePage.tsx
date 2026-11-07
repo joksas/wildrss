@@ -19,7 +19,6 @@ import testPodcastValue from "@tests/podcast_value";
 import testRSSEnclosure from "@tests/rss_enclosure";
 import testRSSGUID from "@tests/rss_guid";
 import testTitle from "@tests/title";
-import { AnimatePresence, domMax, LazyMotion, m } from "motion/react";
 import { Result, ResultAsync } from "neverthrow";
 import { useQueryState } from "nuqs";
 import { useEffect, useRef, useState } from "react";
@@ -185,69 +184,75 @@ export function HomePage() {
 		feedInfo?.title ? `${feedInfo.title} - ${WEBSITE_NAME}` : WEBSITE_NAME,
 	);
 
+	const loading =
+		state === "fetching" || state === "parsing" || state === "testing";
+
 	return (
-		<LazyMotion features={domMax}>
-			<div className="flex flex-col items-center justify-center gap-2 px-3 py-3">
-				<div className="flex h-[125px] w-full flex-col items-center justify-center gap-3">
-					<h1 className="text-center font-bold font-display text-5xl text-amber-950">
-						Wild RSS
-					</h1>
-					<FeedSearchInput
-						url={url}
-						setURL={setURL}
-						error={
-							url.trim().length > 0 && !isProperURL ? "Bad URL" : undefined
-						}
-						loading={
-							state === "fetching" || state === "parsing" || state === "testing"
-						}
-						onSubmit={validate}
-					/>
-				</div>
-				<section className="mt-[120px] w-full max-w-5xl grow border-8 border-amber-950 bg-amber-50 text-red-950">
-					<header className="border-amber-950 border-b-8 bg-amber-950 px-5 py-2 text-center font-bold font-display text-3xl text-amber-50">
-						Report
-					</header>
-					<div className="flex flex-col gap-5 p-5">
-						<AnimatePresence mode="popLayout">
-							{hasResults && feedInfo?.title && feedInfo.image && (
-								<m.div
-									key={feedInfo.title}
-									className="flex items-center gap-4 overflow-hidden border-4 border-amber-950 bg-amber-100 p-3"
-									initial={{ opacity: 0, scale: 0.75 }}
-									animate={{ opacity: 1, scale: 1 }}
-								>
+		<div className="flex flex-col items-center px-4 pt-7 pb-20 sm:pt-9">
+			<header className="flex w-full flex-col items-center gap-5">
+				<h1 className="font-display text-ink text-center text-5xl [text-shadow:0_1px_0_#fbe3bf] sm:text-6xl">
+					Wild RSS
+				</h1>
+				<FeedSearchInput
+					url={url}
+					setURL={setURL}
+					error={
+						url.trim().length > 0 && !isProperURL ? "Not a URL" : undefined
+					}
+					loading={loading}
+					onSubmit={validate}
+				/>
+			</header>
+
+			<section
+				aria-busy={loading}
+				className="paper-surface border-ink relative mt-[136px] w-full max-w-4xl border-[3px] shadow-[0_28px_60px_-24px_#5a2e1299]"
+			>
+				<div className="border-ink pointer-events-none absolute inset-[5px] border" />
+				<div className="relative flex flex-col gap-10 px-5 pt-9 pb-10 sm:px-12 sm:pt-11">
+					{hasResults && feedInfo?.title && (
+						<div
+							key={feedInfo.url}
+							className="masthead-reveal flex items-center gap-5"
+						>
+							{feedInfo.image && (
+								<div className="border-ink size-16 flex-none border sm:size-20">
 									<img
 										src={feedInfo.image}
-										alt="Feed artwork"
-										className="hidden size-20 object-cover object-center sepia-[0.7] sm:flex"
+										alt=""
+										className="size-full object-cover object-center sepia-[0.6]"
 										loading="lazy"
 									/>
-									<div className="flex flex-col font-display">
-										<span className="font-bold text-2xl">{feedInfo.title}</span>
-										{feedInfo.author && (
-											<span className="text-lg">{feedInfo.author}</span>
-										)}
-									</div>
-								</m.div>
+								</div>
 							)}
-						</AnimatePresence>
-
-						<div className="flex flex-col gap-6">
-							{TEST_GROUPS.map((group) => (
-								<TestGroupDisplay
-									key={group}
-									results={results}
-									tests={TESTS}
-									group={group}
-									xml={xml}
-									state={state}
-								/>
-							))}
+							<div className="flex min-w-0 flex-col gap-1">
+								<h2 className="font-serif text-2xl leading-tight font-bold sm:text-[28px]">
+									{feedInfo.title}
+								</h2>
+								{feedInfo.author && (
+									<span className="text-ink-muted text-[15px]">
+										{feedInfo.author}
+									</span>
+								)}
+							</div>
 						</div>
+					)}
+
+					<div className="flex flex-col gap-10">
+						{TEST_GROUPS.map((group) => (
+							<TestGroupDisplay
+								key={group}
+								results={results}
+								tests={TESTS}
+								group={group}
+								xml={xml}
+								state={state}
+								startIndex={TESTS.findIndex((test) => test.group === group)}
+							/>
+						))}
 					</div>
-				</section>
-			</div>
-		</LazyMotion>
+				</div>
+			</section>
+		</div>
 	);
 }

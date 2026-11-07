@@ -11,6 +11,7 @@ import testFetching from "@tests/fetching";
 import testItunesDuration from "@tests/itunes_duration";
 import testItunesExplicit from "@tests/itunes_explicit";
 import testItunesImage from "@tests/itunes_image";
+import testItunesNamespace from "@tests/itunes_namespace";
 import testItunesOwner from "@tests/itunes_owner";
 import testLink from "@tests/link";
 import testPodcastChat from "@tests/podcast_chat";
@@ -53,6 +54,7 @@ const TESTS: Test[] = [
 	testRSSGUID,
 	testLink,
 
+	testItunesNamespace,
 	testItunesExplicit,
 	testItunesImage,
 	testItunesDuration,

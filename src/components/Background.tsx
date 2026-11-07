@@ -108,11 +108,19 @@ export function Background() {
 						<stop offset="0" stopColor="#f6a15c" />
 						<stop offset="1" stopColor="var(--color-sun)" />
 					</radialGradient>
+					<clipPath id="landscape-mid">
+						<path d={LANDSCAPE_MID} />
+					</clipPath>
 				</defs>
 				<path d={LANDSCAPE_FAR} className="fill-land-far" />
 				<circle cx={SUN_X} cy={212} r={44} fill="url(#sun)" />
 				<path d={LANDSCAPE_MID} className="fill-land-mid" />
-				<path d={LANDSCAPE_MID_SHADOW} fill="#c97a3e" fillOpacity={0.35} />
+				<path
+					d={LANDSCAPE_MID_SHADOW}
+					clipPath="url(#landscape-mid)"
+					fill="#c97a3e"
+					fillOpacity={0.35}
+				/>
 				<Rider x={SUN_X + 10} y={222} />
 				<path d={LANDSCAPE_NEAR} className="fill-land-near" />
 			</svg>

@@ -14,10 +14,12 @@ import testItunesImage from "@tests/itunes_image";
 import testItunesNamespace from "@tests/itunes_namespace";
 import testItunesOwner from "@tests/itunes_owner";
 import testLink from "@tests/link";
+import testPodcastChapters from "@tests/podcast_chapters";
 import testPodcastChat from "@tests/podcast_chat";
 import testPodcastGuid from "@tests/podcast_guid";
 import testPodcastLiveItem from "@tests/podcast_live_item";
 import testPodcastNamespace from "@tests/podcast_namespace";
+import testPodcastTranscript from "@tests/podcast_transcript";
 import testPodcastValue from "@tests/podcast_value";
 import testRSSEnclosure from "@tests/rss_enclosure";
 import testRSSGUID from "@tests/rss_guid";
@@ -65,6 +67,8 @@ const TESTS: Test[] = [
 	testPodcastValue,
 	testPodcastLiveItem,
 	testPodcastChat,
+	testPodcastTranscript,
+	testPodcastChapters,
 ];
 
 export function HomePage() {

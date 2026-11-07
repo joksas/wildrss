@@ -1,4 +1,5 @@
-import type * as z from "zod";
+import { isValidElement, type ReactNode } from "react";
+import * as z from "zod";
 import type { XML } from "../feed";
 import type { Path, TestOutput } from "./_index";
 
@@ -301,4 +302,163 @@ export function checkTag(
   }
 
   return outputs;
+}
+
+/** Path of the channel tag */
+export const CHANNEL_PATH: Path = [
+  ["rss", 0],
+  ["channel", 0],
+];
+
+export type ParentLevel = "channel" | "item" | "podcast:liveItem";
+
+export type Parent = { level: ParentLevel; tag: XML; path: Path };
+
+/** List the channel, items and live items at the given levels, with their paths */
+export function getParents(xml: XML, levels: ParentLevel[]): Parent[] {
+  const channel = xml.rss?.at(0)?.channel?.at(0);
+  if (!channel) return [];
+
+  const parents: Parent[] = [];
+  if (levels.includes("channel"))
+    parents.push({ level: "channel", tag: channel, path: CHANNEL_PATH });
+  for (const level of ["item", "podcast:liveItem"] as const) {
+    if (!levels.includes(level)) continue;
+    const tags = channel[level] ?? [];
+    for (let i = 0; i < tags.length; i++)
+      parents.push({ level, tag: tags[i], path: [...CHANNEL_PATH, [level, i]] });
+  }
+  return parents;
+}
+
+const HYPERTEXT_URL = z.url({ protocol: /^https?$/ });
+
+/** Validate a hypertext URL, warning on http since the namespace requires https */
+export function checkHypertextURL(value: string | undefined): MinimalTestOutput[] {
+  if (value === undefined) return [];
+  const url = value.trim();
+  if (!HYPERTEXT_URL.safeParse(url).success)
+    return [
+      {
+        status: "error",
+        message: (
+          <>
+            Not a valid web URL - found <code>{url}</code>
+          </>
+        ),
+      },
+    ];
+  if (url.toLowerCase().startsWith("http:"))
+    return [
+      {
+        status: "warn",
+        message: "Expected an https URL - the specification requires https",
+      },
+    ];
+  return [];
+}
+
+/** Validate a BCP 47 language tag such as en or pt-BR */
+export function checkLanguageTag(value: string | undefined): MinimalTestOutput[] {
+  if (value === undefined) return [];
+  try {
+    Intl.getCanonicalLocales(value.trim());
+    return [];
+  } catch {
+    return [
+      {
+        status: "error",
+        message: (
+          <>
+            Expected a BCP 47 language tag such as <code>en</code> or{" "}
+            <code>pt-BR</code> - found <code>{value}</code>
+          </>
+        ),
+      },
+    ];
+  }
+}
+
+/** Merge outputs that repeat the same message into one output listing every path */
+export function mergeRepeatedOutputs(outputs: TestOutput[]): TestOutput[] {
+  const groups = new Map<string, TestOutput[]>();
+  for (const output of outputs) {
+    if (!output.path) {
+      groups.set(`${groups.size}`, [output]);
+      continue;
+    }
+    const key = [
+      output.status,
+      output.attribute ?? "",
+      output.text ? "text" : "",
+      _messageText(output.message),
+    ].join("|");
+    groups.set(key, [...(groups.get(key) ?? []), output]);
+  }
+
+  return [...groups.values()].map((group) => {
+    const [first] = group;
+    if (group.length === 1) return first;
+    const message =
+      first.message instanceof z.ZodError
+        ? z.prettifyError(first.message).replace("✖ ", "")
+        : first.message;
+    return {
+      status: first.status,
+      message: (
+        <>
+          {message} ({group.length} tags)
+        </>
+      ),
+      paths: group.flatMap((output) => (output.path ? [output.path] : [])),
+      attribute: first.attribute,
+      text: first.text,
+    };
+  });
+}
+
+/** Plain text of a message, used to detect repeated messages */
+function _messageText(message: TestOutput["message"]): string {
+  if (message instanceof z.ZodError)
+    return message.issues.map((issue) => issue.message).join("; ");
+  return _nodeText(message);
+}
+
+function _nodeText(node: ReactNode): string {
+  if (node === null || node === undefined || typeof node === "boolean")
+    return "";
+  if (typeof node === "string" || typeof node === "number") return `${node}`;
+  if (Array.isArray(node)) return node.map(_nodeText).join("");
+  if (isValidElement<{ children?: ReactNode }>(node))
+    return _nodeText(node.props.children);
+  return "";
+}
+
+/** Warn about tags placed directly in the channel when they belong in items */
+export function checkMisplacedInChannel(xml: XML, name: string): TestOutput[] {
+  const tags = xml.rss?.at(0)?.channel?.at(0)?.[name] ?? [];
+  if (tags.length === 0) return [];
+  return [
+    {
+      status: "warn",
+      message: (
+        <>
+          <code>
+            {"<"}
+            {name}
+            {">"}
+          </code>{" "}
+          belongs in{" "}
+          <code>
+            {"<"}item{">"}
+          </code>{" "}
+          - apps will likely ignore it in{" "}
+          <code>
+            {"<"}channel{">"}
+          </code>
+        </>
+      ),
+      paths: tags.map((_, i) => [...CHANNEL_PATH, [name, i]]),
+    },
+  ];
 }

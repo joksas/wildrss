@@ -19,6 +19,7 @@ import testPodcastChat from "@tests/podcast_chat";
 import testPodcastGuid from "@tests/podcast_guid";
 import testPodcastLiveItem from "@tests/podcast_live_item";
 import testPodcastNamespace from "@tests/podcast_namespace";
+import testPodcastPerson from "@tests/podcast_person";
 import testPodcastTranscript from "@tests/podcast_transcript";
 import testPodcastValue from "@tests/podcast_value";
 import testRSSEnclosure from "@tests/rss_enclosure";
@@ -69,6 +70,7 @@ const TESTS: Test[] = [
 	testPodcastChat,
 	testPodcastTranscript,
 	testPodcastChapters,
+	testPodcastPerson,
 ];
 
 export function HomePage() {

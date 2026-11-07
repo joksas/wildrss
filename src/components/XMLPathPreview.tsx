@@ -52,14 +52,14 @@ export function XmlPathPreview({
 	return (
 		<div className={twMerge("border-rule bg-paper-deep/50 border", className)}>
 			<pre
-				className={`overflow-auto px-3 py-2.5 font-mono text-[13px] leading-relaxed ${expanded ? "max-h-128" : ""}`}
+				className={`overflow-auto overscroll-x-contain px-3 py-2.5 font-mono text-[13px] leading-relaxed ${expanded ? "max-h-128" : ""}`}
 			>
 				<code>{nodes.map(_renderNode)}</code>
 			</pre>
 			{collapsible && (
 				<Button
 					onPress={() => setExpanded((value) => !value)}
-					className="border-rule text-ink-muted pointer-fine:data-hovered:bg-paper-deep pointer-fine:data-hovered:text-ink data-pressed:bg-paper-deep focus-visible:bg-paper-deep flex w-full cursor-pointer items-center gap-1.5 border-t px-3 py-1.5 text-left text-sm transition-colors duration-150 ease-out outline-none"
+					className="border-rule text-ink-muted pointer-fine:data-hovered:bg-paper-deep pointer-fine:data-hovered:text-ink data-pressed:bg-paper-deep focus-visible:bg-paper-deep flex w-full cursor-pointer items-center gap-1.5 border-t px-3 py-1.5 text-left text-sm transition-colors duration-150 ease-out outline-none pointer-coarse:py-3"
 				>
 					<CaretDownIcon
 						aria-hidden

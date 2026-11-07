@@ -39,7 +39,7 @@ export function TestResultDisplay({
 	const running = !outputs && state !== "pending";
 
 	return (
-		<Disclosure className="group border-rule border-b">
+		<Disclosure className="group border-rule border-b last:border-b-0">
 			<Heading>
 				<Button
 					slot={expandable ? "trigger" : undefined}

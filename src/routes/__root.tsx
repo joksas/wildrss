@@ -1,5 +1,4 @@
 import ryeFont from "@fontsource/rye/files/rye-latin-400-normal.woff2?url";
-import ryeFontExt from "@fontsource/rye/files/rye-latin-ext-400-normal.woff2?url";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
@@ -28,8 +27,9 @@ export const Route = createRootRouteWithContext<{
       },
       {
         name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover",
       },
+      { name: "theme-color", content: "#f5c78e" },
       // Name
       { title: WEBSITE_NAME },
       { name: "og:site_name", content: WEBSITE_NAME },
@@ -37,6 +37,7 @@ export const Route = createRootRouteWithContext<{
       { name: "twitter:title", content: WEBSITE_NAME },
       { name: "apple-mobile-web-app-title", content: WEBSITE_NAME },
       // Description
+      { name: "description", content: WEBSITE_DESCRIPTION },
       { name: "og:description", content: WEBSITE_DESCRIPTION },
       { name: "twitter:description", content: WEBSITE_DESCRIPTION },
       // Image
@@ -48,6 +49,11 @@ export const Route = createRootRouteWithContext<{
       // URL
       { name: "og:url", content: WEBSITE_URL },
       { name: "twitter:url", content: WEBSITE_URL },
+      // Credits
+      {
+        name: "Favicon author link",
+        content: "https://www.flaticon.com/free-icons/horse-riding",
+      },
     ],
     links: [
       // CSS
@@ -60,13 +66,6 @@ export const Route = createRootRouteWithContext<{
         type: "font/woff2",
         crossOrigin: "anonymous",
         href: ryeFont,
-      },
-      {
-        rel: "preload",
-        as: "font",
-        type: "font/woff2",
-        crossOrigin: "anonymous",
-        href: ryeFontExt,
       },
       // Favicon
       {
@@ -92,10 +91,6 @@ export const Route = createRootRouteWithContext<{
       {
         rel: "manifest",
         href: "/site.webmanifest",
-      },
-      {
-        name: "Favicon author link",
-        content: "https://www.flaticon.com/free-icons/horse-riding",
       },
     ],
   }),

@@ -10,8 +10,8 @@ import {
 
 export type MinimalTestOutput = Omit<Omit<TestOutput, "path">, "attribute">;
 
-/** Output marking an optional tag as absent, at the place it would go when one is given */
-export function optionalTagAbsent(name: string, path?: Path): TestOutput {
+/** Output marking an optional tag as absent */
+export function optionalTagAbsent(name: string): TestOutput {
   return {
     status: "info-optional",
     message: (
@@ -25,7 +25,6 @@ export function optionalTagAbsent(name: string, path?: Path): TestOutput {
         tags found (optional)
       </span>
     ),
-    path: path && [...path, [name, 0]],
   };
 }
 
@@ -97,7 +96,7 @@ export function checkTag(
       });
     }
     if (numTags === 0 && min === 0 && pushOptional) {
-      outputs.push(optionalTagAbsent(name, path));
+      outputs.push(optionalTagAbsent(name));
     }
   }
 

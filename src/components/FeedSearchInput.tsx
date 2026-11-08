@@ -1,6 +1,8 @@
+import { ClockCounterClockwiseIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { type Dispatch, type SetStateAction, useRef } from "react";
+import { type Dispatch, type SetStateAction, useRef, useState } from "react";
 import {
+	Button,
 	ComboBox,
 	Input,
 	ListBox,
@@ -8,12 +10,25 @@ import {
 	Popover,
 } from "react-aria-components";
 import { prefetchFeed } from "@/lib/feed";
-import { useRecentValidations } from "@/lib/recent";
+import { type FeedInfo, useRecentValidations } from "@/lib/recent";
 import { ProgressCircle } from "./ProgressCircle";
 
 /** Blur the focused element so the recent feeds popover closes */
 function blurActiveElement() {
 	(window.document.activeElement as HTMLElement | null)?.blur();
+}
+
+/** Recent feeds whose URL or title contains the query, excluding an exact URL match */
+function filterFeedInfos(feedInfos: FeedInfo[], query: string): FeedInfo[] {
+	const queryLower = query.toLocaleLowerCase().trim();
+	return feedInfos.filter((item) => {
+		const itemURLLower = item.url.toLocaleLowerCase().trim();
+		const itemTitleLower = item.title?.toLocaleLowerCase().trim();
+		if (queryLower === itemURLLower) return false;
+		if (itemURLLower.includes(queryLower)) return true;
+		if (itemTitleLower?.includes(queryLower)) return true;
+		return false;
+	});
 }
 
 export function FeedSearchInput({
@@ -32,16 +47,12 @@ export function FeedSearchInput({
 	const client = useQueryClient();
 	const onHover = (prefetchURL: string) => prefetchFeed(client, prefetchURL);
 
+	// The full history shows on focus or button press; typing narrows it
+	const [filtering, setFiltering] = useState(false);
 	const allFeedInfos = useRecentValidations();
-	const filteredFeedInfos = allFeedInfos.filter((item) => {
-		const urlLower = url.toLocaleLowerCase().trim();
-		const itemURLLower = item.url.toLocaleLowerCase().trim();
-		const itemTitleLower = item.title?.toLocaleLowerCase().trim();
-		if (urlLower === itemURLLower) return false;
-		if (itemURLLower.includes(urlLower)) return true;
-		if (itemTitleLower?.includes(urlLower)) return true;
-		return false;
-	});
+	const feedInfos = filtering
+		? filterFeedInfos(allFeedInfos, url)
+		: allFeedInfos;
 	const trigger = useRef<HTMLDivElement>(null);
 
 	const submit = () => {
@@ -54,11 +65,17 @@ export function FeedSearchInput({
 			allowsCustomValue
 			menuTrigger="focus"
 			inputValue={url}
-			onInputChange={setURL}
+			onInputChange={(value) => {
+				setFiltering(true);
+				setURL(value);
+			}}
+			onOpenChange={(isOpen, menuTrigger) => {
+				if (isOpen) setFiltering(menuTrigger === "input");
+			}}
 			aria-label="Feed URL"
-			items={filteredFeedInfos}
-			autoFocus
-			className="w-full max-w-xl"
+			items={feedInfos}
+			autoFocus={url.length === 0}
+			className="group w-full max-w-xl"
 		>
 			<div
 				ref={trigger}
@@ -80,6 +97,14 @@ export function FeedSearchInput({
 				/>
 				{error && (
 					<span className="text-fail flex-none px-2 text-sm">{error}</span>
+				)}
+				{allFeedInfos.length > 0 && (
+					<Button
+						aria-label="Recent feeds"
+						className="text-ink-muted pointer-fine:data-hovered:bg-paper-deep pointer-fine:data-hovered:text-ink data-pressed:bg-paper-deep group-data-open:bg-paper-deep group-data-open:text-ink grid h-[calc(100%-0.5rem)] flex-none place-items-center px-2.5 transition-colors duration-150 ease-out outline-none focus-visible:outline-2 focus-visible:outline-offset-0"
+					>
+						<ClockCounterClockwiseIcon aria-hidden size={20} weight="bold" />
+					</Button>
 				)}
 				<button
 					type="button"
@@ -106,7 +131,7 @@ export function FeedSearchInput({
 				<div className="paper-surface border-ink text-ink flex max-h-[inherit] flex-col border-2 shadow-[0_12px_32px_-12px_#5a2e1280]">
 					<ListBox
 						aria-label="Recent feeds"
-						items={filteredFeedInfos}
+						items={feedInfos}
 						className="flex min-h-0 flex-col overflow-y-auto overscroll-contain py-1.5"
 					>
 						{(info) => (

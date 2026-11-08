@@ -68,6 +68,12 @@
         touch-action: manipulation;
     }
 
+    /* Tailwind v4 resets buttons to the default cursor */
+    button:not(:disabled),
+    [role="button"]:not([aria-disabled="true"]) {
+        cursor: pointer;
+    }
+
     button,
     [role="button"],
     [role="option"] {

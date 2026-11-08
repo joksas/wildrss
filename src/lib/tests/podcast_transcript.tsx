@@ -1,6 +1,5 @@
 import type { Test, TestArgs, TestOutput } from "./_index";
 import {
-  CHANNEL_PATH,
   checkHypertextURL,
   checkLanguageTag,
   checkMisplacedInChannel,
@@ -78,7 +77,7 @@ export default {
     if (numTranscripts === 0)
       return [
         ...outputs,
-        optionalTagAbsent("podcast:transcript", CHANNEL_PATH),
+        optionalTagAbsent("podcast:transcript"),
       ];
 
     outputs.push({

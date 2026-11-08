@@ -39,7 +39,7 @@ export default {
     }
 
     if (numChats === 0)
-      outputs.push(optionalTagAbsent("podcast:chat", channelPath));
+      outputs.push(optionalTagAbsent("podcast:chat"));
 
     return outputs;
   },

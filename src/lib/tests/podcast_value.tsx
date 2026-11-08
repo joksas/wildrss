@@ -6,10 +6,10 @@ import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkRemoteItems } from "./_remote_item";
 import {
   checkTag,
-  countNote,
   lengthNote,
   type MinimalTestOutput,
   optionalTagAbsent,
+  tagOccurrences,
 } from "./_utils";
 
 // Constants
@@ -68,7 +68,7 @@ export default {
       0,
     );
     if (numValues === 0)
-      outputs.push(optionalTagAbsent("podcast:value", channelPath));
+      outputs.push(optionalTagAbsent("podcast:value"));
 
     return outputs;
   },
@@ -478,8 +478,11 @@ function _checkValueTimeSplits(
             tag
           </>
         ),
-        path: splitPath,
-        note: countNote(numRemoteItems),
+        occurrences: tagOccurrences(
+          splitPath,
+          "podcast:remoteItem",
+          numRemoteItems,
+        ),
       });
     } else if (numRecipients === 0 && numRemoteItems === 0) {
       outputs.push({

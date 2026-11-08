@@ -1,6 +1,5 @@
 import type { Test, TestArgs, TestOutput } from "./_index";
 import {
-  CHANNEL_PATH,
   checkHypertextURL,
   checkMisplacedInChannel,
   checkTag,
@@ -48,7 +47,7 @@ export default {
     }
 
     if (numParentsWithChapters === 0)
-      return [...outputs, optionalTagAbsent("podcast:chapters", CHANNEL_PATH)];
+      return [...outputs, optionalTagAbsent("podcast:chapters")];
 
     outputs.push({
       status: "info",

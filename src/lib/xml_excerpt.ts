@@ -87,8 +87,11 @@ export function buildXmlExcerpt(
 		onAnchorChain: boolean,
 	): void {
 		const element = parent[node.tag]?.at(node.index);
-		if (!element) return;
 		const isLeaf = node.children.size === 0;
+		if (!element) {
+			if (isLeaf) line(depth, [{ marked: _absenceComment(node.tag) }]);
+			return;
+		}
 		const isAnchor = onAnchorChain && depth === anchorDepth - 1;
 		const isItem = ITEM_TAGS.has(node.tag);
 		if (node.note) line(depth, [_comment(node.note)]);
@@ -167,6 +170,11 @@ function _sharedPrefixLength(paths: Path[]): number {
 
 function _omissionComment(count: number): string {
 	return _comment(`${count} more`);
+}
+
+/** Placeholder for a tag the feed lacks, at the place it would go */
+function _absenceComment(tag: string): string {
+	return _comment(`no <${tag}> tag`);
 }
 
 function _comment(content: string): string {

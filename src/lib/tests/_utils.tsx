@@ -1,12 +1,17 @@
 import { isValidElement, type ReactNode } from "react";
 import * as z from "zod";
 import type { XML } from "../feed";
-import { getOccurrences, type Path, type TestOutput } from "./_index";
+import {
+  getOccurrences,
+  type Occurrence,
+  type Path,
+  type TestOutput,
+} from "./_index";
 
 export type MinimalTestOutput = Omit<Omit<TestOutput, "path">, "attribute">;
 
-/** Output marking an optional tag as absent from the whole feed */
-export function optionalTagAbsent(name: string, path: Path): TestOutput {
+/** Output marking an optional tag as absent, at the place it would go when one is given */
+export function optionalTagAbsent(name: string, path?: Path): TestOutput {
   return {
     status: "info-optional",
     message: (
@@ -20,7 +25,7 @@ export function optionalTagAbsent(name: string, path: Path): TestOutput {
         tags found (optional)
       </span>
     ),
-    path,
+    path: path && [...path, [name, 0]],
   };
 }
 
@@ -70,8 +75,7 @@ export function checkTag(
             {min === 1 ? "tag" : "tags"}
           </span>
         ),
-        path,
-        note: countNote(numTags),
+        path: [...path, [name, numTags]],
       });
     }
     if (max !== undefined && numTags > max) {
@@ -89,8 +93,7 @@ export function checkTag(
             {max === 1 ? "tag" : "tags"}
           </span>
         ),
-        path,
-        note: countNote(numTags),
+        occurrences: tagOccurrences(path, name, numTags),
       });
     }
     if (numTags === 0 && min === 0 && pushOptional) {
@@ -219,9 +222,7 @@ export function checkTag(
       for (const documentedChild of documentedChildren) {
         const { min, max, name: documentedName } = documentedChild;
 
-        const matchingChildren =
-          actualChildren.filter(([key]) => key === documentedName) ?? [];
-        const numMatchingChildren = matchingChildren.length;
+        const numMatchingChildren = tag[documentedName]?.length ?? 0;
 
         if (numMatchingChildren < min) {
           outputs.push({
@@ -238,8 +239,7 @@ export function checkTag(
                 {min === 1 ? "tag" : "tags"}
               </span>
             ),
-            path: tagPath,
-            note: countNote(numMatchingChildren),
+            path: [...tagPath, [documentedName, numMatchingChildren]],
           });
         }
 
@@ -258,8 +258,11 @@ export function checkTag(
                 {max === 1 ? "tag" : "tags"}
               </span>
             ),
-            path: tagPath,
-            note: countNote(numMatchingChildren),
+            occurrences: tagOccurrences(
+              tagPath,
+              documentedName,
+              numMatchingChildren,
+            ),
           });
         }
       }
@@ -308,9 +311,15 @@ export function checkTag(
   return outputs;
 }
 
-/** Note stating how many tags were found */
-export function countNote(count: number): string {
-  return `found ${count} ${count === 1 ? "tag" : "tags"}`;
+/** Occurrences of the first `count` tags named `name` beneath the parent path */
+export function tagOccurrences(
+  parent: Path,
+  name: string,
+  count: number,
+): Occurrence[] {
+  return Array.from({ length: count }, (_, i) => ({
+    path: [...parent, [name, i]],
+  }));
 }
 
 /** Note stating the length of a value */
@@ -393,7 +402,7 @@ export function checkLanguageTag(value: string | undefined): MinimalTestOutput[]
 export function mergeRepeatedOutputs(outputs: TestOutput[]): TestOutput[] {
   const groups = new Map<string, TestOutput[]>();
   for (const output of outputs) {
-    if (!output.path) {
+    if (getOccurrences(output).length === 0) {
       groups.set(`${groups.size}`, [output]);
       continue;
     }

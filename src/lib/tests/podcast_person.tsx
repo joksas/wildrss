@@ -1,7 +1,6 @@
 import type { XML } from "../feed";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import {
-  CHANNEL_PATH,
   checkHypertextURL,
   checkTag,
   getParents,
@@ -119,7 +118,7 @@ export default {
     }
 
     if (numPeople === 0)
-      return [optionalTagAbsent("podcast:person", CHANNEL_PATH)];
+      return [optionalTagAbsent("podcast:person")];
 
     outputs.push(..._checkHostsRestated(parents));
     outputs.push({

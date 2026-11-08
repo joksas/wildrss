@@ -125,6 +125,35 @@ describe("buildXmlExcerpt", () => {
 		expect(lines[transcriptLines[1] - 1]).toBe("      <guid>guid-1</guid>");
 	});
 
+	it("marks a placeholder inside the parent where an absent tag would go", () => {
+		const { code, marks } = buildXmlExcerpt(FEED, [
+			{
+				path: [
+					["rss", 0],
+					["channel", 0],
+					["item", 1],
+					["itunes:duration", 0],
+				],
+			},
+		]);
+		expect(code).toBe(
+			[
+				"<rss>",
+				"  <channel>",
+				"    <item>",
+				"      <title>Episode 1</title>",
+				"      <guid>guid-1</guid>",
+				"      <!-- no <itunes:duration> tag -->",
+				"    </item>",
+				"  </channel>",
+				"</rss>",
+			].join("\n"),
+		);
+		expect(marks.map(([start, end]) => code.slice(start, end))).toEqual([
+			"<!-- no <itunes:duration> tag -->",
+		]);
+	});
+
 	it("flattens and shortens long text content", () => {
 		const description = `<p>${"word ".repeat(100)}</p>\n<div>tail</div>`;
 		const feed = {

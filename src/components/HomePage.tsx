@@ -216,7 +216,7 @@ export function HomePage() {
 		state === "fetching" || state === "parsing" || state === "testing";
 
 	return (
-		<div className="flex flex-col items-center pt-[calc(1.75rem+env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-[calc(5rem+env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] sm:pt-[calc(2.25rem+env(safe-area-inset-top))]">
+		<div className="flex flex-col items-center pt-[calc(1.75rem+env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-[calc(2.5rem+env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] sm:pt-[calc(2.25rem+env(safe-area-inset-top))]">
 			<header className="flex w-full flex-col items-center gap-5">
 				<h1 className="font-display text-ink text-center text-5xl [text-shadow:0_1px_0_#fbe3bf] sm:text-6xl">
 					Wild RSS
@@ -281,6 +281,18 @@ export function HomePage() {
 					</div>
 				</div>
 			</section>
+
+			<footer className="text-ink mt-10 text-[15px]">
+				Made by{" "}
+				<a
+					href="https://dovydas.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="decoration-rule underline underline-offset-[0.2em] transition-[text-decoration-color] duration-150 ease-out pointer-fine:hover:decoration-current"
+				>
+					Dovydas Joksas
+				</a>
+			</footer>
 		</div>
 	);
 }

@@ -2,7 +2,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { XMLParser } from "fast-xml-parser";
 import * as z from "zod";
-import { WEBSITE_URL } from "@/lib/site";
+import { USER_AGENT, WEBSITE_URL } from "@/lib/site";
 
 /** XML */
 type _XML<K extends readonly string[], L extends readonly string[]> = {
@@ -93,7 +93,7 @@ async function _fetchFeed({
 }): Promise<{ content: string; info: { headers: Record<string, string> } }> {
 	const res = await fetch(url, {
 		signal,
-		headers: { Origin: WEBSITE_URL },
+		headers: { Origin: WEBSITE_URL, "User-Agent": USER_AGENT },
 	});
 	if (res.status !== 200) throw Error(`Status ${res.status}`);
 	const content = await res.text();

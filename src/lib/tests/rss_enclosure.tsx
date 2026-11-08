@@ -158,18 +158,34 @@ function _checkEnclosures({
                     extension as any,
                   )
                 ) {
+                  const supported = (
+                    <code>
+                      {APPLE_PODCASTS_ENCLOSURE_EXTENSIONS.join(", ")}
+                    </code>
+                  );
                   outputs.push({
                     status: "warn",
-                    message: (
-                      <>
-                        <code>{extension}</code> files are not supported on
-                        Apple Podcasts. You can use one of
-                        <code>
-                          {APPLE_PODCASTS_ENCLOSURE_EXTENSIONS.join(", ")}
-                        </code>
-                        .
-                      </>
-                    ),
+                    message:
+                      extension === "m3u8" ? (
+                        <>
+                          Apple Podcasts does not accept <code>m3u8</code>{" "}
+                          enclosures in RSS. HLS video reaches Apple only
+                          through{" "}
+                          <a
+                            href="https://podcasters.apple.com/support/5593-how-to-publish-video"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            a supporting hosting provider
+                          </a>
+                          . The enclosure should be one of {supported}.
+                        </>
+                      ) : (
+                        <>
+                          <code>{extension}</code> files are not supported on
+                          Apple Podcasts. You can use one of {supported}.
+                        </>
+                      ),
                   });
                 }
 

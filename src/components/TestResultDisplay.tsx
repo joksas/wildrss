@@ -7,11 +7,11 @@ import {
 } from "react-aria-components";
 import * as z from "zod";
 import type { XML } from "@/lib/feed";
-import type {
-	Path,
-	Test,
-	TestOutput,
-	ValidationState,
+import {
+	getOccurrences,
+	type Test,
+	type TestOutput,
+	type ValidationState,
 } from "@/lib/tests/_index";
 import { TestOutputIcon } from "./TestOutputIcon";
 import { TestResultIcon } from "./TestResultIcon";
@@ -91,10 +91,10 @@ export function TestResultDisplay({
 										: output.message}
 								</span>
 							</div>
-							{xml && _outputPaths(output).length > 0 && (
+							{xml && getOccurrences(output).length > 0 && (
 								<XmlPathPreview
 									xml={xml}
-									paths={_outputPaths(output)}
+									occurrences={getOccurrences(output)}
 									attribute={output.attribute}
 									text={output.text}
 								/>
@@ -105,10 +105,4 @@ export function TestResultDisplay({
 			</DisclosurePanel>
 		</Disclosure>
 	);
-}
-
-/** Every feed path an output points at */
-function _outputPaths(output: TestOutput): Path[] {
-	if (output.paths?.length) return output.paths;
-	return output.path ? [output.path] : [];
 }

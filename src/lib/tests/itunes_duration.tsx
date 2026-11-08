@@ -109,8 +109,7 @@ function _checkDurationText(text: string | undefined): MinimalTestOutput[] {
         status: "error",
         message: (
           <>
-            Expected seconds (e.g. <code>1830</code>) or <code>HH:MM:SS</code>{" "}
-            - found <code>{raw}</code>
+            Expected seconds (e.g. <code>1830</code>) or <code>HH:MM:SS</code>
           </>
         ),
       },
@@ -121,7 +120,7 @@ function _checkDurationText(text: string | undefined): MinimalTestOutput[] {
   if (subunits.some((part) => Number(part) >= SEXAGESIMAL_LIMIT))
     outputs.push({
       status: "warn",
-      message: `Minutes and seconds should be below ${SEXAGESIMAL_LIMIT} - found ${raw}`,
+      message: `Minutes and seconds should be below ${SEXAGESIMAL_LIMIT}`,
     });
   if (seconds === 0)
     outputs.push({ status: "warn", message: "Duration is 0 seconds" });

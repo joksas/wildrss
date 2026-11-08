@@ -42,16 +42,7 @@ export default {
       );
     }
 
-    let seen = false;
-
-    const filtered_outputs = outputs.filter((output) => {
-      if (output.message !== GIF_WARN_MESSAGE) return true;
-      if (seen) return false;
-      seen = true;
-      return true;
-    });
-
-    return filtered_outputs;
+    return outputs;
   },
 } satisfies Test;
 

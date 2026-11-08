@@ -6,7 +6,6 @@ import {
   checkTag,
   getParents,
   type MinimalTestOutput,
-  mergeRepeatedOutputs,
   optionalTagAbsent,
 } from "./_utils";
 
@@ -61,7 +60,7 @@ export default {
       ),
     });
 
-    return mergeRepeatedOutputs(outputs);
+    return outputs;
   },
 } satisfies Test;
 

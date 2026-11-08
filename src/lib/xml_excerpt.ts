@@ -1,5 +1,5 @@
 import type { XML } from "@/lib/feed";
-import type { Path } from "@/lib/tests/_index";
+import type { Occurrence, Path } from "@/lib/tests/_index";
 
 /** XML source text with the character ranges to mark */
 export type XmlExcerpt = {
@@ -16,6 +16,7 @@ type ExcerptOptions = {
 type PathNode = {
 	tag: string;
 	index: number;
+	note?: string;
 	children: Map<string, PathNode>;
 };
 
@@ -24,18 +25,20 @@ type Part = string | { marked: string };
 const INDENT = "  ";
 const ITEM_TAGS = new Set(["item", "podcast:liveItem"]);
 const ITEM_CONTEXT_TAGS = ["title", "guid"];
+const TEXT_LIMIT = 120;
 
-/** Render the elements along the given paths as one XML excerpt, printing shared ancestors once */
+/** Render the elements at the given occurrences as one XML excerpt, printing shared ancestors once */
 export function buildXmlExcerpt(
 	root: XML,
-	paths: Path[],
+	occurrences: Occurrence[],
 	options: ExcerptOptions = {},
 ): XmlExcerpt {
-	const { attribute, text, limit = paths.length } = options;
-	const shown = paths.slice(0, limit);
-	const omitted = paths.length - shown.length;
+	const { attribute, text, limit = occurrences.length } = options;
+	const shown = occurrences.slice(0, limit);
+	const omitted = occurrences.length - shown.length;
 	const tree = _buildTree(shown);
-	const anchorDepth = omitted > 0 ? _sharedPrefixLength(paths) : -1;
+	const anchorDepth =
+		omitted > 0 ? _sharedPrefixLength(occurrences.map(({ path }) => path)) : -1;
 
 	let code = "";
 	const marks: XmlExcerpt["marks"] = [];
@@ -73,7 +76,7 @@ export function buildXmlExcerpt(
 			if ([...node.children.values()].some((child) => child.tag === tag))
 				continue;
 			const value = element[tag]?.at(0)?.["@text"];
-			if (value) line(depth, [`<${tag}>`, _escapeText(value), `</${tag}>`]);
+			if (value) line(depth, [`<${tag}>`, _excerptText(value), `</${tag}>`]);
 		}
 	}
 
@@ -88,13 +91,14 @@ export function buildXmlExcerpt(
 		const isLeaf = node.children.size === 0;
 		const isAnchor = onAnchorChain && depth === anchorDepth - 1;
 		const isItem = ITEM_TAGS.has(node.tag);
+		if (node.note) line(depth, [_comment(node.note)]);
 
 		if (isLeaf && !isItem) {
 			const value = element["@text"]?.trim();
 			const attrs = attributes(element, true);
 			if (!value) line(depth, [`<${node.tag}`, ...attrs, " />"]);
 			else {
-				const content = _escapeText(value);
+				const content = _excerptText(value);
 				line(depth, [
 					`<${node.tag}`,
 					...attrs,
@@ -124,20 +128,22 @@ export function buildXmlExcerpt(
 	return { code: code.trimEnd(), marks };
 }
 
-/** Merge paths into a tree keyed by tag and index, preserving first-seen order */
-function _buildTree(paths: Path[]): Map<string, PathNode> {
+/** Merge occurrence paths into a tree keyed by tag and index, preserving first-seen order */
+function _buildTree(occurrences: Occurrence[]): Map<string, PathNode> {
 	const roots = new Map<string, PathNode>();
-	for (const path of paths) {
+	for (const { path, note } of occurrences) {
 		let level = roots;
+		let node: PathNode | undefined;
 		for (const [tag, index] of path) {
 			const key = `${tag}#${index}`;
-			let node = level.get(key);
+			node = level.get(key);
 			if (!node) {
 				node = { tag, index, children: new Map() };
 				level.set(key, node);
 			}
 			level = node.children;
 		}
+		if (node && note) node.note = note;
 	}
 	return roots;
 }
@@ -160,7 +166,18 @@ function _sharedPrefixLength(paths: Path[]): number {
 }
 
 function _omissionComment(count: number): string {
-	return `<!-- ${count} more -->`;
+	return _comment(`${count} more`);
+}
+
+function _comment(content: string): string {
+	return `<!-- ${content} -->`;
+}
+
+/** Escaped text on one line, shortened to the first TEXT_LIMIT characters */
+function _excerptText(value: string): string {
+	const flat = value.replace(/\s+/g, " ");
+	if (flat.length <= TEXT_LIMIT) return _escapeText(flat);
+	return `${_escapeText(flat.slice(0, TEXT_LIMIT).trimEnd())}…`;
 }
 
 function _escapeAttribute(value: string): string {

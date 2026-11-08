@@ -1,4 +1,5 @@
 import type { Test, TestArgs, TestOutput } from "./_index";
+import { lengthNote } from "./_utils";
 
 // Constants
 const FEED_DESCRIPTION_LIMIT = 4_000;
@@ -46,7 +47,8 @@ export default {
         if (description.length > FEED_DESCRIPTION_LIMIT) {
           outputs.push({
             status: "error",
-            message: `Description value cannot exceed ${FEED_DESCRIPTION_LIMIT} characters - found ${description.length}`,
+            message: `Description cannot exceed ${FEED_DESCRIPTION_LIMIT} characters`,
+            note: lengthNote(description),
             path: [
               ["rss", 0],
               ["channel", 0],
@@ -101,7 +103,8 @@ export default {
           if (description.length > ITEM_DESCRIPTION_LIMIT) {
             outputs.push({
               status: "error",
-              message: `Description value cannot exceed ${ITEM_DESCRIPTION_LIMIT} characters - found ${description.length}`,
+              message: `Description cannot exceed ${ITEM_DESCRIPTION_LIMIT} characters`,
+              note: lengthNote(description),
               path: [
                 ["rss", 0],
                 ["channel", 0],

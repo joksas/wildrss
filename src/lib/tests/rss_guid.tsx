@@ -4,6 +4,12 @@ import { isWebURL } from "../url";
 import type { Test, TestArgs, TestOutput } from "./_index";
 import { checkTag, type MinimalTestOutput } from "./_utils";
 
+type GUIDLocation = {
+  kind: "item" | "podcast:liveItem";
+  idx: number;
+  guidIdx: number;
+};
+
 export default {
   key: "guid",
   group: "rss",
@@ -28,10 +34,7 @@ export default {
       ),
     );
 
-    const allGUIDs: Record<
-      string,
-      { kind: "item" | "podcast:liveItem"; idx: number }[]
-    > = {};
+    const allGUIDs: Record<string, GUIDLocation[]> = {};
 
     const live_items =
       xml.rss?.at(0)?.channel?.at(0)?.["podcast:liveItem"] ?? [];
@@ -52,21 +55,21 @@ export default {
       }),
     );
 
-    for (const [guid, instances] of Object.entries(allGUIDs)) {
+    for (const instances of Object.values(allGUIDs)) {
       if (instances.length <= 1) continue;
-      outputs.push({
-        status: "error",
-        message: (
-          <>
-            Found {instances.length} instances of GUID <code>{guid}</code>
-          </>
-        ),
-        paths: instances.map(({ kind, idx }) => [
-          ["rss", 0],
-          ["channel", 0],
-          [kind, idx],
-        ]),
-      });
+      for (const { kind, idx, guidIdx } of instances)
+        outputs.push({
+          status: "error",
+          message: "GUID is shared with another item",
+          path: [
+            ["rss", 0],
+            ["channel", 0],
+            [kind, idx],
+            ["guid", guidIdx],
+          ],
+          text: true,
+          note: `used ${instances.length} times`,
+        });
     }
 
     return outputs;
@@ -80,10 +83,7 @@ function _checkGUIDs({
 }: {
   items: XML[];
   kind: "item" | "podcast:liveItem";
-  allGUIDs: Record<
-    string,
-    { kind: "item" | "podcast:liveItem"; idx: number }[]
-  >;
+  allGUIDs: Record<string, GUIDLocation[]>;
 }): TestOutput[] {
   const outputs: TestOutput[] = [];
 
@@ -93,15 +93,10 @@ function _checkGUIDs({
     const guids = item.guid;
 
     numGUIDs += (guids ?? []).length;
-    const guidValues = (guids ?? [])
-      .map((guid) => guid["@text"])
-      .filter((guid) => !!guid) as string[];
-    for (const guid of guidValues) {
-      if (allGUIDs[guid]) {
-        allGUIDs[guid] = [...allGUIDs[guid], { kind, idx }];
-      } else {
-        allGUIDs[guid] = [{ kind, idx }];
-      }
+    for (let guidIdx = 0; guidIdx < (guids ?? []).length; guidIdx++) {
+      const guid = guids?.[guidIdx]["@text"];
+      if (!guid) continue;
+      allGUIDs[guid] = [...(allGUIDs[guid] ?? []), { kind, idx, guidIdx }];
     }
 
     outputs.push(

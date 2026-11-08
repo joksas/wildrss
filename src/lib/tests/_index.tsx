@@ -40,13 +40,24 @@ export type TestOutput = {
 	status: "info" | "info-optional" | "error" | "warn";
 	message: React.ReactNode | z.ZodError;
 	path?: Path;
-	paths?: Path[];
+	note?: string;
+	occurrences?: Occurrence[];
 	attribute?: string;
 	text?: boolean;
 };
 
 /** Test error path */
 export type Path = [tag: string, index: number][];
+
+/** One place an output applies, with a measurement the source does not show */
+export type Occurrence = { path: Path; note?: string };
+
+/** Every place an output applies */
+export function getOccurrences(output: TestOutput): Occurrence[] {
+	if (output.occurrences) return output.occurrences;
+	if (output.path) return [{ path: output.path, note: output.note }];
+	return [];
+}
 
 /** Sort an array of TestOutput objects in-place by status */
 export function sortTestOutputs(

@@ -74,7 +74,9 @@ export default {
                 if (start.getTime() < Date.now() - STALE_MS)
                   outputs.push({
                     status: "warn",
-                    message: `Start time of a pending livestream should not be more than 24 hours in the past - found ${formatDate(start)}`,
+                    message:
+                      "Start time of a pending livestream should not be more than 24 hours in the past",
+                    note: `starts ${formatDate(start)}`,
                   });
 
                 return outputs;
@@ -157,11 +159,13 @@ export default {
             <code>{status}</code>
           </>
         ),
-        paths: filteredLiveItems.map(({ idx }) => [
-          ["rss", 0],
-          ["channel", 0],
-          ["podcast:liveItem", idx],
-        ]),
+        occurrences: filteredLiveItems.map(({ idx }) => ({
+          path: [
+            ["rss", 0],
+            ["channel", 0],
+            ["podcast:liveItem", idx],
+          ],
+        })),
       });
     }
 
@@ -179,19 +183,25 @@ function _checkStatusTiming(liveItem: XML): MinimalTestOutput | undefined {
   if (attributes.status === "ended" && start && start.getTime() > now)
     return {
       status: "warn",
-      message: `Livestream is marked as ended, but its start time is in the future - found ${formatDate(start)}`,
+      message:
+        "Livestream is marked as ended, but its start time is in the future",
+      note: `starts ${formatDate(start)}`,
     };
 
   if (attributes.status === "live" && start && start.getTime() > now + STALE_MS)
     return {
       status: "warn",
-      message: `Livestream is marked as live, but its start time is more than 24 hours in the future - found ${formatDate(start)}`,
+      message:
+        "Livestream is marked as live, but its start time is more than 24 hours in the future",
+      note: `starts ${formatDate(start)}`,
     };
 
   if (attributes.status === "live" && end && end.getTime() < now - STALE_MS)
     return {
       status: "warn",
-      message: `Livestream is marked as live, but its end time was more than 24 hours ago (${formatDate(end)}). Apps rely on status, so it will keep appearing as live`,
+      message:
+        "Livestream is marked as live, but its end time was more than 24 hours ago. Apps rely on status, so it will keep appearing as live",
+      note: `ended ${formatDate(end)}`,
     };
 
   return undefined;

@@ -1,7 +1,7 @@
 import { isValidElement, type ReactNode } from "react";
 import * as z from "zod";
 import type { XML } from "../feed";
-import type { Path, TestOutput } from "./_index";
+import { getOccurrences, type Path, type TestOutput } from "./_index";
 
 export type MinimalTestOutput = Omit<Omit<TestOutput, "path">, "attribute">;
 
@@ -67,10 +67,11 @@ export function checkTag(
               {name}
               {`>`}
             </code>{" "}
-            {min === 1 ? "tag" : "tags"} - found {numTags}
+            {min === 1 ? "tag" : "tags"}
           </span>
         ),
         path,
+        note: countNote(numTags),
       });
     }
     if (max !== undefined && numTags > max) {
@@ -85,10 +86,11 @@ export function checkTag(
               {name}
               {`>`}
             </code>{" "}
-            {max === 1 ? "tag" : "tags"} - found {numTags}
+            {max === 1 ? "tag" : "tags"}
           </span>
         ),
         path,
+        note: countNote(numTags),
       });
     }
     if (numTags === 0 && min === 0 && pushOptional) {
@@ -233,10 +235,11 @@ export function checkTag(
                   {documentedName}
                   {`>`}
                 </code>{" "}
-                {min === 1 ? "tag" : "tags"} - found {numMatchingChildren}
+                {min === 1 ? "tag" : "tags"}
               </span>
             ),
             path: tagPath,
+            note: countNote(numMatchingChildren),
           });
         }
 
@@ -252,10 +255,11 @@ export function checkTag(
                   {documentedName}
                   {`>`}
                 </code>{" "}
-                {max === 1 ? "tag" : "tags"} - found {numMatchingChildren}
+                {max === 1 ? "tag" : "tags"}
               </span>
             ),
             path: tagPath,
+            note: countNote(numMatchingChildren),
           });
         }
       }
@@ -304,6 +308,16 @@ export function checkTag(
   return outputs;
 }
 
+/** Note stating how many tags were found */
+export function countNote(count: number): string {
+  return `found ${count} ${count === 1 ? "tag" : "tags"}`;
+}
+
+/** Note stating the length of a value */
+export function lengthNote(value: string): string {
+  return `found ${value.length} characters`;
+}
+
 /** Path of the channel tag */
 export const CHANNEL_PATH: Path = [
   ["rss", 0],
@@ -341,11 +355,7 @@ export function checkHypertextURL(value: string | undefined): MinimalTestOutput[
     return [
       {
         status: "error",
-        message: (
-          <>
-            Not a valid web URL - found <code>{url}</code>
-          </>
-        ),
+        message: "Not a valid web URL",
       },
     ];
   if (url.toLowerCase().startsWith("http:"))
@@ -379,7 +389,7 @@ export function checkLanguageTag(value: string | undefined): MinimalTestOutput[]
   }
 }
 
-/** Merge outputs that repeat the same message into one output listing every path */
+/** Merge outputs that repeat the same message into one output listing every occurrence */
 export function mergeRepeatedOutputs(outputs: TestOutput[]): TestOutput[] {
   const groups = new Map<string, TestOutput[]>();
   for (const output of outputs) {
@@ -410,7 +420,7 @@ export function mergeRepeatedOutputs(outputs: TestOutput[]): TestOutput[] {
           {message} ({group.length} tags)
         </>
       ),
-      paths: group.flatMap((output) => (output.path ? [output.path] : [])),
+      occurrences: group.flatMap(getOccurrences),
       attribute: first.attribute,
       text: first.text,
     };
@@ -458,7 +468,7 @@ export function checkMisplacedInChannel(xml: XML, name: string): TestOutput[] {
           </code>
         </>
       ),
-      paths: tags.map((_, i) => [...CHANNEL_PATH, [name, i]]),
+      occurrences: tags.map((_, i) => ({ path: [...CHANNEL_PATH, [name, i]] })),
     },
   ];
 }

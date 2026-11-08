@@ -53,7 +53,8 @@ export default {
       .otherwise((version) => {
         outputs.push({
           status: "warn",
-          message: `Should be UUIDv5, found UUID${version}`,
+          message: "Should be UUIDv5",
+          note: `found UUID${version}`,
           path: guidPath,
           text: true,
         });

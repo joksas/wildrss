@@ -41,6 +41,7 @@ import {
 } from "@/lib/feed";
 import { useRecentValidations, useUpsertRecentValidation } from "@/lib/recent";
 import { WEBSITE_NAME } from "@/lib/site";
+import { mergeRepeatedOutputs } from "@/lib/tests/_utils";
 import { isWebURL } from "@/lib/url";
 import { FeedSearchInput } from "./FeedSearchInput";
 
@@ -166,7 +167,7 @@ export function HomePage() {
 			await Promise.all(
 				TESTS.map(async (test) => {
 					try {
-						allResults[test.key] = await test.test({
+						const outputs = await test.test({
 							xml: _xml,
 							feed_url: targetURL,
 							fetching_info: {
@@ -175,6 +176,7 @@ export function HomePage() {
 								headers,
 							},
 						});
+						allResults[test.key] = mergeRepeatedOutputs(outputs);
 					} catch (error) {
 						console.error(`Test ${test.key} failed`, error);
 						allResults[test.key] = [

@@ -9,7 +9,7 @@ import { type ReactNode, useMemo, useState } from "react";
 import { Button } from "react-aria-components";
 import { twMerge } from "tailwind-merge";
 import type { XML } from "@/lib/feed";
-import type { Path } from "@/lib/tests/_index";
+import type { Occurrence } from "@/lib/tests/_index";
 import { buildXmlExcerpt } from "@/lib/xml_excerpt";
 
 const highlighter = createHighlighter({ languages: [html] });
@@ -17,25 +17,25 @@ const highlighter = createHighlighter({ languages: [html] });
 /** Occurrences shown before the excerpt is expanded */
 const COLLAPSED_LIMIT = 3;
 
-/** Highlighted XML excerpt of the feed elements at the given paths */
+/** Highlighted XML excerpt of the feed elements at the given occurrences */
 export function XmlPathPreview({
 	xml,
-	paths,
+	occurrences,
 	attribute,
 	text,
 	className,
 }: {
 	xml: XML;
-	paths: Path[];
+	occurrences: Occurrence[];
 	attribute?: string;
 	text?: boolean;
 	className?: string;
 }) {
 	const [expanded, setExpanded] = useState(false);
-	const collapsible = paths.length > COLLAPSED_LIMIT;
+	const collapsible = occurrences.length > COLLAPSED_LIMIT;
 
 	const nodes = useMemo(() => {
-		const excerpt = buildXmlExcerpt(xml, paths, {
+		const excerpt = buildXmlExcerpt(xml, occurrences, {
 			attribute,
 			text,
 			limit: expanded ? undefined : COLLAPSED_LIMIT,
@@ -47,7 +47,7 @@ export function XmlPathPreview({
 				className: "xml-mark",
 			})),
 		});
-	}, [xml, paths, attribute, text, expanded]);
+	}, [xml, occurrences, attribute, text, expanded]);
 
 	return (
 		<div className={twMerge("border-rule bg-paper-deep/50 border", className)}>
@@ -69,7 +69,7 @@ export function XmlPathPreview({
 					/>
 					{expanded
 						? `Show first ${COLLAPSED_LIMIT}`
-						: `Show all ${paths.length}`}
+						: `Show all ${occurrences.length}`}
 				</Button>
 			)}
 		</div>

@@ -5,8 +5,8 @@ import {
   checkHypertextURL,
   checkTag,
   getParents,
+  lengthNote,
   type MinimalTestOutput,
-  mergeRepeatedOutputs,
   optionalTagAbsent,
 } from "./_utils";
 
@@ -135,7 +135,7 @@ export default {
       ),
     });
 
-    return mergeRepeatedOutputs(outputs);
+    return outputs;
   },
 } satisfies Test;
 
@@ -177,7 +177,8 @@ function _checkName(text: string | undefined): MinimalTestOutput[] {
     return [
       {
         status: "warn",
-        message: `Name should not exceed ${MAX_NAME_LENGTH} characters or aggregators may truncate it - found ${name.length}`,
+        message: `Name should not exceed ${MAX_NAME_LENGTH} characters or aggregators may truncate it`,
+        note: lengthNote(name),
       },
     ];
   return [];

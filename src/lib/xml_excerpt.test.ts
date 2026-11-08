@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { XML } from "@/lib/feed";
-import type { Path } from "@/lib/tests/_index";
+import type { Occurrence } from "@/lib/tests/_index";
 import { buildXmlExcerpt } from "@/lib/xml_excerpt";
 
 const FEED = {
@@ -29,20 +29,23 @@ const FEED = {
 	],
 } as unknown as XML;
 
-function transcriptPath(item: number): Path {
-	return [
-		["rss", 0],
-		["channel", 0],
-		["item", item],
-		["podcast:transcript", 0],
-	];
+function transcriptOccurrence(item: number, note?: string): Occurrence {
+	return {
+		path: [
+			["rss", 0],
+			["channel", 0],
+			["item", item],
+			["podcast:transcript", 0],
+		],
+		note,
+	};
 }
 
-const ALL_PATHS = [0, 1, 2, 3].map(transcriptPath);
+const ALL_OCCURRENCES = [0, 1, 2, 3].map((item) => transcriptOccurrence(item));
 
 describe("buildXmlExcerpt", () => {
 	it("prints shared ancestors once and moves the marked attribute first", () => {
-		const { code } = buildXmlExcerpt(FEED, ALL_PATHS.slice(0, 2), {
+		const { code } = buildXmlExcerpt(FEED, ALL_OCCURRENCES.slice(0, 2), {
 			attribute: "type",
 		});
 		expect(code).toBe(
@@ -66,7 +69,7 @@ describe("buildXmlExcerpt", () => {
 	});
 
 	it("marks the attribute on every shown occurrence", () => {
-		const { code, marks } = buildXmlExcerpt(FEED, ALL_PATHS, {
+		const { code, marks } = buildXmlExcerpt(FEED, ALL_OCCURRENCES, {
 			attribute: "type",
 		});
 		expect(marks.map(([start, end]) => code.slice(start, end))).toEqual(
@@ -75,7 +78,7 @@ describe("buildXmlExcerpt", () => {
 	});
 
 	it("replaces occurrences past the limit with a comment inside the shared ancestor", () => {
-		const { code, marks } = buildXmlExcerpt(FEED, ALL_PATHS, {
+		const { code, marks } = buildXmlExcerpt(FEED, ALL_OCCURRENCES, {
 			attribute: "type",
 			limit: 1,
 		});
@@ -92,12 +95,14 @@ describe("buildXmlExcerpt", () => {
 		const { code, marks } = buildXmlExcerpt(
 			FEED,
 			[
-				[
-					["rss", 0],
-					["channel", 0],
-					["item", 2],
-					["title", 0],
-				],
+				{
+					path: [
+						["rss", 0],
+						["channel", 0],
+						["item", 2],
+						["title", 0],
+					],
+				},
 			],
 			{ text: true },
 		);
@@ -105,5 +110,43 @@ describe("buildXmlExcerpt", () => {
 		expect(marks.map(([start, end]) => code.slice(start, end))).toEqual([
 			"Episode 2",
 		]);
+	});
+
+	it("prints each occurrence's note as a comment above its element", () => {
+		const { code } = buildXmlExcerpt(FEED, [
+			transcriptOccurrence(0, "found 2 tags"),
+			transcriptOccurrence(1),
+		]);
+		const lines = code.split("\n");
+		const transcriptLines = lines.flatMap((line, i) =>
+			line.includes("<podcast:transcript") ? [i] : [],
+		);
+		expect(lines[transcriptLines[0] - 1]).toBe("      <!-- found 2 tags -->");
+		expect(lines[transcriptLines[1] - 1]).toBe("      <guid>guid-1</guid>");
+	});
+
+	it("flattens and shortens long text content", () => {
+		const description = `<p>${"word ".repeat(100)}</p>\n<div>tail</div>`;
+		const feed = {
+			rss: [{ channel: [{ description: [{ "@text": description }] }] }],
+		} as unknown as XML;
+		const { code, marks } = buildXmlExcerpt(
+			feed,
+			[
+				{
+					path: [
+						["rss", 0],
+						["channel", 0],
+						["description", 0],
+					],
+				},
+			],
+			{ text: true },
+		);
+		const [marked] = marks.map(([start, end]) => code.slice(start, end));
+		expect(code.split("\n")).toHaveLength(5);
+		expect(marked.startsWith("&lt;p>word word")).toBe(true);
+		expect(marked.endsWith("…")).toBe(true);
+		expect(marked).not.toContain("tail");
 	});
 });

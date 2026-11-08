@@ -6,6 +6,8 @@ import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkRemoteItems } from "./_remote_item";
 import {
   checkTag,
+  countNote,
+  lengthNote,
   type MinimalTestOutput,
   optionalTagAbsent,
 } from "./_utils";
@@ -138,23 +140,23 @@ function _checkDuplicateValueBlocks(valueTags: XML[], path: Path): TestOutput[] 
     blocksByKind[key] = [...(blocksByKind[key] ?? []), idx];
   }
 
-  for (const [key, indices] of Object.entries(blocksByKind)) {
+  for (const indices of Object.values(blocksByKind)) {
     if (indices.length <= 1) continue;
-    const [type, method] = key.split("|");
-    outputs.push({
-      status: "warn",
-      message: (
-        <>
-          Found {indices.length}{" "}
-          <code>
-            {"<"}podcast:value{">"}
-          </code>{" "}
-          tags with type <code>{type}</code> and method <code>{method}</code>{" "}
-          - apps may use any one of them
-        </>
-      ),
-      paths: indices.map((idx) => [...path, ["podcast:value", idx]]),
-    });
+    for (const idx of indices)
+      outputs.push({
+        status: "warn",
+        message: (
+          <>
+            Another{" "}
+            <code>
+              {"<"}podcast:value{">"}
+            </code>{" "}
+            tag in the same parent has this type and method - apps may use any
+            one of them
+          </>
+        ),
+        path: [...path, ["podcast:value", idx]],
+      });
   }
 
   return outputs;
@@ -259,9 +261,10 @@ function _checkValueRecipients(
                 <>
                   If <code>type</code> is <code>node</code>,{" "}
                   <code>address</code> must be {KEYSEND_ADDRESS_LENGTH}{" "}
-                  characters long - found {address.length}
+                  characters long
                 </>
               ),
+              note: lengthNote(address),
             });
 
           // Lightning address
@@ -347,7 +350,8 @@ function _checkValueTimeSplits(
               ) {
                 outputs.push({
                   status: "error",
-                  message: `Start time (${Math.round(startTimeParsed)}) cannot be greater than item duration (${Math.round(duration)})`,
+                  message: "Start time cannot be greater than the item duration",
+                  note: `item duration ${Math.round(duration)} seconds`,
                 });
               }
             } else {
@@ -471,10 +475,11 @@ function _checkValueTimeSplits(
             <code>
               {"<"}podcast:remoteItem{">"}
             </code>{" "}
-            tag - found {numRemoteItems}
+            tag
           </>
         ),
         path: splitPath,
+        note: countNote(numRemoteItems),
       });
     } else if (numRecipients === 0 && numRemoteItems === 0) {
       outputs.push({

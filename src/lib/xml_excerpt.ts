@@ -26,6 +26,7 @@ const INDENT = "  ";
 const ITEM_TAGS = new Set(["item", "podcast:liveItem"]);
 const ITEM_CONTEXT_TAGS = ["title", "guid"];
 const TEXT_LIMIT = 120;
+const CHILD_LIMIT = 5;
 
 /** Render the elements at the given occurrences as one XML excerpt, printing shared ancestors once */
 export function buildXmlExcerpt(
@@ -71,6 +72,37 @@ export function buildXmlExcerpt(
 		});
 	}
 
+	/** Print a whole element with its descendants, marking it when it is the target */
+	function whole(
+		tag: string,
+		element: XML,
+		depth: number,
+		isTarget: boolean,
+	): void {
+		const attrs = attributes(element, isTarget);
+		const children = _childElements(element);
+		const value = element["@text"]?.trim();
+		if (children.length > 0) {
+			line(depth, [`<${tag}`, ...attrs, ">"]);
+			for (const [childTag, child] of children.slice(0, CHILD_LIMIT))
+				whole(childTag, child, depth + 1, false);
+			if (children.length > CHILD_LIMIT)
+				line(depth + 1, [_omissionComment(children.length - CHILD_LIMIT)]);
+			line(depth, [`</${tag}>`]);
+		} else if (!value) line(depth, [`<${tag}`, ...attrs, " />"]);
+		else {
+			const content = _excerptText(value);
+			const marked = isTarget && text;
+			line(depth, [
+				`<${tag}`,
+				...attrs,
+				">",
+				marked ? { marked: content } : content,
+				`</${tag}>`,
+			]);
+		}
+	}
+
 	function itemContext(element: XML, node: PathNode, depth: number): void {
 		for (const tag of ITEM_CONTEXT_TAGS) {
 			if ([...node.children.values()].some((child) => child.tag === tag))
@@ -97,19 +129,7 @@ export function buildXmlExcerpt(
 		if (node.note) line(depth, [_comment(node.note)]);
 
 		if (isLeaf && !isItem) {
-			const value = element["@text"]?.trim();
-			const attrs = attributes(element, true);
-			if (!value) line(depth, [`<${node.tag}`, ...attrs, " />"]);
-			else {
-				const content = _excerptText(value);
-				line(depth, [
-					`<${node.tag}`,
-					...attrs,
-					">",
-					text ? { marked: content } : content,
-					`</${node.tag}>`,
-				]);
-			}
+			whole(node.tag, element, depth, true);
 			return;
 		}
 
@@ -166,6 +186,15 @@ function _sharedPrefixLength(paths: Path[]): number {
 		length = shared;
 	}
 	return length;
+}
+
+/** Child elements of an element as tag and element pairs, grouped by tag */
+function _childElements(element: XML): [tag: string, child: XML][] {
+	return Object.entries(element).flatMap(([tag, children]) =>
+		tag === "@attributes" || tag === "@text" || !Array.isArray(children)
+			? []
+			: (children as XML[]).map((child): [string, XML] => [tag, child]),
+	);
 }
 
 function _omissionComment(count: number): string {

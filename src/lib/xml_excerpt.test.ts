@@ -178,4 +178,79 @@ describe("buildXmlExcerpt", () => {
 		expect(marked.endsWith("…")).toBe(true);
 		expect(marked).not.toContain("tail");
 	});
+
+	it("prints the nested elements of a target element", () => {
+		const feed = {
+			rss: [
+				{
+					channel: [
+						{
+							"itunes:category": [
+								{
+									"@attributes": [{ text: "Society & Culture" }],
+									"itunes:category": [
+										{ "@attributes": [{ text: "Philosophy" }] },
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+		} as unknown as XML;
+		const { code } = buildXmlExcerpt(feed, [
+			{
+				path: [
+					["rss", 0],
+					["channel", 0],
+					["itunes:category", 0],
+				],
+			},
+		]);
+		expect(code).toBe(
+			[
+				"<rss>",
+				"  <channel>",
+				'    <itunes:category text="Society &amp; Culture">',
+				'      <itunes:category text="Philosophy" />',
+				"    </itunes:category>",
+				"  </channel>",
+				"</rss>",
+			].join("\n"),
+		);
+	});
+
+	it("replaces nested elements past the limit with a comment", () => {
+		const feed = {
+			rss: [
+				{
+					channel: [
+						{
+							"podcast:value": [
+								{
+									"podcast:valueRecipient": Array.from(
+										{ length: 7 },
+										(_, n) => ({
+											"@attributes": [{ name: `R${n}` }],
+										}),
+									),
+								},
+							],
+						},
+					],
+				},
+			],
+		} as unknown as XML;
+		const { code } = buildXmlExcerpt(feed, [
+			{
+				path: [
+					["rss", 0],
+					["channel", 0],
+					["podcast:value", 0],
+				],
+			},
+		]);
+		expect(code.match(/<podcast:valueRecipient/g)).toHaveLength(5);
+		expect(code).toContain("      <!-- 2 more -->");
+	});
 });

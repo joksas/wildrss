@@ -89,13 +89,8 @@
     }
 }
 
-/* Newsprint: uneven toning and edges darkened by age */
 @utility paper-surface {
     background-color: color-mix(in srgb, var(--color-paper) 96.5%, var(--color-ink));
-    background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='1200'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006' numOctaves='4' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.62 0 0 0 0 0.42 0 0 0 0 0.2 0.22 0 0 0 -0.08'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),
-        radial-gradient(ellipse at 50% 40%, transparent 55%, #b98a4f26 100%);
-    background-size: 1200px 1200px, 100% 100%;
 }
 
 /* Inline code inside test messages */

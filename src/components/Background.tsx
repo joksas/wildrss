@@ -8,7 +8,7 @@ import {
 } from "./landscape";
 
 // Horizontal position of the sun in landscape coordinates; shadows are generated against it
-const SUN_X = 1690;
+const SUN_X = 1705;
 
 // Horse and rider, one character per pixel
 const RIDER_SPRITE = [
@@ -115,7 +115,7 @@ export function Background() {
 					</clipPath>
 				</defs>
 				<path d={LANDSCAPE_FAR} className="fill-land-far" />
-				<circle cx={SUN_X} cy={212} r={44} fill="url(#sun)" />
+				<circle cx={SUN_X} cy={212} r={50} fill="url(#sun)" />
 				<path d={LANDSCAPE_MID} className="fill-land-mid" />
 				<path
 					d={LANDSCAPE_MID_SHADOW}

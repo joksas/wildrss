@@ -44,7 +44,7 @@ export function TestResultDisplay({
 			<Heading>
 				<Button
 					slot={expandable ? "trigger" : undefined}
-					className={`focus-visible:bg-paper-deep pointer-fine:data-hovered:bg-paper-deep/70 data-pressed:bg-paper-deep -mx-2 flex h-12 w-[calc(100%+1rem)] items-center gap-3 px-2 text-left transition-colors duration-150 ease-out outline-none ${expandable ? "cursor-pointer" : "cursor-default"}`}
+					className={`focus-visible:bg-paper-deep -mx-2 flex h-12 w-[calc(100%+1rem)] items-center gap-3 px-2 text-left outline-none ${expandable ? "cursor-pointer" : "cursor-default"}`}
 				>
 					<TestResultIcon
 						key={outputs ? "resolved" : "pending"}

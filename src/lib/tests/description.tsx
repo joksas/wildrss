@@ -46,8 +46,8 @@ export default {
       } else {
         if (description.length > FEED_DESCRIPTION_LIMIT) {
           outputs.push({
-            status: "error",
-            message: `Description cannot exceed ${FEED_DESCRIPTION_LIMIT} characters`,
+            status: "warn",
+            message: `Apple Podcasts may truncate descriptions longer than ${FEED_DESCRIPTION_LIMIT} characters`,
             note: lengthNote(description),
             path: [
               ["rss", 0],
@@ -102,8 +102,8 @@ export default {
         } else {
           if (description.length > ITEM_DESCRIPTION_LIMIT) {
             outputs.push({
-              status: "error",
-              message: `Description cannot exceed ${ITEM_DESCRIPTION_LIMIT} characters`,
+              status: "warn",
+              message: `Apple Podcasts truncates descriptions longer than ${ITEM_DESCRIPTION_LIMIT} characters`,
               note: lengthNote(description),
               path: [
                 ["rss", 0],

@@ -45,7 +45,7 @@ export default {
       .with(undefined, () => {
         outputs.push({
           status: "error",
-          message: "Should be UUID",
+          message: "Must be a UUID",
           path: guidPath,
           text: true,
         });

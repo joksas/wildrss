@@ -103,12 +103,25 @@ function _checkEnclosures({
                 const length = attributes.length;
                 if (length === undefined) return [];
 
-                const error = z.coerce
-                  .number()
-                  .int()
-                  .positive()
-                  .safeParse(length).error;
-                if (error) outputs.push({ status: "error", message: error });
+                const result = z
+                  .string()
+                  .trim()
+                  .min(1)
+                  .pipe(z.coerce.number<string>().int().nonnegative())
+                  .safeParse(length);
+                if (result.error)
+                  outputs.push({ status: "error", message: result.error });
+                else if (result.data === 0)
+                  outputs.push({
+                    status: "warn",
+                    message: (
+                      <>
+                        Length <code>0</code> marks the file size as unknown.
+                        The size in bytes lets apps show listeners how large a
+                        download is.
+                      </>
+                    ),
+                  });
 
                 return outputs;
               },

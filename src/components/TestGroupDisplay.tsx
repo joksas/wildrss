@@ -29,7 +29,7 @@ export function TestGroupDisplay({
 
 	return (
 		<section className="flex flex-col">
-			<h2 className="border-ink border-b-2 pb-2 font-serif text-xl leading-tight font-semibold">
+			<h2 className="border-ink -mx-2 border-b-2 px-2 pb-2 font-serif text-xl leading-tight font-semibold">
 				{getTestGroupName(group)}
 			</h2>
 			{groupTests.map((test, i) => (

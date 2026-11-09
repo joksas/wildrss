@@ -88,7 +88,7 @@ export function FeedSearchInput({
 					autoCorrect="off"
 					spellCheck={false}
 					placeholder="Paste a feed URL"
-					className="text-ink placeholder:text-ink-muted/70 h-full min-w-0 grow bg-transparent px-3.5 text-[17px] outline-none"
+					className="text-ink placeholder:text-ink-muted/70 h-full min-w-0 grow bg-transparent px-3.5 text-base outline-none"
 					required
 					onKeyDown={(e) => {
 						if (e.key !== "Enter") return;
@@ -106,11 +106,10 @@ export function FeedSearchInput({
 						<ClockCounterClockwiseIcon aria-hidden size={20} weight="bold" />
 					</Button>
 				)}
-				<button
-					type="button"
-					onClick={submit}
-					aria-busy={loading}
-					className="bg-ink text-paper pointer-fine:hover:bg-ink/90 m-1 grid h-[calc(100%-0.5rem)] flex-none place-items-center px-4 text-[15px] font-medium transition-[transform,background-color] duration-150 ease-(--ease-out-strong) active:scale-[0.97]"
+				<Button
+					onPress={submit}
+					isPending={loading}
+					className="bg-ink text-paper pointer-fine:data-hovered:bg-ink/90 m-1 grid h-[calc(100%-0.5rem)] flex-none place-items-center px-4 text-sm font-medium transition-[transform,background-color] duration-150 ease-(--ease-out-strong) data-pressed:scale-[0.97]"
 				>
 					<span
 						className={`col-start-1 row-start-1 ${loading ? "invisible" : ""}`}
@@ -118,9 +117,13 @@ export function FeedSearchInput({
 						Validate
 					</span>
 					{loading && (
-						<ProgressCircle size={18} className="col-start-1 row-start-1" />
+						<ProgressCircle
+							size={16}
+							label="Validating"
+							className="col-start-1 row-start-1"
+						/>
 					)}
-				</button>
+				</Button>
 			</div>
 			<Popover
 				placement="bottom start"
@@ -158,7 +161,7 @@ export function FeedSearchInput({
 									<span className="border-rule bg-paper-deep size-9 flex-none border" />
 								)}
 								<span className="flex min-w-0 flex-col gap-0.5">
-									<span className="truncate text-[15px] leading-tight font-medium">
+									<span className="truncate text-sm leading-tight font-medium">
 										{info.title ?? info.url}
 									</span>
 									<span className="text-ink-muted truncate text-xs leading-tight">

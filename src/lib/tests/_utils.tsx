@@ -418,17 +418,9 @@ export function mergeRepeatedOutputs(outputs: TestOutput[]): TestOutput[] {
   return [...groups.values()].map((group) => {
     const [first] = group;
     if (group.length === 1) return first;
-    const message =
-      first.message instanceof z.ZodError
-        ? z.prettifyError(first.message).replace("✖ ", "")
-        : first.message;
     return {
       status: first.status,
-      message: (
-        <>
-          {message} ({formatInteger(group.length)} tags)
-        </>
-      ),
+      message: first.message,
       occurrences: group.flatMap(getOccurrences),
       attribute: first.attribute,
       text: first.text,

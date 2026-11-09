@@ -237,7 +237,7 @@ export function HomePage() {
 				className="paper-surface border-ink relative mt-[136px] w-full max-w-4xl border-[3px] shadow-[0_28px_60px_-24px_#5a2e1299]"
 			>
 				<div className="border-ink pointer-events-none absolute inset-[5px] border" />
-				<div className="relative flex flex-col gap-10 px-5 pt-9 pb-10 sm:px-12 sm:pt-11">
+				<div className="relative flex flex-col gap-10 px-6 pt-6 pb-3 sm:px-12 sm:pt-12 sm:pb-9">
 					{hasResults && feedInfo?.title && (
 						<div
 							key={feedInfo.url}
@@ -254,11 +254,11 @@ export function HomePage() {
 								</div>
 							)}
 							<div className="flex min-w-0 flex-col gap-1">
-								<h2 className="font-serif text-2xl leading-tight font-bold sm:text-[28px]">
+								<h2 className="font-serif text-2xl leading-tight font-bold sm:text-3xl">
 									{feedInfo.title}
 								</h2>
 								{feedInfo.author && (
-									<span className="text-ink-muted text-[15px]">
+									<span className="text-ink-muted text-sm">
 										{feedInfo.author}
 									</span>
 								)}
@@ -282,7 +282,7 @@ export function HomePage() {
 				</div>
 			</section>
 
-			<footer className="text-ink mt-10 text-[15px]">
+			<footer className="text-ink mt-10 text-sm">
 				Made by{" "}
 				<a
 					href="https://dovydas.com"

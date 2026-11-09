@@ -50,6 +50,12 @@
         text-rendering: optimizeLegibility;
     }
 
+    /* Courier Prime runs large beside Georama, so mono text sits slightly smaller */
+    code {
+        font-family: var(--font-mono);
+        font-size: 0.94em;
+    }
+
     ::selection {
         background-color: var(--color-mark);
         color: var(--color-ink);
@@ -94,11 +100,8 @@
 
 /* Inline code inside test messages */
 .prose-message code {
-    font-family: var(--font-mono);
-    font-size: 0.94em;
     background-color: var(--color-paper-deep);
     padding: 0 0.25em;
-    border-radius: 2px;
 }
 
 .prose-message a {

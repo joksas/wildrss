@@ -2,6 +2,7 @@ import * as z from "zod";
 import type { XML } from "../feed";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkTag, type MinimalTestOutput } from "./_utils";
+import { formatInteger } from "../number";
 
 // Constants
 const LIVE_STATUSES = ["pending", "live", "ended"] as const;
@@ -151,7 +152,7 @@ export default {
         status: "info",
         message: (
           <>
-            Found {filteredLiveItems.length}{" "}
+            Found {formatInteger(filteredLiveItems.length)}{" "}
             <code>
               {"<"}podcast:liveItem{">"}
             </code>{" "}

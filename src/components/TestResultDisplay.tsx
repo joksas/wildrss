@@ -16,6 +16,7 @@ import {
 import { TestOutputIcon } from "./TestOutputIcon";
 import { TestResultIcon } from "./TestResultIcon";
 import { XmlPathPreview } from "./XMLPathPreview";
+import { formatInteger } from "@/lib/number";
 
 /** One ledger row: a test's verdict, with its outputs in a collapsible panel */
 export function TestResultDisplay({
@@ -57,7 +58,7 @@ export function TestResultDisplay({
 					</span>
 					{problems > 0 && (
 						<span className="text-ink-muted flex-none text-[15px] tabular-nums">
-							{problems}
+							{formatInteger(problems)}
 							<span className="sr-only">
 								{problems === 1 ? " problem" : " problems"}
 							</span>

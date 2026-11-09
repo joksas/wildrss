@@ -11,6 +11,7 @@ import { twMerge } from "tailwind-merge";
 import type { XML } from "@/lib/feed";
 import type { Occurrence } from "@/lib/tests/_index";
 import { buildXmlExcerpt } from "@/lib/xml_excerpt";
+import { formatInteger } from "@/lib/number";
 
 const highlighter = createHighlighter({ languages: [html] });
 
@@ -68,8 +69,8 @@ export function XmlPathPreview({
 						className={`transition-transform duration-200 ease-(--ease-out-strong) ${expanded ? "rotate-180" : ""}`}
 					/>
 					{expanded
-						? `Show first ${COLLAPSED_LIMIT}`
-						: `Show all ${occurrences.length}`}
+						? `Show first ${formatInteger(COLLAPSED_LIMIT)}`
+						: `Show all ${formatInteger(occurrences.length)}`}
 				</Button>
 			)}
 		</div>

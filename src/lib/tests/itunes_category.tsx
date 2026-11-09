@@ -1,6 +1,7 @@
 import type { XML } from "../feed";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { CHANNEL_PATH, checkTag, type MinimalTestOutput } from "./_utils";
+import { formatInteger } from "../number";
 
 // Constants
 const TAG = "itunes:category";
@@ -147,7 +148,7 @@ export default {
       }),
       ..._checkSurplus(categories, CHANNEL_PATH, MAX_CATEGORIES, {
         message: (count) =>
-          `Found ${count} categories - Apple Podcasts uses the first ${MAX_CATEGORIES} and ignores the rest, though other apps may use more`,
+          `Found ${formatInteger(count)} categories - Apple Podcasts uses the first ${formatInteger(MAX_CATEGORIES)} and ignores the rest, though other apps may use more`,
         note: (i) =>
           i === 0 ? "primary" : i === 1 ? "secondary" : "ignored",
       }),
@@ -174,7 +175,7 @@ export default {
         }),
         ..._checkSurplus(subcategories, path, MAX_SUBCATEGORIES, {
           message: (count) =>
-            `Found ${count} subcategories - Apple Podcasts uses the first and ignores the rest, though other apps may use more`,
+            `Found ${formatInteger(count)} subcategories - Apple Podcasts uses the first and ignores the rest, though other apps may use more`,
           note: (i) => (i === 0 ? "used" : "ignored"),
         }),
       );

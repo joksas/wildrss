@@ -1,5 +1,6 @@
 import type { XML } from "@/lib/feed";
 import type { Occurrence, Path } from "@/lib/tests/_index";
+import { formatInteger } from "@/lib/number";
 
 /** XML source text with the character ranges to mark */
 export type XmlExcerpt = {
@@ -198,7 +199,7 @@ function _childElements(element: XML): [tag: string, child: XML][] {
 }
 
 function _omissionComment(count: number): string {
-	return _comment(`${count} more`);
+	return _comment(`${formatInteger(count)} more`);
 }
 
 /** Placeholder for a tag the feed lacks, at the place it would go */

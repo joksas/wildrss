@@ -2,6 +2,7 @@ import * as z from "zod";
 import type { XML } from "../feed";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkTag, type MinimalTestOutput } from "./_utils";
+import { formatInteger } from "../number";
 
 export default {
   key: "title",
@@ -74,7 +75,7 @@ export default {
         status: "info",
         message: (
           <>
-            Found {numTitles}{" "}
+            Found {formatInteger(numTitles)}{" "}
             <code>
               {"<"}
               {kind}

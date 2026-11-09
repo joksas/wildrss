@@ -8,6 +8,7 @@ import {
   type MinimalTestOutput,
   optionalTagAbsent,
 } from "./_utils";
+import { formatInteger } from "../number";
 
 // Constants
 const DEFAULT_ROLE = "host";
@@ -125,7 +126,7 @@ export default {
       status: "info",
       message: (
         <>
-          Found {numPeople}{" "}
+          Found {formatInteger(numPeople)}{" "}
           <code>
             {"<"}podcast:person{">"}
           </code>{" "}
@@ -176,7 +177,7 @@ function _checkName(text: string | undefined): MinimalTestOutput[] {
     return [
       {
         status: "warn",
-        message: `Name should not exceed ${MAX_NAME_LENGTH} characters or aggregators may truncate it`,
+        message: `Name should not exceed ${formatInteger(MAX_NAME_LENGTH)} characters or aggregators may truncate it`,
         note: lengthNote(name),
       },
     ];

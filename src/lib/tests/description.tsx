@@ -1,5 +1,6 @@
 import type { Test, TestArgs, TestOutput } from "./_index";
 import { lengthNote } from "./_utils";
+import { formatInteger } from "../number";
 
 // Constants
 const FEED_DESCRIPTION_LIMIT = 4_000;
@@ -47,7 +48,7 @@ export default {
         if (description.length > FEED_DESCRIPTION_LIMIT) {
           outputs.push({
             status: "warn",
-            message: `Apple Podcasts may truncate descriptions longer than ${FEED_DESCRIPTION_LIMIT} characters`,
+            message: `Apple Podcasts may truncate descriptions longer than ${formatInteger(FEED_DESCRIPTION_LIMIT)} characters`,
             note: lengthNote(description),
             path: [
               ["rss", 0],
@@ -103,7 +104,7 @@ export default {
           if (description.length > ITEM_DESCRIPTION_LIMIT) {
             outputs.push({
               status: "warn",
-              message: `Apple Podcasts truncates descriptions longer than ${ITEM_DESCRIPTION_LIMIT} characters`,
+              message: `Apple Podcasts truncates descriptions longer than ${formatInteger(ITEM_DESCRIPTION_LIMIT)} characters`,
               note: lengthNote(description),
               path: [
                 ["rss", 0],

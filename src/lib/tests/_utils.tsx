@@ -7,6 +7,7 @@ import {
   type Path,
   type TestOutput,
 } from "./_index";
+import { formatInteger } from "../number";
 
 export type MinimalTestOutput = Omit<Omit<TestOutput, "path">, "attribute">;
 
@@ -65,7 +66,7 @@ export function checkTag(
         message: (
           <span>
             Expected {min !== max && "at least "}
-            {min}{" "}
+            {formatInteger(min)}{" "}
             <code>
               {`<`}
               {name}
@@ -83,7 +84,7 @@ export function checkTag(
         message: (
           <span>
             Expected {min !== max && "at most "}
-            {max}{" "}
+            {formatInteger(max)}{" "}
             <code>
               {`<`}
               {name}
@@ -229,7 +230,7 @@ export function checkTag(
             message: (
               <span>
                 Expected {min !== max && "at least "}
-                {min}{" "}
+                {formatInteger(min)}{" "}
                 <code>
                   {`<`}
                   {documentedName}
@@ -248,7 +249,7 @@ export function checkTag(
             message: (
               <span>
                 Expected {min !== max && "at most "}
-                {max}{" "}
+                {formatInteger(max)}{" "}
                 <code>
                   {`<`}
                   {documentedName}
@@ -323,7 +324,7 @@ export function tagOccurrences(
 
 /** Note stating the length of a value */
 export function lengthNote(value: string): string {
-  return `found ${value.length} characters`;
+  return `found ${formatInteger(value.length)} characters`;
 }
 
 /** Path of the channel tag */
@@ -425,7 +426,7 @@ export function mergeRepeatedOutputs(outputs: TestOutput[]): TestOutput[] {
       status: first.status,
       message: (
         <>
-          {message} ({group.length} tags)
+          {message} ({formatInteger(group.length)} tags)
         </>
       ),
       occurrences: group.flatMap(getOccurrences),

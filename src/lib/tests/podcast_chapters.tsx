@@ -7,6 +7,7 @@ import {
   type MinimalTestOutput,
   optionalTagAbsent,
 } from "./_utils";
+import { formatInteger } from "../number";
 
 // Constants
 const CHAPTERS_TYPE = "application/json+chapters";
@@ -53,7 +54,7 @@ export default {
       status: "info",
       message: (
         <>
-          Found chapters in {numParentsWithChapters} of {parents.length}{" "}
+          Found chapters in {formatInteger(numParentsWithChapters)} of {formatInteger(parents.length)}{" "}
           {parents.length === 1 ? "episode" : "episodes"}
         </>
       ),

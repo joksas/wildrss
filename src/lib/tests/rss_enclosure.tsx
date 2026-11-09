@@ -7,6 +7,7 @@ import {
 import { getUrlExtension, WebURL } from "../url";
 import type { Test, TestArgs, TestOutput } from "./_index";
 import { checkTag, type MinimalTestOutput } from "./_utils";
+import { formatInteger } from "../number";
 
 export default {
   key: "enclosure",
@@ -217,7 +218,7 @@ function _checkEnclosures({
       status: "info",
       message: (
         <>
-          Found {numEnclosures}{" "}
+          Found {formatInteger(numEnclosures)}{" "}
           <code>
             {"<"}
             {kind}

@@ -11,6 +11,7 @@ import {
   optionalTagAbsent,
   tagOccurrences,
 } from "./_utils";
+import { formatInteger } from "../number";
 
 // Constants
 const KEYSEND_ADDRESS_LENGTH = 66;
@@ -260,7 +261,7 @@ function _checkValueRecipients(
               message: (
                 <>
                   If <code>type</code> is <code>node</code>,{" "}
-                  <code>address</code> must be {KEYSEND_ADDRESS_LENGTH}{" "}
+                  <code>address</code> must be {formatInteger(KEYSEND_ADDRESS_LENGTH)}{" "}
                   characters long
                 </>
               ),
@@ -351,7 +352,7 @@ function _checkValueTimeSplits(
                 outputs.push({
                   status: "error",
                   message: "Start time cannot be greater than the item duration",
-                  note: `item duration ${Math.round(duration)} seconds`,
+                  note: `item duration ${formatInteger(duration)} seconds`,
                 });
               }
             } else {

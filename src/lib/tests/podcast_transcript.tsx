@@ -8,6 +8,7 @@ import {
   type MinimalTestOutput,
   optionalTagAbsent,
 } from "./_utils";
+import { formatInteger } from "../number";
 
 // Constants
 const TRANSCRIPT_TYPES = [
@@ -84,12 +85,12 @@ export default {
       status: "info",
       message: (
         <>
-          Found {numTranscripts}{" "}
+          Found {formatInteger(numTranscripts)}{" "}
           <code>
             {"<"}podcast:transcript{">"}
           </code>{" "}
           {numTranscripts === 1 ? "tag" : "tags"} in{" "}
-          {numParentsWithTranscripts} of {parents.length}{" "}
+          {formatInteger(numParentsWithTranscripts)} of {formatInteger(parents.length)}{" "}
           {parents.length === 1 ? "episode" : "episodes"}
         </>
       ),

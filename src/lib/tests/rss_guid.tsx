@@ -3,6 +3,7 @@ import type { XML } from "../feed";
 import { isWebURL } from "../url";
 import type { Test, TestArgs, TestOutput } from "./_index";
 import { checkTag, type MinimalTestOutput } from "./_utils";
+import { formatInteger } from "../number";
 
 type GUIDLocation = {
   kind: "item" | "podcast:liveItem";
@@ -68,7 +69,7 @@ export default {
             ["guid", guidIdx],
           ],
           text: true,
-          note: `used ${instances.length} times`,
+          note: `used ${formatInteger(instances.length)} times`,
         });
     }
 
@@ -157,7 +158,7 @@ function _checkGUIDs({
       status: "info",
       message: (
         <>
-          Found {numGUIDs}{" "}
+          Found {formatInteger(numGUIDs)}{" "}
           <code>
             {"<"}
             {kind}

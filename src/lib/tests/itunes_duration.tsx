@@ -1,6 +1,7 @@
 import { parseDuration } from "../duration";
 import type { Path, Test, TestArgs, TestOutput } from "./_index";
 import { checkTag, type MinimalTestOutput } from "./_utils";
+import { formatInteger } from "../number";
 
 // Constants
 const SEXAGESIMAL_LIMIT = 60;
@@ -58,7 +59,7 @@ export default {
         status: "info",
         message: (
           <>
-            {numClockFormat} {numClockFormat === 1 ? "duration uses" : "durations use"}{" "}
+            {formatInteger(numClockFormat)} {numClockFormat === 1 ? "duration uses" : "durations use"}{" "}
             <code>HH:MM:SS</code> format - Apple recommends giving the duration
             in seconds
           </>
@@ -85,7 +86,7 @@ export default {
       status: "info",
       message: (
         <>
-          Found {numDurations} of {items.length}{" "}
+          Found {formatInteger(numDurations)} of {formatInteger(items.length)}{" "}
           <code>
             {"<"}item{">"}
           </code>{" "}
@@ -120,7 +121,7 @@ function _checkDurationText(text: string | undefined): MinimalTestOutput[] {
   if (subunits.some((part) => Number(part) >= SEXAGESIMAL_LIMIT))
     outputs.push({
       status: "warn",
-      message: `Minutes and seconds should be below ${SEXAGESIMAL_LIMIT}`,
+      message: `Minutes and seconds should be below ${formatInteger(SEXAGESIMAL_LIMIT)}`,
     });
   if (seconds === 0)
     outputs.push({ status: "warn", message: "Duration is 0 seconds" });

@@ -1,4 +1,5 @@
 import type { Test, TestArgs } from "./_index";
+import { formatInteger } from "../number";
 
 // Constants
 const TIME_MS_WARN = 1000;
@@ -21,7 +22,7 @@ export default {
       return [
         {
           status: "warn",
-          message: `Download took ${time_ms}ms; for optimal results aim to keep it under 500ms`,
+          message: `Download took ${formatInteger(time_ms)}ms; for optimal results aim to keep it under 500ms`,
         },
       ];
 
@@ -29,14 +30,14 @@ export default {
       return [
         {
           status: "info",
-          message: `Downloaded in ${time_ms}ms`,
+          message: `Downloaded in ${formatInteger(time_ms)}ms`,
         },
       ];
 
     return [
       {
         status: "info",
-        message: `Downloaded in ${time_ms}ms - that's fast!`,
+        message: `Downloaded in ${formatInteger(time_ms)}ms - that's fast!`,
       },
     ];
   },
